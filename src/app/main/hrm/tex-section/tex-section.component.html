@@ -1,0 +1,239 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Income Tax Policy</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        *ngIf="isGranted(this.permissions.CREATE)"
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="openCreateModal()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+         (keydown.enter)="onEnter($event)"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    scrollHeight="58vh"
+    [loading]="loading"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'id',
+      'voucherNumber',
+      'issueDate',
+      'willEffectFromDate',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Voucher Number</th>
+        <th>Issue Date</th>
+        <th>Applicable From</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-tax>
+      <tr>
+        <td>{{ tax.id }}</td>
+        <td>{{ tax.voucherNumber }}</td>
+        <td>{{ tax.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ tax.willEffectFromDate | date : "yyyy-MM-dd" }}</td>
+        <td>
+          <span *ngIf="tax.status == 'APPROVED'" class="yes-bg">{{
+            tax.status
+          }}</span>
+          <span *ngIf="tax.status != 'APPROVED'" class="no-bg">{{
+            tax.status
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="tax.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(tax.id)"
+          ></span>
+          <span
+            *ngIf="
+              isGranted(this.permissions.EDIT) && tax.status !== 'APPROVED'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(tax.id)"
+          ></span>
+          <span
+            *ngIf="
+              isGranted(this.permissions.DELETE) && tax.status !== 'APPROVED'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(tax.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="tax.status === 'PENDING' || tax.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(tax.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, this.count]"
+  >
+  </p-paginator>
+</div>
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Income Tax Policy"
+  draggable="false"
+  [(visible)]="displayModal"
+  [modal]="true"
+  [responsive]="true"
+  [style]="{ width: '60vw' }"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date"> Date </label>
+      <p-calendar
+        (ngModelChange)="onDateChange($event)"
+        tabindex="1"
+        [(ngModel)]="taxDto.issueDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="col-md-4">
+      <app-picker
+        [title]="'Location'"
+        [id]="taxDto.userLocationId"
+        [name]="taxDto.userLocationName"
+        [showId]="false"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      ></app-picker>
+    </div>
+    <div id="inputField" class="p-field col-md-3 p-mr-2 flex flex-column">
+      <label for="voucher"> Voucher Number</label>
+      <input
+        id="voucher"
+        type="voucher"
+        pInputText
+        [(ngModel)]="taxDto.voucherNumber"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 p-mr-2 flex flex-column">
+      <label for="date"> Applicable From</label>
+      <p-calendar
+        [disabled]="isViewMode"
+        [(ngModel)]="taxDto.willEffectFromDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+  </div>
+
+  <div class="row col-md-12 my-5">
+    <p-button
+      *ngIf="!isViewMode"
+      (click)="onAddRow()"
+      label="Add Row"
+      icon="pi pi-plus-circle"
+      size="small"
+    />
+    <p-button
+      *ngIf="!isViewMode"
+      (click)="onRemoveSelected()"
+      label="Remove Row"
+      icon="pi pi-times"
+      size="small"
+      severity="danger"
+    />
+    <ag-grid-angular
+      style="width: 100%; height: 200px; margin-top: 12px"
+      class="ag-theme-balham"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [animateRows]="true"
+      [suppressAutoSize]="true"
+      [suppressDragLeaveHidesColumns]="true"
+      [rowSelection]="rowSelection"
+      [singleClickEdit]="true"
+      (gridReady)="onGridReady($event)"
+      (cellEditingStopped)="onCellEditingStopped($event)"
+    >
+    </ag-grid-angular>
+  </div>
+
+  <div *ngIf="!isViewMode" class="flex justify-content-end mt-4">
+    <button
+      [loading]="saving"
+      pButton
+      label="Save"
+      *ngIf="isEditMode && !isViewMode"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="submit"
+      (click)="create()"
+    ></button>
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-secondary"
+      type="button"
+      (click)="onDialogClose()"
+    ></button>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

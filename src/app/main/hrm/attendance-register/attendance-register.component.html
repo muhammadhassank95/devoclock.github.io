@@ -1,0 +1,212 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <div class="flex items-center">
+            <h4 class="m-0">Attendance Register</h4>
+        </div>
+    </ng-template>
+</p-toolbar>
+<div class="card">
+    <div class="flex mt-2 ml-2 my-auto">
+        <div >
+            <!-- <app-picker [title]="'Location'" [showId]="false" [id]="LocationId" [name]="LocationName"
+                (valueSelected)="setPickerValue($event, 'Location')">
+            </app-picker> -->
+            <label for="name">Location:</label>
+                        <p-dropdown
+                        [options]="locationDropdown"
+                        [(ngModel)]="locationSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        (onChange)="onDropdownChange($event, 'Location')"
+                         placeholder="Location"
+                            >
+                        <ng-template let-item pTemplate="item">
+                        <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="selectedItem">
+                            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        </p-dropdown>
+        </div>
+        <div  >
+            <!-- <app-picker [showId]="false" [title]="'Project'" [id]="ProjectId" [name]="LocationName"
+                (valueSelected)="setPickerValue($event, 'Project')">
+            </app-picker> -->
+            <label for="name">Project:</label>
+                        <p-dropdown
+                        [options]="projectDropdown"
+                        [(ngModel)]="projectSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        (onChange)="onDropdownChange($event, 'Project')"
+                         placeholder="Project"
+                            >
+                        <ng-template let-item pTemplate="item">
+                        <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="selectedItem">
+                            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        </p-dropdown>
+        </div >
+        <div >
+            <label for="attendanceDate"> Date</label>
+            <p-calendar [(ngModel)]="attendanceDateRange" inputId="attendanceDateRange" appendTo="body"
+                dateFormat="dd-mm-yy" placeholder="Select date" ></p-calendar>
+        </div>
+    
+ 
+    </div>
+    <div class="row col-md-12 mt-3">
+        <div >
+            <!-- <app-picker [title]="'Employee'" [title2]="'Employee'" [id]="EmployeeId" [name]="EmployeeName"
+                (valueSelected)="setPickerValue($event, 'Employee')"></app-picker> -->
+                <label for="name">Employee:</label>
+                        <p-dropdown
+                        [options]="employeeDropdown"
+                        [(ngModel)]="employeeSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        (onChange)="onDropdownChange($event, 'Employee')"
+                         placeholder="Employee"
+                            >
+                        <ng-template let-item pTemplate="item">
+                        <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="selectedItem">
+                            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        </p-dropdown>
+        </div>
+      
+        <div class="col-md-2 createBtnStyle" style="height: 20px; width: 20px">
+            <span pButton class="p-button-rounded p-button-warning mr-2 createBtnStyle" pRipple icon="pi pi-search"
+                (click)="Search()"></span>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="row col-md-12">
+        <ag-grid-angular  style="width: 100%; height: 63vh; margin-top: 12px"  class="ag-theme-balham" [rowData]="data"
+            [columnDefs]="colDefs" [animateRows]="true" [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true"
+            [rowSelection]="rowSelection" [singleClickEdit]="true" (gridReady)="onGridReady($event)"
+            (cellClicked)="cellClicked($event)" (cellValueChanged)="onCellValueChanged($event)">
+        </ag-grid-angular>
+
+       
+    </div>
+</div>
+
+<div>
+    <p-dialog [closeOnEscape]="false" [maximizable]="true" header="Apply Leave" draggable="false"
+        [(visible)]="dialogVisibility" [modal]="true" [responsive]="true" [style]="{ width: '90vw' }">
+        <div class="row col-md-12">
+            <div class="col-md-4">
+                <app-picker [disable]="isViewMode" [title]="'Employee'" [id]="leaveDto.employeeERPId"
+                    [name]="leaveDto.employeeName" (valueSelected)="setPickersValue($event, 'Employee')">
+                </app-picker>
+            </div>
+            <div class="col-md-2 flex flex-column">
+                <label for="docdate">Date</label>
+                <p-calendar [disabled]="isViewMode" [(ngModel)]="leaveDto.documentDate" inputId="docdate"
+                    appendTo="body"></p-calendar>
+            </div>
+            <div id="inputField" class="col-md-2">
+                <label for="voucherNumber">Voucher Number</label>
+                <input [disabled]="isViewMode" id="voucherNumber" type="text" pInputText
+                    [(ngModel)]="leaveDto.voucherNumber" />
+            </div>
+        </div>
+
+        <div class="row col-md-12">
+            <div class="col-md-2 flex flex-column">
+                <label for="from">From</label>
+                <p-calendar [disabled]="isViewMode" (ngModelChange)="leaveDateChange($event, true)"
+                    [(ngModel)]="leaveDto.leaveStartDate" inputId="from" appendTo="body"></p-calendar>
+            </div>
+            <div class="col-md-2 flex flex-column">
+                <label for="to">To</label>
+                <p-calendar [disabled]="isViewMode" (ngModelChange)="leaveDateChange($event, false)"
+                    [(ngModel)]="leaveDto.leaveEndDate" inputId="to" appendTo="body"></p-calendar>
+            </div>
+            <div id="inputField" class="col-md-2">
+                <label for="days">Days</label>
+                <input disabled="" id="days" type="number" pInputText [(ngModel)]="leaveDto.numberOfDays" />
+            </div>
+            <div class="col-md-2 flex flex-column">
+                <label for="cplAvailed">CPL Availed Date</label>
+                <p-calendar [disabled]="isViewMode" [(ngModel)]="leaveDto.compensatoryLeaveAvailed" inputId="cplAvailed"
+                    appendTo="body"></p-calendar>
+            </div>
+        </div>
+
+        <div class="row col-md-12">
+            <div class="col-md-4">
+                <app-picker [disable]="isViewMode" [title]="'Requested LeaveType'" [title2]="'LeaveType'"
+                    [id]="leaveDto.employeeLeaveTypeId" [name]="leaveDto.employeeLeaveTypeName"
+                    (valueSelected)="setPickersValue($event, 'EmpLeaveType')">
+                </app-picker>
+            </div>
+            <div class="col-md-4">
+                <app-picker [disable]="isViewMode" [title]="'Recommended LeaveType'" [title2]="'LeaveType'"
+                    [id]="leaveDto.departmentLeaveTypeId" [name]="leaveDto.departmentLeaveTypeName"
+                    (valueSelected)="setPickersValue($event, 'DeptLeaveType')">
+                </app-picker>
+            </div>
+            <div class="col-md-4">
+                <app-picker [disable]="isViewMode" [title]="'Approved LeaveType'" [title2]="'LeaveType'"
+                    [id]="leaveDto.approvedLeaveTypeId" [name]="leaveDto.approvedTypeName"
+                    (valueSelected)="setPickersValue($event, 'ApprovedLeaveType')">
+                </app-picker>
+            </div>
+        </div>
+
+        <div class="row col-md-12">
+            <div class="col-md-2 flex flex-column">
+                <label for="comments">Comments</label>
+                <textarea [disabled]="isViewMode" [(ngModel)]="leaveDto.comments" id="comments" rows="1" cols="30"
+                    pInputTextarea></textarea>
+            </div>
+            <div class="col-md-4">
+                <app-picker [disable]="isViewMode" [title]="'Recommended Employee'" [title2]="'Employee'"
+                    [id]="leaveDto.recommendedByERPId" [name]="leaveDto.recomendedByName"
+                    (valueSelected)="setPickersValue($event, 'RecEmployee')">
+                </app-picker>
+            </div>
+            <div class="col-md-2 flex flex-column">
+                <label for="reason">Reason</label>
+                <textarea [disabled]="isViewMode" [(ngModel)]="leaveDto.reasonForLeave" id="reason" rows="1" cols="30"
+                    pInputTextarea></textarea>
+            </div>
+            <div class="col-md-2 flex gap-2 align-items-center">
+                <p-checkbox [disabled]="isViewMode" inputId="isHalfDayLeave" [(ngModel)]="leaveDto.isHalfDayLeave"
+                    [binary]="true" inputId="binary" />
+                <label for="isHalfDayLeave">Half Day</label>
+            </div>
+        </div>
+
+        <div class="row col-md-12">
+            <ag-grid-angular style="width: 60%; height: 200px; margin-top: 12px" class="ag-theme-balham"
+                [rowData]="rowData" [columnDefs]="colDefs2" [animateRows]="true" [suppressAutoSize]="true"
+                [suppressDragLeaveHidesColumns]="true" rowSelection="single" [singleClickEdit]="true">
+            </ag-grid-angular>
+        </div>
+
+        <div *ngIf="!isViewMode" class="flex justify-content-end gap-2 mt-2">
+            <p-button label="Cancel" severity="secondary" (click)="dialogVisibility = false" />
+            <p-button [loading]="saving" label="Save" (click)="create()" />
+        </div>
+    </p-dialog>
+</div>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

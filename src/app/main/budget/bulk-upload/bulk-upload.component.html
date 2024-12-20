@@ -1,0 +1,136 @@
+<div class="pl-3">
+    <p-toolbar styleClass="my-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplateLv11()" class="p-button-success text-white">Download CSV Template</button>
+        </div>
+        <div class="row">
+            <h6 class="nowrap text-left" style="width: 185px;" title="Level One">Level One</h6>
+        </div>
+    
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-3">
+                <div>
+                  <label for="choose-file" class="custom-choose-file m-0">Choose File</label>
+                  <input #fileInput id="choose-file" type="file">
+                </div>
+                <p-button [loading]="loadingBulkLvl1" class="upload-btn" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFile(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+    
+    
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplateLvl2()" class="p-button-success text-white">Download CSV Template</button>
+        </div>
+        <div class="row">
+            <h6 class="nowrap text-left" style="width: 185px;" title="Level Two">Level Two</h6>
+        </div>
+    
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-3">
+                <div>
+                    <label for="choose-file" class="custom-choose-file m-0">Choose File</label>
+                    <input #fileInput id="choose-file" type="file">
+                </div>
+                <p-button [loading]="loadingBulkLvl2"  class="upload-btn" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFileLvl2(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+    
+    
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplateLvl3()" class="p-button-success text-white">Download CSV Template</button>
+        </div>
+        <div class="row">
+            <h6 class="nowrap text-left" style="width: 185px;" title="Level Three">Level Three</h6>
+        </div>
+    
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-3">
+                <div>
+                    <label for="choose-file" class="custom-choose-file m-0">Choose File</label>
+                    <input #fileInput id="choose-file" type="file">
+                 </div>
+                <p-button [loading]="loadingBulkLvl3" class="upload-btn" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFileLvl3(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+    
+    
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplateSupplier()" class="p-button-success text-white">Download CSV Template</button>
+        </div>
+        <div class="row">
+            <h6 class="nowrap text-left" style="width: 185px;" title="Supplier/Client">Supplier/Client</h6>
+        </div>
+    
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-3">
+                <div>
+                    <label for="choose-file" class="custom-choose-file m-0">Choose File</label>
+                    <input #fileInput id="choose-file" type="file">
+                </div>
+                <p-button [loading]="loadingBulkSupplier" class="upload-btn" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFileSupplier(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+    
+    
+    
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplateCOA()" class="p-button-success text-white">Download CSV Template</button>
+        </div>
+        <div class="row">
+            <h6 class="nowrap text-left" style="width: 185px;" title="Chart of Account">Chart of Account</h6>
+        </div>
+    
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-3">
+                <div>
+                    <label for="choose-file" class="custom-choose-file m-0">Choose File</label>
+                    <input #fileInput id="choose-file" type="file">
+                </div>
+                <p-button [loading]="loadingBulkCoa" class="upload-btn" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFileCOA(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+</div>

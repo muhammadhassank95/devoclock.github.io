@@ -1,0 +1,259 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Capitalization Policy</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          (keydown.enter)="onEnter($event)"
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        *ngIf="isGranted(this.permissions.CREATE)"
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    [loading]="loading"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="['issueDate', 'voucherNumber', 'weFromDate', '']"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          voucherNumber <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          issue Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="willEffectFromDate">
+          weFromDate <p-sortIcon field="willEffectFromDate" />
+        </th>
+
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Active <p-sortIcon field="Active" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="status">
+          Status <p-sortIcon field="status" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="
+              isGranted(this.permissions.EDIT) && item.status === 'PENDING'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="
+              isGranted(this.permissions.DELETE) && item.status === 'PENDING'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status === 'PENDING'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="ApproveDocument(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'PENDING'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>{{ item.willEffectFromDate | date }}</td>
+
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.status !== 'PENDING'" class="yes-bg">
+            {{ item.status }}</span
+          >
+          <span *ngIf="item.status === 'PENDING'" class="no-bg">
+            {{ item.status }}</span
+          >
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    editMode ? 'Edit Capitalization Policy' : 'Create Capitalization Policy'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="name">Issue Date</label>
+      <p-calendar
+        (ngModelChange)="onDateChange($event)"
+        [(ngModel)]="capitalizationPolicy.issueDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+        tabindex="1"
+        [minDate]="MinDate"
+        [maxDate]="today"
+      ></p-calendar>
+    </div>
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker
+        [showId]="false"
+        [title]="'Location'"
+        [id]="capitalizationPolicy.userLocationId"
+        [name]="capitalizationPolicy.userLocationName"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      ></app-picker>
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="name">Voucher Number</label>
+      <input
+        id="name"
+        type="text"
+        pInputText
+        [(ngModel)]="capitalizationPolicy.voucherNumber"
+      />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="name">We From</label>
+      <p-calendar
+        [(ngModel)]="capitalizationPolicy.willEffectFromDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="flex gap-2 align-items-center">
+      <p-checkbox
+        inputId="isActive"
+        [(ngModel)]="capitalizationPolicy.isActive"
+        [binary]="true"
+        inputId="binary"
+      />
+      <label for="isActive">Active</label>
+    </div>
+  </div>
+  <br />
+  <p-button (click)="onAddRow()" label="Add Row" size="small" />
+  <p-button
+    (click)="onRemoveSelected()"
+    label="Remove Row"
+    size="small"
+    severity="danger"
+  />
+  <ag-grid-angular
+    class="ag-theme-quartz"
+    style="height: 500px"
+    [rowData]="rowData"
+    [columnDefs]="colDefs"
+    [rowSelection]="rowSelection"
+    (gridReady)="onGridReady($event)"
+    (cellClicked)="cellClicked($event)"
+    [singleClickEdit]="true"
+  >
+  </ag-grid-angular>
+
+  <div class="row col-md-12">
+    <!-- <div class="p-field flex flex-column col-md-12">
+            <label for="narration">Narration</label>
+            <textarea [(ngModel)]="capitalizationPolicy.comments" pInputText rows="3" id="narration"></textarea>
+        </div> -->
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (onClick)="displayModal = false"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !viewMode"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

@@ -1,0 +1,329 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Rental Vehicle Invoice</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (keydown.enter)="onEnter($event)"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [scrollable]="true"
+    scrollHeight="58vh"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'issueDate',
+      'attendanceMonth',
+      'remarks',
+      'voucherNumber',
+      'userLocationName',
+      'costCenterName',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher Number<p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="attendanceMonth">
+          Attendance Month<p-sortIcon field="attendanceMonth" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          Issue Date<p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationId">
+          Location Id <p-sortIcon field="userLocationId" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location Name<p-sortIcon field="userLocationName" />
+        </th>
+
+        <th style="min-width: 200px" pSortableColumn="costCenterName">
+          Remarks<p-sortIcon field="costCenterName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Status <p-sortIcon field="Active" />
+        </th>
+        <!-- <th style="min-width:200px" pSortableColumn="Active">
+                    Active <p-sortIcon field="Active" />
+                </th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED' || item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.attendanceMonth | date }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>{{ item.userLocationId }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.remarks }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <!-- <td>
+                    <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.isActive" class="no-bg">No</span>
+                </td> -->
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 20, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [closeOnEscape]="false"
+  [header]="
+    editMode ? 'Edit Rental Vehicle Invoice' : 'Create Rental Vehicle Invoice'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+  [style]="{ width: '1500px' }"
+>
+  <ng-container>
+    <form [formGroup]="vehicleattendanceform" (ngSubmit)="save()">
+      <div class="row col-md-12 mt-4">
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Date:</label>
+          <p-calendar
+            formControlName="issueDate"
+            (ngModelChange)="onDateChange($event)"
+            inputId="date"
+            appendTo="body"
+            [minDate]="MinDate"
+            [maxDate]="today"
+            tabindex="1"
+            [showOnFocus]="true"
+            name="issueDate"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('issueDate')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div class="col-md-4">
+          <app-picker
+            [title]="'Location'"
+            [id]="vehicleattendanceform.get('userLocationId')?.value"
+            [name]="vehicleattendanceform.get('userLocationName')?.value"
+            [showId]="false"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Voucher Number:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="voucherNumber"
+            id="voucherNumber"
+            autocomplete="off"
+            readonly
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('voucherNumber')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Attendance Date:</label>
+          <p-calendar
+            formControlName="attendanceMonth"
+            inputId="date"
+            appendTo="body"
+            dateFormat="mm/yy"
+            [view]="'month'"
+            tabindex="1"
+            [showOnFocus]="true"
+            name="attendanceMonth"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('attendanceMonth')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div class="my-auto">
+          <p-button
+            (click)="
+              copyVehiclesAttendance(
+                vehicleattendanceform.get('attendanceMonth')?.value
+              )
+            "
+            label="Copy Vehicle Attendance"
+            [text]="true"
+            [raised]="true"
+            severity="success"
+          />
+        </div>
+      </div>
+      <br />
+      <p-button
+        (click)="onRemoveSelected()"
+        label="Remove Row"
+        size="small"
+        severity="danger"
+        style="
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          height: auto;
+          line-height: 1.25;
+        "
+      />
+
+      <ag-grid-angular
+        class="ag-theme-quartz"
+        style="height: 500px"
+        [rowData]="rowData"
+        [columnDefs]="colDefs"
+        [rowSelection]="rowSelection"
+        (gridReady)="onGridReady($event)"
+        [singleClickEdit]="true"
+      >
+      </ag-grid-angular>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-8 flex flex-column">
+          <label for="name">Narration:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="remarks"
+            id="remarks"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <!-- <div *ngIf="isFieldInvalid('remarks')" class="text-danger">This field is required</div> -->
+        </div>
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="totalAmount">Total Amount:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="totalAmount"
+            id="totalAmount"
+            autocomplete="off"
+            readonly
+            style="position: relative; z-index: 1000"
+          />
+        </div>
+      </div>
+
+      <div class="flex gap-1 justify-content-end mt-4">
+        <p-button
+          (onClick)="displayModal = false"
+          label="Cancel"
+          [outlined]="true"
+          severity="warning"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="!editMode && !viewMode"
+          (click)="save()"
+          [disabled]="!vehicleattendanceform.valid"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="editMode && !viewMode"
+          (click)="update()"
+          [disabled]="!vehicleattendanceform.valid"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        />
+      </div>
+    </form>
+  </ng-container>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

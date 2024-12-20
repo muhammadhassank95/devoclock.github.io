@@ -1,0 +1,150 @@
+<app-lookup
+  action="Project"
+  class="project"
+  [mainDto]="dto"
+  [excludedColumns]="['projectCategoryId', 'projectTypeId', 'id']"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validateProject()"
+  (emitMainDTO)="getEmittedValues($event)"
+>
+  <ng-template #dialogView>
+   <div class="d-flex flex-column gap-3">
+    <div class="row">
+      <div id="inputField" class="col-md-12 mb-3 flex flex-column">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.name"
+          id="name"
+          autocomplete="off"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="name">Start Date:</label>
+        <p-calendar
+          [(ngModel)]="dto.startDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="name">End Date:</label>
+        <p-calendar
+          [(ngModel)]="dto.endDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+    </div>
+    <!-- <app-picker
+      [title]="'ProjectType'"
+      [id]="dto.projectTypeId"
+      [name]="dto.projectTypeName"
+      (valueSelected)="setPickerValue($event, 'ProjectType')"
+    ></app-picker> -->
+    <div class="row">
+      <div class="col-4 flex-grow-1 d-flex flex-column">
+        <label for="">Project Type:</label>
+        <p-dropdown
+          [options]="projectTypeDropdown"
+          [(ngModel)]="selectedItemProjectType"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          optionLabel="name"
+          (onChange)="onDropdownChange($event, 'ProjectType')"
+          placeholder="Select Project Type"
+        >
+        <ng-template let-item pTemplate="item">
+          <div class="three-dropdown-list nowrap" title="{{ item.id }} - {{ item.name }}" >{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        <ng-template let-item pTemplate="selectedItem">
+          <div *ngIf="item" class="three-dropdown nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="col-4 flex-grow-1  d-flex flex-column">
+        <!-- <app-picker [title]="'ProjectCategory'" [id]="dto.projectCategoryId" [name]="dto.projectCategoryName"
+          (valueSelected)="setPickerValue($event, 'ProjectCategory')"></app-picker> -->
+        <label for="">Project Category:</label>
+        <p-dropdown
+          [options]="projectCategoryDropdown"
+          [(ngModel)]="selectedItemProjectCategory"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          (onChange)="onDropdownChange($event, 'ProjectCategory')"
+          optionLabel="name"
+          placeholder="Select Project Category"
+        >
+        <ng-template let-item pTemplate="item">
+          <div class="three-dropdown-list" title="{{ item.id }} - {{ item.name }}" >{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        <ng-template let-item pTemplate="selectedItem">
+          <div *ngIf="item" class="three-dropdown" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="col-4 flex-grow-1  d-flex flex-column">
+            <!-- <app-picker [title]="'PaymentTerms'" [id]="dto.paymentTermsId" [name]="dto.paymentTermsName"
+              (valueSelected)="setPickerValue($event, 'PaymentTerms')"></app-picker> -->
+            <label for="">Project Terms:</label>
+            <p-dropdown
+              [options]="paymentTermsDropdown"
+              [(ngModel)]="selectedItemPaymentTerms"
+              [filter]="true"
+              [filterBy]="'id,name'"
+              [showClear]="true"
+              (onChange)="onDropdownChange($event, 'PaymentTerms')"
+              optionLabel="name"
+              placeholder="Select Payment Term"
+            >
+            <ng-template let-item pTemplate="item">
+              <div class="three-dropdown-list" title="{{ item.id }} - {{ item.name }}" >{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            <ng-template let-item pTemplate="selectedItem">
+              <div *ngIf="item" class="three-dropdown" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+          </div>
+    </div>
+    <div class="row gap-3">
+      <div id="inputField" class="col-md-12 flex flex-column">
+        <label for="name">Serial Number:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.serialNumber"
+          id="serialNumber"
+          autocomplete="off"
+          readonly
+        />
+      </div>
+
+      <div id="inputField" class="col-md-12 flex flex-column">
+        <label for="description">Description:</label>
+        <textarea
+          pInputTextarea
+          [(ngModel)]="dto.description"
+          id="description"
+          autocomplete="off"
+          class="project-description"
+        ></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6 d-flex align-items-center gap-2 pb-2">
+        <p-checkbox
+          [(ngModel)]="dto.isActive"
+          [binary]="true"
+          inputId="active"
+        /> 
+        <label for="active" class="mb-0">Active</label>
+      </div>
+    </div>
+  </div>
+  </ng-template>
+</app-lookup>

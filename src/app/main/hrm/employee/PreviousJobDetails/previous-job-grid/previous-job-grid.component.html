@@ -1,0 +1,26 @@
+<!-- <p-button (click)="onAddRow()" label="Add Row" icon="pi pi-plus-circle" size="small" />
+<p-button (click)="onRemoveSelected()" label="Remove Row" icon="pi pi-times" size="small" severity="danger" />
+<p-button size="small" (click)="onSave()" label="Save" /> -->
+<div class="d-flex align-items-center gap-2 my-3">
+    <span pButton pRipple [rounded]="true" class="create-btn p-button-success p-3" style="height:41px !important;"
+    (click)="onAddRow()">
+    Add Row
+  </span>
+  <span pButton pRipple [rounded]="true" class="create-btn outline-btn w-auto"
+    style="height:41px !important;" (click)="onRemoveSelected()">
+    Remove Row
+  </span>
+  <span pButton pRipple [rounded]="true"  class="create-btn p-button-success p-3" style="height:41px !important;"
+  (click)="onSave()">
+    Save
+  </span>
+</div>
+<!-- <ag-grid-angular style="width: 100%; height: 200px;" class="ag-theme-quartz" [rowData]="rowData" [columnDefs]="colDefs"
+    [animateRows]="true" [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true" [rowSelection]="rowSelection"
+    [singleClickEdit]="true" (cellClicked)="cellClicked($event)" onCellValueChanged="onCellValueChanged($event)"
+    (gridReady)=" onGridReady($event)">
+</ag-grid-angular> -->
+<ag-grid-angular class="ag-theme-quartz" style="height: 500px;" [rowData]="rowData" [columnDefs]="colDefs"
+    [rowSelection]="rowSelection" (gridReady)="onGridReady($event)" (cellClicked)="cellClicked($event)"
+    (cellValueChanged)="cellValueChanged($event)" [singleClickEdit]="true">
+</ag-grid-angular>

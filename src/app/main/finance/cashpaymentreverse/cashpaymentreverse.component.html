@@ -1,0 +1,314 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Bank Payment Reversle</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+<!-- //// Table///// -->
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No. <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location <p-sortIcon field="userLocationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Status">
+          Status <p-sortIcon field="Status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <button
+            *ngIf="item.status !== 'APPROVED'"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            *ngIf="item.status !== 'APPROVED'"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            *ngIf="item.status !== 'APPROVED'"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            *ngIf="item.status === 'APPROVED'"
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="viewOnly(item.id)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<!-- //////// Modal /////// -->
+
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    isEditMode ? 'Edit Bank Payment Reversal' : 'Create Bank Payment Reversal'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <form [formGroup]="cashpaymentReversibleForm" (ngSubmit)="save()">
+    <div class="row col-md-12 align-items-center">
+      <div id="inputField" class="col-md-8 mb-0 p-field flex flex-column">
+        <app-picker
+          [title]="'Location'"
+          [title2]="'Location'"
+          [id]="cashpaymentReversibleForm.value.userLocationId"
+          [name]="cashpaymentReversibleForm.value.userLocationName"
+          [disable]="cashpaymentReversibleForm.disabled"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="name">Date</label>
+        <p-calendar
+          (ngModelChange)="onDateChange($event)"
+          formControlName="issueDate"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+        <div *ngIf="isFieldInvalid('issueDate')" class="text-danger">
+          This field is required
+        </div>
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="name">Voucher Number</label>
+        <input
+          readonly
+          id="name"
+          type="text"
+          pInputText
+          formControlName="voucherNumber"
+        />
+      </div>
+    </div>
+
+    <div class="my-auto">
+      <p-button
+        label="Copy Bank Payment"
+        [text]="true"
+        [raised]="true"
+        (onClick)="OpenBankPayment()"
+        severity="primary"
+      />
+    </div>
+    <br />
+
+    <!-- <p-button (click)="onAddRow()" label="Add Row" size="small" />
+        <p-button (click)="onRemoveSelected()" label="Remove Row" size="small" severity="danger" /> -->
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      domLayout="autoHeight"
+      [rowData]="rowData"
+      rowSelection="multiple"
+      [columnDefs]="colDefs"
+      (gridReady)="onGridReady($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="row col-md-12">
+      <div class="p-field flex flex-column col-md-12">
+        <label for="narration">Narration</label>
+        <textarea
+          formControlName="cashpaymentReversibleForm.value.remarks"
+          [required]="true"
+          pInputText
+          rows="3"
+          id="narration"
+        ></textarea>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="totalChqAmount">Total Cheque Amount</label>
+        <input
+          readonly
+          id="totalChqAmount"
+          type="text"
+          pInputText
+          formControlName="totalChequeAmount"
+        />
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="totalTaxAmount">Total Tax Amount</label>
+        <input
+          readonly
+          id="totalTaxAmount"
+          type="text"
+          pInputText
+          formControlName="totalTaxAmount"
+        />
+      </div>
+    </div>
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="displayModal = false"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="!isEditMode && !isViewMode"
+        [disabled]="!cashpaymentReversibleForm.valid"
+        (click)="save()"
+        label="Save"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="isEditMode && !isViewMode"
+        (click)="update()"
+        label="Update"
+        [outlined]="true"
+        severity="contrast"
+      />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [maximizable]="true"
+  header="Copy Bank Payment"
+  [modal]="true"
+  [(visible)]="displaybankPayment"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <div></div>
+    <p-table
+      #stockTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="bankPaymentData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="namvouchere">
+            Voucher No <p-sortIcon field="voucher" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>
+            <button
+              (click)="SelectBankPayment(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<!-- ErrorView -->
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

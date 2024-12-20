@@ -1,0 +1,138 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <h3>Fixed Transfer Request</h3>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="p-toolbar-group-left">
+            <span class="p-toolbar-separator" style="margin-right: 10px;"></span>
+            <button pButton icon="pi pi-plus-circle" class="p-button-success" (click)="show()">
+            </button>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+    <p-table #policyTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]" [value]="tableData"
+        styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+        responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="min-width:200px" pSortableColumn="Id">
+                    Id <p-sortIcon field="Id" />
+                </th>
+                <th style="min-width:200px" pSortableColumn="Voucher No">
+                    Voucher No <p-sortIcon field="Voucher No" />
+                </th>
+
+                <th style="min-width:200px" pSortableColumn="Actions">
+                    Actions <p-sortIcon field="Actions" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.voucherNumber }}</td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                        (click)="show(item.id)">
+                    </button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2"
+                        (click)="delete(item.id)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" [header]="editMode?'Edit Fixed Transfer Request':'Create Fixed Transfer Request'"
+    [modal]="true" [(visible)]="displayModal" [draggable]="false">
+
+    <div class="row col-md-12">
+        <div class="col-md-5">
+            <app-picker [title]="'Location'" [id]="locationId" [name]="locationName"
+                (valueSelected)="setPickerValue($event,'Location')"></app-picker>
+        </div>
+        <div id="inputField" class="col-md-2 p-field flex flex-column">
+            <label for="name">Date</label>
+            <p-calendar (ngModelChange)="MakeVoucher($event)" [(ngModel)]="fixedTransferRequest.Date" inputId="date"
+                appendTo="body" [showOnFocus]="true"></p-calendar>
+        </div>
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input id="name" type="text" pInputText [(ngModel)]="fixedTransferRequest.voucherNumber" readonly />
+        </div>
+        <div class="my-auto">
+            <p-button (click)="OpenFixedRequisition()" label="Copy Fixed Requisition" [text]="true" [raised]="true"
+                severity="success" />
+        </div>
+    </div>
+
+
+
+    <!-- Grid -->
+    <div class="my-4">
+        <div class="row col-md-12">
+            <ag-grid-angular style="width: 100%; height: 200px;margin-top: 12px;" class="ag-theme-balham"
+                [rowData]="rowData" [columnDefs]="colDefs" [animateRows]="true" [suppressAutoSize]="true"
+                [suppressDragLeaveHidesColumns]="true" [rowSelection]="rowSelection" [singleClickEdit]="true"
+                (gridReady)="onGridReady($event)">
+            </ag-grid-angular>
+        </div>
+    </div>
+
+
+
+    <div class="flex gap-1 justify-content-end mt-4">
+        <p-button (onClick)="displayModal=false" label="Cancel" [outlined]="true" severity="warning" />
+        <p-button [loading]="saving" *ngIf="!editMode" (click)="save()" label="Save" [outlined]="true"
+            severity="contrast" />
+        <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+            severity="contrast" />
+    </div>
+</p-dialog>
+
+
+
+<p-dialog [maximizable]="true" header="Copy Fixed Requisition" [modal]="true" [(visible)]="displayFixed"
+    [draggable]="false">
+    <div class="p-4">
+        <p-table #stockTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]" [value]="stockData"
+            styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+            responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width:200px" pSortableColumn="id">
+                        ID <p-sortIcon field="id" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="namvouchere">
+                        Voucher No <p-sortIcon field="voucher" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="Actions">
+                        Actions <p-sortIcon field="Actions" />
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.voucherNumber }}</td>
+                    <td>
+                        <button (click)="SelectRequisition(item.id)" pButton pRipple label="Select"
+                            class="p-button-rounded p-button-info mr-2">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</p-dialog>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

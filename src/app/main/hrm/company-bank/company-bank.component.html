@@ -1,0 +1,36 @@
+<app-lookup action="CompanyBank" class="company-bank" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateCompanyBank()">
+    <ng-template #dialogView>
+        <div class="row gap-3">
+            <div class="col-md-12 flex flex-column">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" required />
+            </div>
+            <div class="col-md-12 flex flex-column">
+                <label for="branchName">Branch Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.branchName" id="branchName" autocomplete="off"
+                    required />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 flex flex-column mt-3">
+                <label for="accountNumber">Account Number:</label>
+                <input type="text" pInputText [(ngModel)]="dto.accountNumber" id="accountNumber" autocomplete="off"
+                    required pattern="[0-9]*" maxlength="16" />
+            </div>
+        </div>
+        <div class="row gap-1 mt-3">
+            <div class="col-12 flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isPrimary" [binary]="true" inputId="primary" />
+                <label for="primary" class="mb-0">Primary</label>
+            </div>
+            <div class="col-12 flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <label for="active" class="mb-0">Active</label>
+            </div>
+        </div>
+        <div class="row">
+
+        </div>
+    </ng-template>
+</app-lookup>

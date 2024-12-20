@@ -1,0 +1,19 @@
+.file-upload-container {
+  display: block;
+  align-items: center;
+  justify-content: center;
+  text-align: center; /* Space between the file upload and download icon */
+}
+
+.p-button-text {
+  margin-left: 10px;
+}
+
+.myloader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* margin-top: 1px; */
+  padding: 7px;
+}

@@ -1,0 +1,55 @@
+<div class="card px-5 py-5">
+    <!-- <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Check In</h4>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-2">
+                <app-picker [title]="'Employee'" [id]="erpId1" [name]="empName1"
+                    (valueSelected)="setPickerValue($event, 'Employee1')">
+                </app-picker>
+                <p-button (onClick)="CheckIn()" label="Check In" [text]="true" [raised]="true" severity="success" />
+            </div>
+        </ng-template>
+    </p-toolbar>
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Check Out</h4>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-2">
+                <app-picker [title]="'Employee'" [id]="erpId2" [name]="empName2"
+                    (valueSelected)="setPickerValue($event, 'Employee2')">
+                </app-picker>
+                <p-button (onClick)="CheckOut()" label="Check Out" [text]="true" [raised]="true" severity="warning" />
+            </div>
+        </ng-template>
+    </p-toolbar> -->
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h4 class="m-0">Bulk Upload</h4>
+            </div>
+        </ng-template>
+        <div class="row">
+            <button (click)="downloadCSVTemplate()">Download CSV Template</button>
+        </div>
+        <ng-template pTemplate="right">
+            <div class="flex align-items-center justify-content-center gap-2">
+                <input #fileInput type="file">
+                <p-button [loading]="loadingBulk" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                    severity="info" (click)="uploadFile(fileInput)">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+</div>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

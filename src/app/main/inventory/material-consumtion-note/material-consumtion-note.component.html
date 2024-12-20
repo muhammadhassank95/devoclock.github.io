@@ -1,0 +1,341 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Stock Consumption Note</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- /////////////// TABLE OF Material Consumption NOTE /////////// -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+  >
+    <ng-template
+      pTemplate="header"
+      [globalFilterFields]="['issueDate', 'voucherNumber', '']"
+    >
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          IssueDate <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          Status <p-sortIcon field="isActive" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>
+          <span
+            [ngClass]="{
+              'yes-bg': item.status === 'COMPLETED',
+              'no-bg': item.status === 'PENDING'
+            }"
+            [style]="{ height: '25px', cursor: 'pointer' }"
+          >
+            {{ item.status }}
+          </span>
+        </td>
+        <!-- <td>
+                    <span *ngIf="item.documentStatus == 'APPROVED'" class="yes-bg"
+                        style="height: 25px; cursor: pointer">{{ item.documentStatus }}</span>
+                    <span *ngIf="item.documentStatus != 'APPROVED'" class="no-bg">{{
+                        item.documentStatus
+                        }}</span>
+                </td> -->
+        <td>
+          <span
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; cursor: pointer"
+            label="Approve"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          >
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<!-- ///////////// Goods Inspection Note /////////////// -->
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    editMode ? 'Edit Stock Consumption Note' : 'Create Stock Consumption Note'
+  "
+  (onHide)="this.calendar_disability = true"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div class="col-md-3 p-field">
+            <label for="date">Date</label>
+            <p-calendar
+              (ngModelChange)="onDateChange($event)"
+              [(ngModel)]="materialConsumtionNoteDto.issueDate"
+              inputId="date"
+              [minDate]="MinDate"
+              [maxDate]="today"
+              appendTo="body"
+              tabindex="1"
+              [showOnFocus]="true"
+            ></p-calendar>
+          </div>
+          <div class="col-md-9 p-field">
+            <app-picker
+              [showId]="false"
+              [title]="'Location'"
+              [id]="materialConsumtionNoteDto.userLocationId"
+              [name]="materialConsumtionNoteDto.userLocationName"
+              (valueSelected)="setPickerValue($event, 'Location')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input
+              readonly
+              id="name"
+              type="text"
+              pInputText
+              [(ngModel)]="materialConsumtionNoteDto.voucherNumber"
+            />
+          </div>
+          <div class="row col-md-12" style="margin-top: 1rem">
+            <div class="my-auto">
+              <p-button
+                (click)="OpenServiceRequisition()"
+                label="Copy Store Issuance Note"
+                [text]="true"
+                [raised]="true"
+                severity="success"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-6">
+      <div class="row p-2 mt-5">
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [disable]="editMode"
+              [title]="'Employee'"
+              [id]="materialConsumtionNoteDto.employeeId"
+              [name]="materialConsumtionNoteDto.employeeName"
+              (valueSelected)="setPickerValue($event, 'Employee')"
+            ></app-picker>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+
+  <!-- Grid -->
+  <div class="my-4">
+    <div class="row col-md-12">
+      <p-button
+        (click)="onRemoveSelected()"
+        label="Remove Row"
+        size="small"
+        severity="danger"
+        style="
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          height: auto;
+          line-height: 1.25;
+        "
+      />
+      <ag-grid-angular
+        style="width: 100%; height: 200px; margin-top: 12px"
+        class="ag-theme-balham"
+        [rowData]="rowData"
+        [columnDefs]="colDefs"
+        [animateRows]="true"
+        [suppressAutoSize]="true"
+        [suppressDragLeaveHidesColumns]="true"
+        [rowSelection]="rowSelection"
+        [singleClickEdit]="true"
+        (gridReady)="onGridReady($event)"
+        (cellValueChanged)="OnCellValueChanged($event)"
+      >
+      </ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-9 p-field flex flex-column">
+      <label for="terms">Narration</label>
+      <input
+        id="terms"
+        type="text"
+        pInputText
+        [(ngModel)]="materialConsumtionNoteDto.remarks"
+      />
+    </div>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (click)="CloseModel()"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode && !view"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !view"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+
+<!-- ////////// COPY Store Issuance Note Pass ////////////// -->
+<p-dialog
+  [maximizable]="true"
+  header="Copy Store Issuance Note"
+  [modal]="true"
+  [(visible)]="displayRequisition"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="requisitionData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No <p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="issueDate">
+            Issue Date <p-sortIcon field="issueDate" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="action">
+            Actions <p-sortIcon field="action" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+          <td>
+            <button
+              (click)="SelectRequisition(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<!-- //////// TOASTIFY ///////// -->
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

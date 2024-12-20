@@ -1,0 +1,192 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <div class="flex items-center">
+      <h4 class="m-0">Hold Salary</h4>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="flex items-center">
+      <div class="mt-0">
+        <button
+          *ngIf="isGranted(this.permissions.CREATE)"
+          pButton
+          pRipple
+          [rounded]="true"
+          icon="pi pi-plus-circle"
+          class="p-button-success mr-2"
+          (click)="openModal()"
+        ></button>
+      </div>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  #holidayTable
+  [paginator]="true"
+  [rows]="5"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [value]="data"
+  styleClass="p-datatable-gridlines"
+  [rowHover]="true"
+  [paginatorDropdownAppendTo]="'body'"
+  dataKey="id"
+  responsiveLayout="scroll"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="ID" style="width: 20%">
+        ID<p-sortIcon field="ID" />
+      </th>
+      <th pSortableColumn="name" style="width: 20%">
+        Name <p-sortIcon field="name" />
+      </th>
+      <th pSortableColumn="salaryMonth" style="width: 20%">
+        Salary Month <p-sortIcon field="salaryMonth" />
+      </th>
+      <th pSortableColumn="reason" style="width: 20%">
+        Reason <p-sortIcon field="reason" />
+      </th>
+      <th pSortableColumn="Actions" style="width: 20%">
+        Actions <p-sortIcon field="Actions" />
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{ item.employeeErpId }}</td>
+      <td>{{ item.employeeName }}</td>
+      <td>{{ item.salaryMonth | date : "yyyy-MM-dd" }}</td>
+      <td>{{ item.reason }}</td>
+      <td>
+        <span
+          *ngIf="isGranted(this.permissions.EDIT)"
+          pButton
+          pRipple
+          icon="pi pi-eye"
+          class="p-button-rounded p-button-success mr-2 createBtnStyle"
+          (click)="ViewOnly(item.id)"
+        ></span>
+        <span
+          *ngIf="isGranted(this.permissions.EDIT)"
+          style="height: 25px; width: 25px; cursor: pointer"
+          pButton
+          pRipple
+          icon="pi pi-pencil"
+          class="p-button-rounded p-button-info mr-2"
+          (click)="getDataForEdit(item.id)"
+        ></span>
+        <span
+          *ngIf="isGranted(this.permissions.DELETE)"
+          style="height: 25px; width: 25px; cursor: pointer"
+          pButton
+          pRipple
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-warning mr-2"
+          (click)="delete(item.id)"
+        ></span>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [header]="editMode ? 'View Hold Salary' : 'Create Hold Salary'"
+  [modal]="true"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+>
+  <div class="row col-md-12">
+    <div class="p-field col-md-6 flex flex-column">
+      <label for="salaryMonth">Document Date</label>
+      <p-calendar
+        view="month"
+        tabindex="1"
+        [(ngModel)]="holdSalaryDto.documentDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="p-field col-md-6 flex flex-column">
+      <label for="salaryMonth"> Salary Month</label>
+      <p-calendar
+        view="month"
+        [(ngModel)]="holdSalaryDto.salaryMonth"
+        inputId="salaryMonth"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+  </div>
+  <br />
+  <div class="row col-md-12">
+    <div class="col-md-12">
+      <!-- <app-picker
+        [title]="'Employee'"
+        [id]="holdSalaryDto.erpId"
+        [name]="holdSalaryDto.employeeName"
+        (valueSelected)="setPickerValue($event, 'Employee')"
+      >
+      </app-picker> -->
+      <label for="name">Employee:</label>
+                        <p-dropdown
+                        [options]="employeeDropdown"
+                        [(ngModel)]="employeeSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        (onChange)="onDropdownChange($event, 'Employee')"
+                         placeholder="Employee"
+                            >
+                        <ng-template let-item pTemplate="item">
+                        <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="selectedItem">
+                            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        </p-dropdown>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div class="flex flex-column col-md-12">
+      <label for="narration">Narration</label>
+      <textarea
+        class="p-1"
+        [(ngModel)]="holdSalaryDto.reason"
+        id="narration"
+        rows="4"
+        cols="6"
+        pInputTextarea
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end mt-4 gap-2">
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-secondary"
+      type="button"
+      (click)="onDialogClose()"
+    ></button>
+    <button
+      *ngIf="!viewMode"
+      [loading]="saving"
+      pButton
+      [label]="editMode ? 'Update' : 'Save'"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="submit"
+      (click)="create()"
+    ></button>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

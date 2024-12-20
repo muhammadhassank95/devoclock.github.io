@@ -1,0 +1,7 @@
+<aside class="sidebar-container" [ngStyle]="{ width: sidebarExpanded ? '250px' : '100px' }">
+    <sidebar-logo [sidebarExpanded]="sidebarExpanded"></sidebar-logo>
+    <div class="sidebar-content">
+        <sidebar-user-panel></sidebar-user-panel>
+        <sidebar-menu [sidebarExpanded]="sidebarExpanded"></sidebar-menu>
+    </div>
+</aside>

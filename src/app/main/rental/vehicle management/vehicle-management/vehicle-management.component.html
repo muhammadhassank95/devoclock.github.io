@@ -1,0 +1,392 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Vehicle Management</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (keydown.enter)="onEnter($event)"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    [loading]="loading"
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [scrollable]="true"
+    scrollHeight="58vh"
+    [rowHover]="true"
+    [loading]="loading"
+    responsiveLayout="scroll"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'registrationDate',
+      'registrationNumber',
+      'makeYear',
+      'vehicleBrand',
+      'engineNumber',
+      'colourName',
+      'vehiclePower',
+      'chassisNumber',
+      'locationName',
+      'name',
+      'Status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="registrationDate">
+          Registration Date<p-sortIcon field="registrationDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="registrationNumber">
+          Registration No<p-sortIcon field="registrationNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="makeYear">
+          Make Year <p-sortIcon field="makeYear" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="vehicleBrand">
+          Vehicle Brand<p-sortIcon field="vehicleBrand" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="engineNumber">
+          Engine Number<p-sortIcon field="engineNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="chassisNumber">
+          Chassis Number <p-sortIcon field="chassisNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="colourName">
+          Colour Name <p-sortIcon field="colourName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="vehicleTypeName">
+          Vehicle TypeName <p-sortIcon field="vehicleTypeName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="vehicleOwnershipName">
+          Vehicle OwnershipName <p-sortIcon field="vehicleOwnershipName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="fuelTypeName">
+          Fuel TypeName <p-sortIcon field="fuelTypeName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="vehiclePower">
+          Vehicle Power <p-sortIcon field="vehiclePower" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          Location Name <p-sortIcon field="locationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="name">
+          name <p-sortIcon field="name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Active <p-sortIcon field="Active" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="show(item.id)"
+          ></span>
+          <span
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.registrationDate | date }}</td>
+        <td>{{ item.registrationNumber }}</td>
+        <td>{{ item.makeYear }}</td>
+        <td>{{ item.vehicleBrand }}</td>
+        <td>{{ item.engineNumber }}</td>
+        <td>{{ item.chassisNumber }}</td>
+        <td>{{ item.colourName }}</td>
+        <td>{{ item.vehicleTypeName }}</td>
+        <td>{{ item.vehicleOwnershipName }}</td>
+        <td>{{ item.fuelTypeName }}</td>
+        <td>{{ item.vehiclePower }}</td>
+        <td>{{ item.locationName }}</td>
+        <td>{{ item.name }}</td>
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 50, 100, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [closeOnEscape]="false"
+  [header]="editMode ? 'Edit Vehicle' : 'Create Vehicle'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <ng-container>
+    <form [formGroup]="vehicleForm" (ngSubmit)="save()">
+      <div class="row col-md-12 mt-4">
+        <div id="inputField" class="col-md-8 flex flex-column">
+          <label for="name">Account Title:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="name"
+            id="name"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('name')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <div class="row col-md-12 mt-2">
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="title">Registration Number:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="registrationNumber"
+            id="registrationNumber"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('registrationNumber')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="title">Registration Date:</label>
+          <p-calendar
+            formControlName="registrationDate"
+            inputId="date"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('registrationDate')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="makeYear">Make:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="makeYear"
+            id="makeYear"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('makeYear')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="name">Model:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="vehicleBrand"
+            id="address"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('vehicleBrand')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <div class="row col-md-12 mt-2">
+        <div id="inputField" class="col-md-6 flex flex-column">
+          <label for="name">Engine No:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="engineNumber"
+            id="address"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('engineNumber')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column">
+          <label for="name">Chasis Number:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="chassisNumber"
+            id="address"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('chassisNumber')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <div class="col-md-4">
+          <app-picker
+            [title]="'Colour'"
+            [id]="vehicleForm.get('colourId')?.value"
+            [name]="vehicleForm.get('colourName')?.value"
+            (valueSelected)="setPickerValue($event, 'Colour')"
+          ></app-picker>
+        </div>
+        <div class="col-md-4">
+          <app-picker
+            [title]="'VehicleType'"
+            [id]="vehicleForm.get('vehicleTypeId')?.value"
+            [name]="vehicleForm.get('vehicleTypeName')?.value"
+            (valueSelected)="setPickerValue($event, 'VehicleType')"
+          ></app-picker>
+        </div>
+        <div class="col-md-4">
+          <app-picker
+            [title]="'VehicleOwnership'"
+            [id]="vehicleForm.get('vehicleOwnershipId')?.value"
+            [name]="vehicleForm.get('vehicleOwnershipName')?.value"
+            (valueSelected)="setPickerValue($event, 'VehicleOwnership')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div class="col-md-4">
+          <app-picker
+            [title]="'FuelType'"
+            [id]="vehicleForm.get('fuelTypeId')?.value"
+            [name]="vehicleForm.get('fuelTypeName')?.value"
+            (valueSelected)="setPickerValue($event, 'FuelType')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="vehiclePower">Vehicle Power</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="vehiclePower"
+            id="vehiclePower"
+            autocomplete="off"
+          />
+          <div *ngIf="isFieldInvalid('vehiclePower')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div class="col-md-4">
+          <app-picker
+            [title]="'Location'"
+            [id]="vehicleForm.get('locationId')?.value"
+            [name]="vehicleForm.get('locationName')?.value"
+            [showId]="true"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+      </div>
+      <!-- <div class="row col-md-12">
+        <div id="inputField" class="col-md-6 flex-column p-field">
+          <app-picker
+            [title]="'Region'"
+            [id]="this.vehicleForm.value.regionId"
+            [name]="this.vehicleForm.value.regionName"
+            (valueSelected)="setPickerValue($event, 'Region')"
+          />
+        </div>
+      </div> -->
+      <div class="">
+        <div class="flex gap-2 align-items-center">
+          <p-checkbox
+            formControlName="isActive"
+            inputId="isActive"
+            [binary]="true"
+            inputId="binary"
+          />
+          <label for="isActive">Active</label>
+          <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+            <p-checkbox
+              formControlName="isAdminOnly"
+              inputId="isAdminOnly"
+              [binary]="true"
+            ></p-checkbox>
+            <label for="isAdminOnly" class="mb-0">For Admin</label>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-1 justify-content-end mt-4">
+        <p-button
+          (onClick)="displayModal = false"
+          label="Cancel"
+          [outlined]="true"
+          severity="warning"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="!editMode"
+          (click)="save()"
+          [disabled]="!vehicleForm.valid"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="editMode"
+          (click)="update()"
+          [disabled]="!vehicleForm.valid"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        />
+      </div>
+    </form>
+  </ng-container>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

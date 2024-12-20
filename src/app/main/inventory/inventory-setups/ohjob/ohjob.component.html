@@ -1,0 +1,83 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <h3>OHJob</h3>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="p-toolbar-group-left">
+            <span class="p-toolbar-separator" style="margin-right: 10px;"></span>
+            <button pButton icon="pi pi-plus-circle" class="p-button-success" (click)="show()">
+            </button>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+    <p-table #policyTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]" [value]="tableData"
+        styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+        responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="min-width:200px" pSortableColumn="ID">
+                    ID <p-sortIcon field="ID" />
+                </th>
+                <th style="min-width:200px" pSortableColumn="name">
+                    Name <p-sortIcon field="name" />
+                </th>
+                <th style="min-width:200px" pSortableColumn="Active">
+                    Active <p-sortIcon field="Active" />
+                </th>
+                <th style="min-width:200px" pSortableColumn="Actions">
+                    Actions <p-sortIcon field="Actions" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>
+                    <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.isActive" class="no-bg">No</span>
+                </td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                        (click)="show(item.id)">
+                    </button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2"
+                        (click)="delete(item.id)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" [header]="editMode?'Edit OHJob':'Create OHJob'" [modal]="true" [(visible)]="displayModal"
+    [draggable]="false">
+
+    <div id="inputField" class="p-field flex flex-column">
+        <label for="name">Name</label>
+        <input id="name" type="text" pInputText [(ngModel)]="ohjobDto.name" />
+    </div>
+
+    <div class="flex gap-2 align-items-center">
+        <p-checkbox inputId="isActive" [(ngModel)]="ohjobDto.isActive" [binary]="true" inputId="binary" />
+        <label for="isActive">Active</label>
+    </div>
+
+    <div class="flex gap-1 justify-content-end mt-4">
+        <p-button (onClick)="displayModal=false" label="Cancel" [outlined]="true" severity="warning" />
+        <p-button [loading]="saving" *ngIf="!editMode" (click)="save()" label="Save" [outlined]="true"
+            severity="contrast" />
+        <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+            severity="contrast" />
+    </div>
+
+</p-dialog>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

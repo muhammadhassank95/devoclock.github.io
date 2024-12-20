@@ -1,0 +1,15 @@
+<p-tabView>
+  <p-tabPanel header="LoanType">
+    <app-loanType class="load-type-table"></app-loanType>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="!isPermitted('LookUps.LoanManagement')"header="Loan Management">
+    <app-loan-management class="loan-management-table"></app-loan-management>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.ReasonOfDeduction')" header="Reason">
+    <app-reasonOfDeduction class="reason-deduction-table"></app-reasonOfDeduction>
+  </p-tabPanel>
+</p-tabView>
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal"/>
+</div>

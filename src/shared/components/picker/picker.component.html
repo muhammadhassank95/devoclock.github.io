@@ -1,0 +1,105 @@
+<div class="row" style="z-index: 1050" *ngIf="showId">
+  <div class="col-md-3 form-group">
+    <label [htmlFor]="title + 'ID'"
+      >{{ title }}<span class="require-field"></span
+    ></label>
+  </div>
+  <div class="col-md-4 form-group">
+    <!--  -->
+    <div class="input-group">
+      <input
+        type="text"
+        style="width: 20%"
+        tabindex="3"
+        [id]="title + 'ID'"
+        class="form-control form-control-sm"
+        (keydown.enter)="openPicker()"
+        [name]="title + 'ID'"
+        [(ngModel)]="id"
+        [disabled]="editable"
+        required
+      />
+      <div class="input-group-append">
+        <button
+          [disabled]="disable"
+          class="btn btn-primary blue btn-sm"
+          (click)="openPicker()"
+          type="button"
+          tabindex="4"
+        >
+          <i class="fa fa-search"></i>
+          Pick
+        </button>
+      </div>
+      <div class="input-group-prepend">
+        <button
+          [disabled]="disable"
+          class="btn btn-danger btn-icon btn-sm"
+          type="button"
+          tabindex="5"
+          (click)="setToNull()"
+        >
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <!-- <label [htmlFor]="title+'title'">{{title+" Title"}}</label> -->
+    <input
+      class="form-control form-control-sm"
+      [id]="title + 'title'"
+      [(ngModel)]="name"
+      [name]="title + 'title'"
+      type="text"
+      [disabled]="editable"
+      (ngModelChange)="SetName($event)"
+      (keydown.enter)="openPicker()"
+    />
+  </div>
+</div>
+
+<div class="row col-md-{{ inputWidth }}" style="z-index: 1050" *ngIf="!showId">
+  <label [htmlFor]="title + 'ID'"
+    >{{ title }}<span class="require-field">*</span></label
+  >
+
+  <!--  -->
+  <div class="input-group">
+    <input
+      class="form-control form-control-sm col-md-{{ inputWidth ?? 6 }}"
+      [id]="title + 'title'"
+      [(ngModel)]="name"
+      [name]="title + 'title'"
+      [disabled]="editable"
+      (keydown.enter)="openPicker()"
+      type="text"
+      (ngModelChange)="SetName($event)"
+    />
+    <!-- <input type="text" style="width:10%;" tabindex="3" [id]="title+'ID'" class="form-control form-control-sm"
+                (keydown.shift.p)="openPicker()" [name]="title+'ID'" [(ngModel)]="id" readonly required /> -->
+    <div class="input-group-append">
+      <button
+        [disabled]="disable"
+        class="btn btn-primary blue btn-sm"
+        (click)="openPicker()"
+        type="button"
+        tabindex="4"
+      >
+        <i class="fa fa-search"></i>
+        Pick
+      </button>
+    </div>
+    <div class="input-group-prepend">
+      <button
+        [disabled]="disable"
+        class="btn btn-danger btn-icon btn-sm"
+        type="button"
+        tabindex="5"
+        (click)="setToNull()"
+      >
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </div>
+</div>

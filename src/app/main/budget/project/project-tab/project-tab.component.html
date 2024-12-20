@@ -1,0 +1,19 @@
+<p-tabView>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Project')" header="Project Master">
+    <app-project></app-project>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.ProjectType')" header="Project Type">
+    <app-project-type></app-project-type>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.ProjectCategory')"
+    header="Project Category"
+  >
+    <app-project-category></app-project-category>
+  </p-tabPanel>
+</p-tabView>
+
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal" />
+</div>

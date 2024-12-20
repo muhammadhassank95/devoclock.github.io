@@ -1,0 +1,6 @@
+<p>picker-test works!</p>
+
+<app-picker [title]="'Department'" [id]="pickerID1" [name]="pickerName1"
+    (valueSelected)="handleDepartmentSelection($event, 'pickerID1','pickerName1')"></app-picker>
+<app-picker [title]="'Team'" [id]="pickerID1" [name]="pickerName1"
+    (valueSelected)="handleDepartmentSelection($event, 'pickerID2','pickerName2')"></app-picker>

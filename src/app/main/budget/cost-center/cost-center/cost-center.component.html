@@ -1,0 +1,133 @@
+<app-lookup
+  action="CostCenter"
+  [mainDto]="dto"
+  [excludedColumns]="[]"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validateCostCenter()"
+  (emitMainDTO)="getEmittedValues($event)"
+  class="costcentermaster"
+>
+  <ng-template #dialogView>
+   <div class="d-flex flex-column gap-3">
+    <div class="row">
+      <div id="inputField" class="col-md-12 mb-2 flex flex-column">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.name"
+          id="name"
+          autocomplete="off"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="name">Start Date:</label>
+        <p-calendar
+          [(ngModel)]="dto.startDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="name">End Date:</label>
+        <p-calendar
+          [(ngModel)]="dto.endDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6 flex-grow-1  d-flex flex-column">
+        <!-- <app-picker
+          [title]="'CostCenterCategory'"
+          [id]="dto.costCenterCategoryId"
+          [name]="dto.costCenterCategoryName"
+          (valueSelected)="setPickerValue($event,'CostCenterCategory')"
+        ></app-picker> -->
+        <label for="">Cost Center Category:</label>
+        <p-dropdown
+          [options]="costCenterCategoryDropdown"
+          [(ngModel)]="costCenterCategorySelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          (onChange)="onDropdownChange($event, 'CostCenterCategory')"
+          optionLabel="name"
+          placeholder="Cost Center Category"
+        >
+        <ng-template let-item pTemplate="item">
+          <div class="two-dropdown-list nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        <ng-template let-item pTemplate="selectedItem">
+          <div *ngIf="item" class="two-dropdown nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="col-6 flex-grow-1  d-flex flex-column">
+        <!-- <app-picker
+          [title]="'ChartOfAccount'"
+          [id]="dto.chartOfAccountId"
+          [name]="dto.chartOfAccountName"
+          (valueSelected)="setPickerValue($event,'ChartOfAccount')"
+        ></app-picker> -->
+        <label for="">Chart of Account:</label>
+        <p-dropdown
+          [options]="chartOfAccountDropdown"
+          [(ngModel)]="chartOfAccountSelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          (onChange)="onDropdownChange($event, 'ChartOfAccount')"
+          optionLabel="name"
+          placeholder="Chart of Account"
+        >
+        <ng-template let-item pTemplate="item">
+          <div class="two-dropdown-list nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        <ng-template let-item pTemplate="selectedItem">
+          <div *ngIf="item" class="two-dropdown nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+    <div class="row gap-3">
+      <div id="inputField" class="col-md-12 flex flex-column">
+        <label for="name">Serial Number:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.serialNumber"
+          id="serialNumber"
+          autocomplete="off"
+          readonly
+        />
+      </div>
+      <div id="inputField" class="col-md-12 flex flex-column">
+        <label for="name">Description</label>
+        <textarea
+          pInputText
+          [(ngModel)]="dto.description"
+          id="description"
+          autocomplete="off"
+          class="costcenter-description"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="row ">
+      <div class="col-6 flex align-items-center gap-2">
+        <!-- <p-inputSwitch [(ngModel)]="checked" /> -->
+        <p-checkbox
+          [(ngModel)]="dto.isActive"
+          [binary]="true"
+          inputId="active"
+        />
+        <label for="active" class="mb-0">Active</label>
+      </div>
+    </div>
+   </div>
+  </ng-template>
+</app-lookup>

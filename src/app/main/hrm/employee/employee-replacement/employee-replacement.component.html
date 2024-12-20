@@ -1,0 +1,39 @@
+<div *ngIf="employee" class="card p-5">
+    <p-table [value]="[employee]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>ERP ID</th>
+                <th>Name</th>
+                <th>Replacement</th>
+                <th>Replacement Date</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-employee>
+            <tr>
+                <td>{{ employee.erp }}</td>
+                <td>{{ employee.name }}</td>
+                <td>
+                    <app-picker [title]="'Employee'" [id]="employeeReplacementDto.erp"
+                        [name]="employeeReplacementDto.name"
+                        (valueSelected)="setPickerValue($event,'Employee')"></app-picker>
+                </td>
+                <td>
+                    <div id="inputField" class="p-field col-md-8 p-mr-2 flex flex-column">
+                        <label for="date">Start Date </label>
+                        <p-calendar [(ngModel)]="employeeReplacementDto.ReplacementDate" inputId="date" appendTo="body"
+                            [showOnFocus]="true"></p-calendar>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+<div *ngIf="!employee" class="card p-5">
+    <p>No employee details available.</p>
+</div>
+<div class="flex justify-content-end">
+    <button pButton label="Save" icon="pi pi-check" class="p-mr-2" type="submit" (click)="onSubmit()">
+    </button>
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-secondary" type="button" (click)="onClose()">
+    </button>
+</div>

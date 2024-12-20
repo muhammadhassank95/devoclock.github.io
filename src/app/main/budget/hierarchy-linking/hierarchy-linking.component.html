@@ -1,0 +1,338 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>MBU Mapping</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <!-- <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+        <button pButton icon="pi pi-plus-circle" class="p-button-success" (click)="openCreateModal()"></button> -->
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="openCreateModal()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [loading]="loading"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      'status',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location <p-sortIcon field="userLocationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No. <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="status">
+          Status <p-sortIcon field="status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          Is Active <p-sortIcon field="isActive" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <!-- <ng-container *ngIf="item.status !== 'APPROVED'"> -->
+          <span
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          >
+          </span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          >
+          </span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          >
+          </span>
+          <!-- </ng-container> -->
+          <span
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="viewOnly(item.id)"
+          >
+          </span>
+        </td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.voucherNumber }}</td>
+
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status !== 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>{{ item.isActive ? "Yes" : "No" }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [style]="{ width: '90vw' }"
+  [header]="
+    jvFormGroup.value.id > 0
+      ? jvFormGroup.disabled
+        ? 'MBU Mapping Detail'
+        : 'Edit MBU Mapping'
+      : 'Create MBU Mapping'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <form (ngSubmit)="save()" [formGroup]="jvFormGroup">
+    <div class="row col-md-12">
+      <div class="col-md-12">
+        <!-- <app-picker
+          [title]="'Location'"
+          [id]="jvFormGroup.value.userLocationId"
+          [name]="jvFormGroup.value.userLocationName"
+          [disable]="jvFormGroup.disabled"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        ></app-picker> -->
+        <label for="name">Location:</label>
+        <p-dropdown
+        [options]="locationDropdown"
+        [(ngModel)]="locationSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Location')"
+        placeholder="Location"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width: 338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+      </div>
+    </div>
+    <div class="row">
+      <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="date"> Date </label>
+        <p-calendar
+          (ngModelChange)="MakeVoucher($event)"
+          formControlName="issueDate"
+          [disabled]="jvFormGroup.disabled"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          inputId="date"
+          [style]="{ width: '100%' }"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="voucher"> Voucher Number</label>
+        <input
+          [disabled]="jvFormGroup.disabled"
+          formControlName="voucherNumber"
+          id="voucher"
+          type="voucher"
+          pInputText
+          readonly
+        />
+      </div>
+      <!-- <div class="mt-3">
+              <p-button label="Repeat" [raised]="true" severity="info" />
+          </div> -->
+    </div>
+    <br />
+    <div class="row col-md-12">
+      <div class="col-md-12">
+        <!-- <app-picker
+          [title]="'CostCenter'"
+          [id]="jvFormGroup.value.costCenterId"
+          [name]="jvFormGroup.value.costCenterName"
+          [disable]="jvFormGroup.disabled"
+          (valueSelected)="setPickerValue($event, 'CostCenter')"
+        ></app-picker> -->
+        <label for="name">CostCenter:</label>
+        <p-dropdown
+        [options]="costCenterDropdown"
+        [(ngModel)]="costCenterSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'CostCenter')"
+        placeholder="CostCenter"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width: 338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div class="col-md-12">
+        <!-- <app-picker
+          [title]="'Project'"
+          [id]="jvFormGroup.value.projectId"
+          [name]="jvFormGroup.value.projectName"
+          [disable]="jvFormGroup.disabled"
+          (valueSelected)="setPickerValue($event, 'Project')"
+        ></app-picker> -->
+        <label for="name">Project:</label>
+        <p-dropdown
+        [options]="projectDropdown"
+        [(ngModel)]="projectSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Project')"
+        placeholder="Project"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width: 338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+      </div>
+    </div>
+    <br />
+
+    <div class="my-3 flex align-items-center gap-3">
+      <p-button (click)="onAddRow()" label="Add Row" size="small" />
+      <p-button
+        (click)="onRemoveSelected()"
+        label="Remove Row"
+        size="small"
+        severity="danger"
+      />
+    </div>
+
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      style="width: 100%"
+      domLayout="autoHeight"
+      rowSelection="multiple"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      (gridReady)="onGridReady($event)"
+      (cellClicked)="cellClicked($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="displayModal = false"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <ng-container>
+        <p-button
+          [loading]="saving"
+          [disabled]="jvFormGroup.invalid"
+          (click)="save()"
+          *ngIf="!isEditMode && !isViewMode"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        />
+        <p-button
+          [loading]="saving"
+          [disabled]="jvFormGroup.invalid"
+          (click)="save()"
+          *ngIf="isEditMode && !isViewMode"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        />
+      </ng-container>
+    </div>
+  </form>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

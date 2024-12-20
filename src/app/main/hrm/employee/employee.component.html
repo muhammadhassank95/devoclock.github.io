@@ -1,0 +1,198 @@
+<!-- <style>
+  .file-upload-container {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* Space between the file upload and download icon */
+  }
+
+  .p-button-text {
+    margin-left: 10px;
+  }
+
+  .myloader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* margin-top: 1px; */
+    padding: 7px;
+  }
+</style> -->
+<!-- <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <div class="flex items-center">
+            <h4 class="m-0">Bulk Upload</h4>
+        </div>
+    </ng-template>
+    <div class="row">
+        <button (click)="downloadCSVTemplate()">Download CSV Template</button>
+    </div>
+    <div class="row">
+        <h6>Employee</h6>
+    </div>
+
+    <ng-template pTemplate="right">
+        <div class="flex align-items-center justify-content-center gap-2">
+            <input #fileInput type="file">
+            <p-button [loading]="loadingBulk" icon="fas fa-upload" label="Upload" [text]="true" [raised]="true"
+                severity="info" (click)="uploadFile(fileInput)">
+            </p-button>
+        </div>
+    </ng-template>
+</p-toolbar> -->
+
+<div class="card px-4 pt-4">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h3 class="tab-name m-0">Employee</h3>
+    </ng-template>
+  </p-toolbar>
+  <p-table
+    #employeeTable
+    [value]="employees"
+    scrollHeight="75vh"
+    [scrollable]="true"
+    class="employee-modal"
+    [loading]="loading"
+    [globalFilterFields]="[
+      'erpId',
+      'name',
+      'age',
+      'phoneNumber',
+      'cnic',
+      'cniC_TokenNumber',
+      'hasResigned'
+    ]"
+  >
+    <!-- globalFilterFields attribute -->
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="nowrap" title="Id" class="nowrap" field="erpId">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Id
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="Name" field="name">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Name
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="Age">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Age
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="Phone Number">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Phone Number
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="CNIC">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              CNIC
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="Resigned">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Resigned
+            </span>
+          </div>
+        </th>
+        <th class="nowrap" title="Actions">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+              Actions
+            </span>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-employee>
+      <tr>
+        <td class="no-wrap-header" title="{{ employee.erpId }}">{{ employee.erpId }}</td>
+        <td class="no-wrap-header" title="{{ employee.name }}">{{ employee.name }}</td>
+        <td class="no-wrap-header" title="{{ employee.age }}">{{ employee.age }}</td>
+        <td class="no-wrap-header" title="{{ employee.phoneNumber }}">{{ employee.phoneNumber }}</td>
+        <td class="no-wrap-header" title="{{ employee.cniC_TokenNumber }}">{{ employee.cniC_TokenNumber }}</td>
+        <td>
+          <span *ngIf="employee.hasResigned" class="active-box">Yes</span>
+          <span *ngIf="!employee.hasResigned" class="deactive-box">No</span>
+        </td>
+        <td>
+          <p-dropdown [options]="actionOptions" showClear="true" placeholder="Select"
+            [(ngModel)]="employee.selectedAction" (onChange)="handleAction($event, employee)" [appendTo]="'body'"
+            [style]="{
+              'max-height': 'unset',
+              overflow: 'unset',
+              width: '100%'
+            }">
+          </p-dropdown>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-paginator class="mt-4" [rows]="10" [totalRecords]="this.count" (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 50, 100, this.count]">
+  </p-paginator>
+</div>
+<!-- <p-dialog  [closeOnEscape]="false" [maximizable]="true" header="Create Employee" draggable="false" [(visible)]="displayModal" [modal]="true"
+    [responsive]="true" [style]="{width: '90vw'}">
+    <app-create-or-edit-employee (save)="onSave($event)" (close)="onClose()"
+        (erpIdForEdit)="erpIdForEdit"></app-create-or-edit-employee>
+</p-dialog> -->
+<!-- <div *ngIf="displayReplacementModal">
+    <p-dialog [closeOnEscape]="false" [maximizable]="true" header="Employee Replacement" draggable="false"
+        [(visible)]="displayReplacementModal" [modal]="true" [responsive]="true" [style]="{ width: '90vw' }">
+        <app-employee-replacement [erpId]="erpIdForReplacement" (close)="onClose()"></app-employee-replacement>
+    </p-dialog>
+</div> -->
+<p-dialog [maximizable]="true" header="Employee Resignation" class="employee-resignation-modal" draggable="false" [(visible)]="displayResignModal"
+  [modal]="true" [responsive]="true" [style]="{ width: '90vw' }">
+  <app-employee-resign [erp]="erpIdForResignation" class="employee-resign" (close)="onClose('displayResignModal')"></app-employee-resign>
+</p-dialog>
+<div class="" *ngIf="displayModal">
+  <p-dialog [closeOnEscape]="false" [maximizable]="true" header="Create/View Employee" class="create-view-employee-modal" draggable="false"
+    [(visible)]="displayModal" [modal]="true" [responsive]="true" [style]="{ width: '90vw', height: '600px' }">
+    <app-create-or-edit-employee (save)="onSave($event)" (close)="onClose('displayModal')"
+      [erpIdForEdit]="erpIdForEdit"></app-create-or-edit-employee>
+  </p-dialog>
+</div>
+<div class="" *ngIf="displayEditModal">
+  <p-dialog [closeOnEscape]="false" [maximizable]="true" header="Edit Employee" class="edit-employee-modal" draggable="false"
+    [(visible)]="displayEditModal" [modal]="true" [responsive]="true" [style]="{ width: '90vw', height: '600px' }">
+    <app-create-or-edit-employee (save)="onSave($event)" (close)="onClose('displayEditModal')"
+      [erpIdForEditForEdit]="erpIdForEditForEdit"></app-create-or-edit-employee>
+  </p-dialog>
+</div>
+<p-dialog draggable="false" header="Employee Bulk" class="employee-bulk-modal" [modal]="true" [(visible)]="employeeBulkModel" position="top">
+  <div *ngIf="loading" class="loader myloader">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i> Uploading...
+  </div>
+  <p-fileUpload #fileUpload name="myfile[]" [customUpload]="true" (uploadHandler)="uploadFile($event)"
+    multiple="true"></p-fileUpload>
+
+  <div class="file-upload-container">
+    <button pButton icon="pi pi-download" label="Download Template" (click)="downloadCSVTemplate()"></button>
+  </div>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal"/>
+</div>

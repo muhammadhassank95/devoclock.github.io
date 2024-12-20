@@ -1,0 +1,32 @@
+export class StockRequisition {
+  id: number;
+  isActive: boolean;
+  issueDate: Date;
+  userLocationId: number;
+  userLocationName: string;
+  voucherNumber: string;
+  providerLocationId: number;
+  providerLocationName: number;
+  providerProjectId: number;
+  providerProjectName: string;
+  providerCostCenterId: number;
+  providerCostCenterName: string;
+  consumptionMonth: Date;
+  costCenterId: number;
+  // regionId: number;
+  // regionName: string;
+  providerRegionId: number;
+  // providerRegionName: string;
+  costCenterName: string;
+  projectId: number;
+  projectName: string;
+  ohJobId: number;
+  ohJobName: number;
+  stockDemandTypeId: number;
+  stockDemandTypeName: string;
+  totalSaleAmount: number;
+  totalBudgetAmount: number;
+  totalPurchaseAmount: number;
+  status: string;
+  stockRequisitionDetails: any[];
+}

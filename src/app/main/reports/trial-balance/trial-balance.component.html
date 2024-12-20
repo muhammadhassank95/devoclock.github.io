@@ -1,0 +1,66 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Trial Balance</h3>
+  </ng-template>
+</p-toolbar>
+<p-progressSpinner *ngIf="loading" class="center-loader"></p-progressSpinner>
+
+
+<div class="card p-4">
+  <div class="scroll-container" *ngIf="!loading">
+    <!-- <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title2]="'ChartOfAccount'" [title]="'From Account Id'" [id]="this.serialNumber_From_COA"
+              [name]="this.dto?.fromChartOfAccountName"
+              (valueSelected)="setPickerValue($event, 'From ChartOfAccount')"></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'To Account Id'" [title2]="'ChartOfAccount'" [id]="this.serialNumber_To_COA"
+              [name]="this.dto?.toChartOfAccountName" (valueSelected)="setPickerValue($event, 'To ChartOfAccount')" />
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'From Employee'" [title2]="'Employee'" [id]="this.serialNumber_From_Emp"
+              [name]="this.dto?.fromEmployeeName" (valueSelected)="setPickerValue($event, 'From Employee')" />
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'To Employee'" [title2]="'Employee'" [id]="this.serialNumber_To_Emp"
+              [name]="this.dto?.toEmployeeName" (valueSelected)="setPickerValue($event, 'To Employee')" />
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-6 p-field flex flex-column">
+            <app-picker [title2]="'Location'" [title]="'Location'" [id]="this.dto?.locationId" [name]="this.dto?.locationName"
+              [showId]="false" (valueSelected)="setPickerValue($event, 'Location')" />
+          </div>
+      
+        </div>  -->
+    <div class="row col-md-12 mt-2">
+      <div class="col-md-2">
+        <label for="start-date">Start Date *</label>
+        <p-calendar [(ngModel)]="dto.startDate" [style]="{ width: '100%' }" [appendTo]="'body'" [required]="true" />
+      </div>
+      <div class="col-md-2">
+        <label for="finish-date">End Date *</label>
+        <p-calendar [(ngModel)]="dto.endDate" [style]="{ width: '100%' }" [required]="true" [appendTo]="'body'" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flex justify-content-end gap-2 mt-2">
+  <div class="my-auto">
+    <p-button label="Cancel" [outlined]="true" severity="warning" />
+    <p-button (click)="getRentalInvoiceReport()" label="OK" [outlined]="true" severity="contrast" />
+  </div>
+</div>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

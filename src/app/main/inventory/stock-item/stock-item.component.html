@@ -1,0 +1,288 @@
+<p-toolbar styleClass="mb-1">
+  <ng-template pTemplate="left">
+    <h3>Inventory Item</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input pInputText type="text" (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+        style="height: 25px; cursor: pointer" (keydown.enter)="onEnter($event)" />
+    </span>
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-plus-circle" class="p-button-success"
+        (click)="show()"></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table #policyTable [scrollable]="true" scrollHeight="58vh" [value]="tableData" styleClass="p-datatable-gridlines"
+    [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id" [tableStyle]="{ 'min-width': '50rem' }"
+    loadingIcon="pi pi-spin pi-spinner-dotted" responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }" [loading]="loading" [globalFilterFields]="[
+      'id',
+      'title',
+      'itemType',
+      'serialNumber',
+      'categoryName',
+      'subCategoryName'
+    ]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="name">
+          id <p-sortIcon field="id" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="name">
+          Name <p-sortIcon field="name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="serialNumber">
+          Serial Number <p-sortIcon field="serialNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="itemType">
+          Type <p-sortIcon field="itemType" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Specs">
+          Category <p-sortIcon field="Specs" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Specs">
+          Sub Category <p-sortIcon field="Specs" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Active <p-sortIcon field="Active" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.title }}</td>
+        <td>{{ item.serialNumber }}</td>
+        <td>{{ item.itemType }}</td>
+        <td>{{ item.categoryName }}</td>
+        <td>{{ item.subCategoryName }}</td>
+
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+        <td>
+          <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2" (click)="show(item.id)"></span>
+          <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2" (click)="delete(item.id)"></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator [rows]="10" [totalRecords]="this.count" (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 50, 100, this.count]">
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" [header]="editMode ? 'Edit Inventory Item' : 'Create Inventory Item'" [modal]="true"
+  [(visible)]="displayModal" [draggable]="false">
+  <div class="row col-md-12"></div>
+  <div class="row col-md-12 mt-4">
+    <div class="col-md-4">
+      <app-picker [title]="'StockCategory'" [id]="stockItemDto.itemcategoryId" [name]="stockItemDto.itemcategoryName"
+        [showId]="false" [editable]="false" (valueSelected)="setPickerValue($event, 'StockCategory')"></app-picker>
+    </div>
+    <div class="col-md-4">
+      <app-picker [title]="'StockSubCategory'" [id]="stockItemDto.itemsubCategoryId"
+        [name]="stockItemDto.itemsubCategoryName" [showId]="false" [editable]="false"
+        (valueSelected)="setPickerValue($event, 'StockSubCategory')"></app-picker>
+    </div>
+
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="name">Serial Number</label>
+      <input id="name" type="text" pInputText [(ngModel)]="stockItemDto.serialNumber" readonly />
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div class="col-md-4">
+      <app-picker [title]="'InventoryItem'" [editable]="false" [id]="stockItemDto.inventoryId"
+        [name]="stockItemDto.name" [showId]="false" inputWidth="12" (onValuechange)="displayName($event)"
+        (valueSelected)="setPickerValue($event, 'InventoryItem')" (onValuechange)="onvalueChnage($event)"></app-picker>
+    </div>
+
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Specs</label>
+      <input id="name" type="text" pInputText [(ngModel)]="stockItemDto.specs" (blur)="displayName($event)" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="itembrand">Item Brand</label>
+      <input id="itembrand" type="text" pInputText [(ngModel)]="stockItemDto.itemBrand" (blur)="displayName($event)" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="title">Item Size</label>
+      <input id="title" type="text" pInputText [(ngModel)]="stockItemDto.itemSize" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Part No</label>
+      <input id="name" type="text" pInputText [(ngModel)]="stockItemDto.partNumber" (blur)="displayName($event)" />
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <label for="title">Item title</label>
+      <input id="title" type="text" pInputText [(ngModel)]="stockItemDto.title" readonly />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Min</label>
+      <input id="name" type="number" pInputText [(ngModel)]="stockItemDto.minLevel" min="0" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Max</label>
+      <input id="name" type="number" pInputText [(ngModel)]="stockItemDto.maxLevel" min="0" />
+    </div>
+    <!-- <div class="col-md-2">
+            <p-dropdown [options]="itemTypes" [(ngModel)]="stockItemDto.itemType" optionValue="name" optionLabel="name"
+                placeholder="Select Item Type" />
+        </div> -->
+    <div *ngIf="type == 'FixedItem'" id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="depreciationRate">Depreciation Rate</label>
+      <input id="depreciationRate" type="text" pInputText [(ngModel)]="stockItemDto.depreciationRate" />
+    </div>
+    <div class="col-md-1 flex gap-2 align-items-center">
+      <p-checkbox inputId="isActive" [(ngModel)]="stockItemDto.isActive" [binary]="true" inputId="binary" />
+      <label for="isActive">Active</label>
+    </div>
+    <div class="col-md-1 flex gap-2 align-items-center">
+      <p-checkbox inputId="isPetty" [(ngModel)]="stockItemDto.isPettyItem" [binary]="true" inputId="binary" />
+      <label for="isPetty">IsPetty</label>
+    </div>
+  </div>
+
+  <div class="row col-md-12"></div>
+  <p-tabView>
+    <p-tabPanel header="Credentials">
+      <div class="row col-md-12">
+        <div class="col-md-4">
+          <app-picker title2="Unit" [title]="'PurchaseUnit'" [id]="stockItemDto.purchaseUnitId"
+            [name]="stockItemDto.purchaseUnitName" [showId]="false" [editable]="false"
+            (valueSelected)="setPickerValue($event, 'PurchaseUnit')"></app-picker>
+        </div>
+        <div class="col-md-4">
+          <app-picker title2="Unit" [title]="'AppUnit'" [id]="stockItemDto.appUnitId" [name]="stockItemDto.appUnitName"
+            [showId]="false" [editable]="false" (valueSelected)="setPickerValue($event, 'AppUnit')"></app-picker>
+        </div>
+        <div class="col-md-4">
+          <app-picker [title]="'MaterialType'" [editable]="false" [id]="stockItemDto.materialTypeId"
+            [name]="stockItemDto.materialTypeName" [showId]="false" [editable]="false"
+            (valueSelected)="setPickerValue($event, 'MaterialType')"></app-picker>
+        </div>
+        <!-- <div class="row col-md-12">
+          <div class="col-md-4">
+            <app-picker
+              [title]="'Supplier'"
+              [id]="stockItemDto.supplierId"
+              [name]="stockItemDto.supplierName"
+              [showId]="false"
+              (valueSelected)="setPickerValue($event, 'Supplier')"
+            ></app-picker>
+          </div>
+          <div class="col-md-4">
+            <app-picker
+              [title]="'Project'"
+              [id]="stockItemDto.projectId"
+              [name]="stockItemDto.projectName"
+              [showId]="false"
+              (valueSelected)="setPickerValue($event, 'Project')"
+            ></app-picker>
+          </div>
+          <div class="col-md-4">
+            <app-picker
+              [title]="'Location'"
+              [id]="stockItemDto.locationId"
+              [name]="stockItemDto.locationName"
+              [showId]="false"
+              (valueSelected)="setPickerValue($event, 'Location')"
+            >
+            </app-picker>
+          </div>
+        </div> -->
+        <div class="row col-md-12">
+          <div class="col-md-4">
+            <app-picker [title]="'BasicType'" [id]="stockItemDto.basicTypeId" [name]="stockItemDto.basicTypeName"
+              [showId]="false" [editable]="false" (valueSelected)="setPickerValue($event, 'BasicType')">
+            </app-picker>
+          </div>
+          <!-- <div class="col-md-4">
+                        <app-picker [title]="'ItemSize'" [id]="stockItemDto.itemSizeId"
+                            [name]="stockItemDto.itemSizeName" (valueSelected)="setPickerValue($event,'ItemSize')">
+                        </app-picker>
+                    </div> -->
+          <!-- <div class="col-md-4">
+                        <app-picker [title]="'GoDown'" [id]="stockItemDto.goDownId" [name]="stockItemDto.goDownName"
+                            (valueSelected)="setPickerValue($event,'GoDown')">
+                        </app-picker>
+                    </div> -->
+        </div>
+        <!-- <div class="row col-md-12">
+                    <div class="col-md-4">
+                        <app-picker [title]="'GovtAsset'" [id]="stockItemDto.govtAssetId"
+                            [name]="stockItemDto.govtAssetName" (valueSelected)="setPickerValue($event,'GovtAsset')">
+                        </app-picker>
+                    </div>
+                </div> -->
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Financial Integrations">
+      <div *ngIf="type == 'StockItem'">
+        <app-picker title2="ChartOfAccount" [title]="'R/P Stock A/c ID'" [id]="stockNames[0]?.chartOfAccountId"
+          [name]="stockNames[0]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'one')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'W.I.P A/c ID'" [id]="stockNames[1]?.chartOfAccountId"
+          [name]="stockNames[1]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'two')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Consumption A/c ID'" [id]="stockNames[2]?.chartOfAccountId"
+          [name]="stockNames[2]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'three')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'F.G Stock A/c ID'" [id]="stockNames[3]?.chartOfAccountId"
+          [name]="stockNames[3]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'four')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Cost of Sale A/c ID'" [id]="stockNames[4]?.chartOfAccountId"
+          [name]="stockNames[4]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'five')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Sale A/c ID'" [id]="stockNames[5]?.chartOfAccountId"
+          [name]="stockNames[5]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'six')"
+          [editable]="false"></app-picker>
+      </div>
+      <div *ngIf="type == 'FixedItem'">
+        <app-picker title2="ChartOfAccount" [title]="'Capitalization A/c'" [id]="fixedNames[0]?.chartOfAccountId"
+          [name]="fixedNames[0]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'seven')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Acc Dep A/c'" [id]="fixedNames[1]?.chartOfAccountId"
+          [name]="fixedNames[1]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'eight')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Deprecation A/c'" [id]="fixedNames[2]?.chartOfAccountId"
+          [name]="fixedNames[2]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'nine')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Non-Capitalization A/c'" [id]="fixedNames[3]?.chartOfAccountId"
+          [name]="fixedNames[3]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'ten')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Other 1 A/c '" [id]="fixedNames[4]?.chartOfAccountId"
+          [name]="fixedNames[4]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'eleven')"
+          [editable]="false"></app-picker>
+        <app-picker title2="ChartOfAccount" [title]="'Other 2 A/c'" [id]="fixedNames[5]?.chartOfAccountId"
+          [name]="fixedNames[5]?.chartOfAccountName" (valueSelected)="setPickerValue($event, 'twelve')"
+          [editable]="false"></app-picker>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button (onClick)="displayModal = false" label="Cancel" [outlined]="true" severity="warning" />
+    <p-button [loading]="saving" *ngIf="!editMode" (click)="save()" label="Save" [outlined]="true"
+      severity="contrast" />
+    <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+      severity="contrast" />
+  </div>
+</p-dialog>

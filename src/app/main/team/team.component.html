@@ -1,0 +1,7 @@
+<app-lookup action="Currency" [mainDto]="this.dto" [excludedColumns]="[]">
+    <ng-template #dialogView>
+        <div id='inputField'>
+            <input type="text" pInputText [(ngModel)]="this.dto.name" />
+        </div>
+    </ng-template>
+</app-lookup>

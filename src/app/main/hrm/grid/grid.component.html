@@ -1,0 +1,22 @@
+<div>
+    <!-- <p-button *ngIf="!viewMode" size="small" (click)="onAddRow()" label="Add Row" severity="success" />
+    <p-button *ngIf="!viewMode" size="small" (click)="onRemoveRow()" label="Remove Row" severity="danger" />
+    <p-button *ngIf="!viewMode" size="small" (click)="onSave()" label="Save" /> -->
+    <div class="d-flex align-items-center gap-2 my-3">
+        <span *ngIf="!viewMode" pButton pRipple [rounded]="true" class="create-btn p-button-success p-3" style="height:41px !important;"
+        (click)="onAddRow()">
+        Add Row
+      </span>
+      <span *ngIf="!viewMode" pButton pRipple [rounded]="true" class="create-btn outline-btn w-auto"
+        style="height:41px !important;" (click)="onRemoveRow()">
+        Remove Row
+      </span>
+      <span *ngIf="!viewMode" pButton pRipple [rounded]="true"  class="create-btn p-button-success p-3" style="height:41px !important;"
+      (click)="onSave()">
+        Save
+      </span>
+    </div>
+    <ag-grid-angular #myGrid class="ag-theme-quartz" style="height: 500px;" [rowData]="rowData" [columnDefs]="colDefs"
+        [rowSelection]="rowSelection" (gridReady)="onGridReady($event)">
+    </ag-grid-angular>
+</div>

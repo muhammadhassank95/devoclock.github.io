@@ -1,0 +1,671 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Sales Invoice</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        (keydown.enter)="onEnter($event)"
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    [loading]="loading"
+    scrollHeight="58vh"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'supplierName',
+      'issueDate',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucher">
+          Voucher No <p-sortIcon field="voucher" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="IssueDate">
+          IssueDate <p-sortIcon field="IssueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="clientName">
+          ClientName <p-sortIcon field="clientName" />
+        </th>
+        <!-- <th style="min-width: 200px" pSortableColumn="isActive">
+                    inspectionStatus <p-sortIcon field="inspectionStatus" />
+                </th> -->
+        <th style="min-width: 200px" pSortableColumn="status">
+          Status <p-sortIcon field="status" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>{{ item.supplierName }}</td>
+
+        <!-- <td>
+                    <span [ngClass]="{
+              'yes-bg': item.inspectionStatus === 'COMPLETED',
+              'no-bg': item.inspectionStatus === 'PENDING'
+            }" [style]="{ height: '25px', cursor: 'pointer' }">
+                        {{ item.inspectionStatus }}
+                    </span>
+                </td> -->
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            class="yes-bg"
+            style="height: 25px; cursor: pointer"
+            >{{ item.status }}</span
+          >
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Sales Invoice' : 'Create Sales Invoice'"
+  [modal]="true"
+  [(visible)]="displaySaleInvoice"
+  [draggable]="false"
+>
+  <form [formGroup]="salesInoviceForm" (ngSubmit)="create()">
+    <p-tabView class="custom-tabview">
+      <p-tabPanel header="Sales Invoice">
+        <div class="row col-md-12 flex mt-3">
+          <div class="border col-md-6">
+            <div class="row p-2">
+              <div class="row col-md-12">
+                <div class="col-md-3 p-field">
+                  <label for="date">Date</label>
+                  <p-calendar
+                    tabindex="1"
+                    (ngModelChange)="onDateChange($event)"
+                    formControlName="issueDate"
+                    inputId="date"
+                    [minDate]="MinDate"
+                    [maxDate]="today"
+                    appendTo="body"
+                    [showOnFocus]="true"
+                  >
+                  </p-calendar>
+                </div>
+                <div class="col-md-9 p-field">
+                  <app-picker
+                    [showId]="false"
+                    [title]="'Location'"
+                    [id]="this.salesInoviceForm.value.userLocationId"
+                    [name]="this.salesInoviceForm.value.userLocationName"
+                    (valueSelected)="setPickerValue($event, 'Location')"
+                  >
+                  </app-picker>
+                </div>
+              </div>
+
+              <div class="row col-md-12">
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Voucher Number</label>
+                  <input
+                    readonly
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="voucherNumber"
+                  />
+                </div>
+              </div>
+              <div
+                class="row col-md-12"
+                style="margin-bottom: 1rem; margin-top: 1rem"
+              >
+                <div class="my-auto">
+                  <p-button
+                    label="Offer Performa Invoice"
+                    (click)="OpenServiceInvoice()"
+                    [text]="true"
+                    [raised]="true"
+                    severity="success"
+                  >
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border col-md-6">
+            <div class="row p-2">
+              <div class="row col-md-12">
+                <div id="inputField" class="col-md-12 p-field flex flex-column">
+                  <app-picker
+                    [title]="'Client'"
+                    [title2]="'Subledger'"
+                    [id]="this.salesInoviceForm.value.supplierSerialNumber"
+                    [name]="this.salesInoviceForm.value.supplierName"
+                    [chartOfAccountSubLedgerType]="'3,4'"
+                    (valueSelected)="setPickerValue($event, 'Supplier')"
+                  >
+                  </app-picker>
+                </div>
+              </div>
+
+              <div class="row col-md-12">
+                <div id="inputField" class="col-md-12 p-field flex flex-column">
+                  <app-picker
+                    [title]="'Employee'"
+                    [id]="this.salesInoviceForm.value.employeeErpId"
+                    [name]="this.salesInoviceForm.value.employeeName"
+                    (valueSelected)="setPickerValue($event, 'Employee')"
+                  >
+                  </app-picker>
+                </div>
+              </div>
+
+              <div class="row col-md-12">
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Sales Man</label>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="attentionPerson"
+                  />
+                </div>
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Attention</label>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="attentionPerson"
+                    readonly
+                  />
+                </div>
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Reference Number</label>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="referenceNumber"
+                  />
+                </div>
+              </div>
+
+              <div class="row col-md-12">
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Designation</label>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    formControlName="designation"
+                    readonly
+                  />
+                </div>
+
+                <!-- <div id="inputField" class="col-md-4 p-field flex flex-column">
+                                    <label for="name">Business Month</label>
+                                    <p-calendar view="month" dateFormat="mm/yy" formControlName="businessMonth"
+                                        inputId="businessMonth" appendTo="body" readonly>
+                                    </p-calendar>
+                                </div> -->
+
+                <div id="inputField" class="col-md-4 p-field flex flex-column">
+                  <label for="name">Invoice Submission Date</label>
+                  <p-calendar
+                    tabindex="1"
+                    formControlName="invoiceSubmissionDate"
+                    inputId="date"
+                    appendTo="body"
+                    readonly
+                  >
+                  </p-calendar>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br />
+
+        <!-- Grid -->
+        <div class="my-4">
+          <div class="row col-md-12">
+            <div>
+              <p-button
+                (click)="onRemoveSelected()"
+                label="Remove Row"
+                size="small"
+                severity="danger"
+                style="
+                  padding: 0.25rem 0.5rem;
+                  font-size: 0.75rem;
+                  height: auto;
+                  line-height: 1.25;
+                "
+              />
+            </div>
+            <ag-grid-angular
+              style="width: 100%; height: 200px; margin-top: 12px"
+              class="ag-theme-balham"
+              [rowData]="rowData"
+              [columnDefs]="colDefs"
+              [animateRows]="true"
+              [suppressAutoSize]="true"
+              [suppressDragLeaveHidesColumns]="true"
+              [rowSelection]="rowSelection"
+              [singleClickEdit]="true"
+              (gridReady)="onGridReady($event)"
+              (cellValueChanged)="OnCellValueChanged($event)"
+            >
+            </ag-grid-angular>
+          </div>
+        </div>
+
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-2 p-field flex flex-column">
+            <label for="grossAmount">Gross Amount</label>
+            <input
+              id="grossAmount"
+              type="number"
+              pInputText
+              formControlName="grossAmount"
+              readonly
+            />
+          </div>
+          <div id="inputField" class="col-md-1 p-field flex flex-column">
+            <label for="serviceTaxGst">GST %</label>
+            <input
+              id="serviceTaxGst"
+              (change)="onGstPercentChange()"
+              type="number"
+              pInputText
+              formControlName="gstPercentage"
+            />
+          </div>
+          <div id="inputField" class="col-md-2 p-field flex flex-column">
+            <label for="serviceTaxGst">GST Amount</label>
+            <input
+              id="serviceTaxGst"
+              type="number"
+              pInputText
+              formControlName="gstAmount"
+              readonly
+            />
+          </div>
+          <div id="inputField" class="col-md-1 p-field flex flex-column">
+            <label for="serviceTaxPst">PST %</label>
+            <input
+              id="serviceTaxPst"
+              (change)="onPstPercentChange()"
+              type="number"
+              pInputText
+              formControlName="pstPercentage"
+            />
+          </div>
+          <div id="inputField" class="col-md-2 p-field flex flex-column">
+            <label for="serviceTaxPst">PST Amount</label>
+            <input
+              id="serviceTaxPst"
+              type="number"
+              pInputText
+              formControlName="pstAmount"
+              readonly
+            />
+          </div>
+          <div
+            *ngIf="!this.salesInoviceForm.value.gstPercentage"
+            id="inputField"
+            class="col-md-4 p-field flex flex-column"
+          >
+            <app-picker
+              [title]="'PST ChartOfAccount'"
+              [title2]="'Tax'"
+              [filterWiseChartOfAccTarget]="'Tax'"
+              [id]="this.salesInoviceForm.value.pstChartOfAccountSerialNumber"
+              [name]="this.salesInoviceForm.value.pstChartOfAccountName"
+              (valueSelected)="setPickerValue($event, 'ChartOfAccount')"
+            >
+            </app-picker>
+          </div>
+        </div>
+        <div class="">
+          <div id="inputField" class="col-md-3 p-field flex flex-column">
+            <label for="totalAmount">Net Amount</label>
+            <input
+              id="totalAmount"
+              type="number"
+              pInputText
+              formControlName="totalAmount"
+              readonly
+            />
+          </div>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Other Details">
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-6">
+            <app-picker
+              [title]="'CostCenter'"
+              [id]="salesInoviceForm.value.costCenterId"
+              [name]="salesInoviceForm.value.costCenterName"
+              (valueSelected)="setPickerValue($event, 'CostCenter')"
+            ></app-picker>
+          </div>
+          <!-- <div id="inputField" class="p-field col-md-6">
+            <app-picker
+              [title]="'Region'"
+              [id]="salesInoviceForm.value.regionId"
+              [name]="salesInoviceForm.value.regionName"
+              (valueSelected)="setPickerValue($event, 'Region')"
+            ></app-picker>
+          </div> -->
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-6">
+            <app-picker
+              [title]="'Project'"
+              [id]="salesInoviceForm.value.projectId"
+              [name]="salesInoviceForm.value.projectName"
+              (valueSelected)="setPickerValue($event, 'Project')"
+            ></app-picker>
+          </div>
+          <div id="inputField" class="p-field col-md-6">
+            <app-picker
+              [title]="'Site'"
+              [id]="salesInoviceForm.value.siteId"
+              [name]="salesInoviceForm.value.siteName"
+              (valueSelected)="setPickerValue($event, 'Site')"
+            ></app-picker>
+          </div>
+        </div>
+        <!-- <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Subject</label>
+                <input
+                  id="subject"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="subject"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Terms</label>
+                <input
+                  id="terms"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="terms"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Origin</label>
+                <input
+                  id="origin"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="origin"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Validity</label>
+                <input
+                  id="validity"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="validity"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Starting Comments</label>
+                <input
+                  id="comments"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="startingComments"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">Paragraph</label>
+                <input
+                  id="paragraph"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="paragraph"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-12">
+                <label for="narration" class="form-label">End Narration</label>
+                <input
+                  id="endNarration"
+                  required
+                  type="text"
+                  pInputText
+                  formControlName="endingComments"
+                  class="form-control"
+                />
+              </div>
+            </div><br> -->
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-6">
+            <app-picker
+              [title]="'VoucherStatus'"
+              [id]="salesInoviceForm.value.voucherStatusId"
+              [name]="salesInoviceForm.value.voucherStatusName"
+              (valueSelected)="setPickerValue($event, 'VoucherStatus')"
+            ></app-picker>
+          </div>
+          <div id="inputField" class="col-md-6">
+            <label for="narration" class="form-label"
+              >Voucher Status Remarks</label
+            >
+            <input
+              id="endNarration"
+              required
+              type="text"
+              pInputText
+              class="form-control"
+              formControlName="remarks"
+            />
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="CloseModel()"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="!editMode && !viewMode"
+        (click)="create()"
+        label="Save"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="editMode && !viewMode"
+        (click)="update()"
+        label="Update"
+        [outlined]="true"
+        severity="contrast"
+      />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [maximizable]="true"
+  header="Copy Service Quotation"
+  [modal]="true"
+  [(visible)]="displayServiceQuotation"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="ServiceQuotationData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No <p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="issueDate">
+            Issue Date <p-sortIcon field="issueDate" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="action">
+            Actions <p-sortIcon field="action" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+          <td>
+            <button
+              (click)="SelectServiceQuotation(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

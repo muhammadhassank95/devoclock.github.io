@@ -1,0 +1,95 @@
+<div class="card px-5 py-5">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <div class="flex items-center">
+        <h4 class="m-0">Absent Employees</h4>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <div class="flex flex-column">
+        <label for="startDate">Start Date</label>
+        <p-calendar
+          [disabled]="isViewMode"
+          [(ngModel)]="startDate"
+          inputId="startDate"
+          appendTo="body"
+        ></p-calendar>
+      </div>
+      <div class="flex flex-column">
+        <label for="endDate">End Date</label>
+        <p-calendar
+          [disabled]="isViewMode"
+          [(ngModel)]="endDate"
+          inputId="endDate"
+          appendTo="body"
+        ></p-calendar>
+      </div>
+      <p-button
+        (onClick)="Search()"
+        icon="pi pi-search"
+        [rounded]="true"
+        severity="success"
+      />
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #presentEmployeesTable
+    scrollHeight="58vh"
+    [scrollable]="true"
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [rowHover]="true"
+    dataKey="employeeId"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="employeeId" style="min-width: 200px">
+          Employee ID <p-sortIcon field="employeeId" />
+        </th>
+        <th pSortableColumn="name" style="min-width: 200px">
+          Name <p-sortIcon field="name" />
+        </th>
+        <th pSortableColumn="absentcount" style="min-width: 200px">
+          Absent Count <p-sortIcon field="absentcount" />
+        </th>
+        <!-- <th pSortableColumn="absenteesDates" style="min-width:200px">
+                    Absent Dates <p-sortIcon field="absenteesDates" />
+                </th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td style="width: 150px">
+          {{ item.erpId }}
+        </td>
+        <td style="width: 150px">
+          {{ item.name }}
+        </td>
+        <td style="width: 150px">
+          {{ item.absenteesCount }}
+        </td>
+        <!-- <td style="width:150px">
+                    {{item.absenteesDates}}
+                </td> -->
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="count"
+    (onPageChange)="onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 50, 100, 500]"
+  >
+  </p-paginator>
+</div>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

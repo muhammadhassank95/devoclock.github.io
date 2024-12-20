@@ -1,0 +1,353 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Manual Over Time</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="openCreateModal()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    scrollHeight="58vh"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [globalFilterFields]="[
+      'issueDate',
+      'voucherNumber',
+      'overTimeHours',
+      'allowedOverTimeHours',
+      'netOverTimeHours',
+      'overTimeAmount',
+      'isOTBasedOnGrossPay',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="documentDate">
+          Document Date <p-sortIcon field="documentDate" />
+        </th>
+        <th pSortableColumn="voucherNumber">
+          Voucher Number<p-sortIcon field="voucherNumber" />
+        </th>
+        <th pSortableColumn="overTimeHours">
+          Overtime Hours <p-sortIcon field="overTimeHours" />
+        </th>
+        <th pSortableColumn="allowedOverTimeHours">
+          Allowed overtime hours <p-sortIcon field="allowedOverTimeHours" />
+        </th>
+        <th pSortableColumn="netOverTimeHours">
+          Net overtime hours<p-sortIcon field="netOverTimeHours" />
+        </th>
+        <th pSortableColumn="overTimeAmount">
+          overtime amount<p-sortIcon field="overTimeAmount" />
+        </th>
+        <th pSortableColumn="isOTBasedOnGrossPay">
+          Is based on Gross pay<p-sortIcon field="isOTBasedOnGrossPay" />
+        </th>
+        <th pSortableColumn="isActive">
+          Is Active<p-sortIcon field="isActive" />
+        </th>
+        <th pSortableColumn="Status">Status<p-sortIcon field="Status" /></th>
+        <th pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.overTimeHours }}</td>
+        <td>{{ item.allowedOverTimeHours }}</td>
+        <td>{{ item.netOverTimeHours }}</td>
+        <td>{{ item.overTimeAmount }}</td>
+
+        <td>
+          <span *ngIf="item.isOTBasedOnGrossPay" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isOTBasedOnGrossPay" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Manual Over Time"
+  draggable="false"
+  [(visible)]="displayModal"
+  [modal]="true"
+  [responsive]="true"
+  [style]="{ width: '70vw' }"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date">Document Date </label>
+      <p-calendar
+        [(ngModel)]="manualOvertimeDto.issueDate"
+        (ngModelChange)="onDateChange($event)"
+        inputId="date"
+        appendTo="body"
+        tabindex="1"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="col-md-4">
+      <app-picker
+        [title]="'Location'"
+        [id]="manualOvertimeDto.userLocationId"
+        [name]="manualOvertimeDto.userLocationName"
+        [showId]="false"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      ></app-picker>
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="voucher"> Voucher Number</label>
+      <input
+        id="voucherNumber"
+        type="voucherNumber"
+        pInputText
+        readonly
+        [(ngModel)]="manualOvertimeDto.voucherNumber"
+      />
+    </div>
+
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date"> Overtime hours</label>
+      <input
+        (ngModelChange)="getNetOverTime($event)"
+        id="voucher"
+        type="text"
+        pInputText
+        [(ngModel)]="manualOvertimeDto.overTimeHours"
+      />
+    </div>
+  </div>
+  <div class="col-md-6 mt-3">
+    <app-picker
+      [title]="'Employee'"
+      [id]="manualOvertimeDto.employeeId"
+      [name]="manualOvertimeDto.employeeName"
+      (valueSelected)="setPickerValue($event, 'Employee')"
+    ></app-picker>
+  </div>
+
+  <div class="row col-md-12 flex mt-3">
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="allowedOverTimeHours">Allowed Overtime Hours</label>
+      <input
+        id="allowedOverTimeHours"
+        type="text"
+        pInputText
+        [(ngModel)]="manualOvertimeDto.allowedOverTimeHours"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="netOverTimeHours">Net Overtime Hours</label>
+      <input
+        [max]="manualOvertimeDto.allowedOverTimeHours"
+        id="netOverTimeHours"
+        type="text"
+        pInputText
+        [(ngModel)]="manualOvertimeDto.netOverTimeHours"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="overTimeAmount">Overtime Amount</label>
+      <input
+        id="overTimeAmount"
+        type="text"
+        pInputText
+        [(ngModel)]="otRate"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="overTimeAmounttot">Total Overtime Amount</label>
+      <input
+        id="overTimeAmounttot"
+        type="text"
+        pInputText
+        [(ngModel)]="manualOvertimeDto.overTimeAmount"
+        readonly
+      />
+    </div>
+  </div>
+
+  <div class="row flex gap-5 mt-3">
+    <div class="flex gap-2 align-items-center">
+      <p-checkbox
+        inputId="isOTBasedOnGrossPay"
+        [(ngModel)]="manualOvertimeDto.isOTBasedOnGrossPay"
+        [binary]="true"
+        inputId="binary"
+      />
+      <label for="isOTBasedOnGrossPay" class="mb-0"
+        >Is OT Based On Gross Pay</label
+      >
+    </div>
+    <div class="flex gap-2 align-items-center">
+      <p-checkbox
+        inputId="isActive"
+        [(ngModel)]="manualOvertimeDto.isActive"
+        [binary]="true"
+        inputId="binary"
+      />
+      <label for="isActive" class="mb-0">Active</label>
+    </div>
+  </div>
+
+  <div class="row mt-5">
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="attdate">Attendance Date </label>
+      <p-calendar
+        [(ngModel)]="attendanceDate"
+        inputId="attdate"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="col-md-3 mt-auto">
+      <p-button
+        (click)="GetAttendance()"
+        label="Get Attendance"
+        [text]="true"
+        [raised]="true"
+        severity="info"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="checkIn">Check In</label>
+      <input
+        id="checkIn"
+        type="text"
+        pInputText
+        [(ngModel)]="checkIn"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="checkOut">Check Out</label>
+      <input
+        id="checkOut"
+        type="text"
+        pInputText
+        [(ngModel)]="checkOut"
+        readonly
+      />
+    </div>
+  </div>
+
+  <div class="flex justify-content-end mt-4">
+    <button
+      [loading]="saving"
+      pButton
+      label="Save"
+      *ngIf="isEditMode && !view"
+      icon="pi pi-check"
+      type="submit"
+      (click)="create()"
+    ></button>
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-secondary"
+      type="button"
+      (click)="onDialogClose()"
+    ></button>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

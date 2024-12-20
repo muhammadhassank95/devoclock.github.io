@@ -1,0 +1,1481 @@
+<style>
+  .custom-tabview {
+    /* width: 80%;
+    margin: 0 auto; */
+    /* Center the tab view */
+  }
+
+  /* .button-container {
+        display: flex;
+        justify-content: flex-end;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        padding: 10px;
+    } */
+</style>
+
+<p-tabView
+  (onChange)="onTabChange($event)"
+  [scrollable]="true"
+  [activeIndex]="0"
+  class="custom-tabview"
+>
+  <p-tabPanel header="Rejoin">
+    <div class="mt-3">
+      <!-- <app-picker
+        [title]="'Employee'"
+        [title2]="'ResignedEmployees'"
+        [id]="rejoindto.rejoinId"
+        [name]="rejoindto.rejoinName"
+        (valueSelected)="setPickerValue($event, 'rejoinEmp')"
+      ></app-picker> -->
+      <label for="name">Employee:</label>
+            <p-dropdown
+            [options]="rejoinEmpDropdown"
+            [(ngModel)]="rejoinEmpSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'rejoinEmp')"
+            placeholder="Employee"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 600px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+    </div>
+    <div class="d-flex align-items-end gap-2 mt-3">
+      <div class="d-flex flex-column flex-grow-1">
+        <label for="probationStartDate"> Rejoin Date</label>
+        <p-calendar
+          [(ngModel)]="rejoindto.JoiningDate"
+          inputId="JoiningDate"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div class="d-flex align-items-end">
+        <button
+          pButton
+          size="small"
+          label="Rejoin"
+          type="submit"
+          class="p-button-success"
+          (click)="RejoinEmployee()"
+        ></button>
+      </div>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="Basic Details">
+    <div class="p-fluid col-md-12 mt-2">
+      <div class="row">
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Interview'"
+            [id]="employeeInputDto.interviewId"
+            [name]="employeeInputDto.interviewName"
+            (valueSelected)="setPickerValue($event, 'Interview')"
+          ></app-picker> -->
+          <label for="name">Interview:</label>
+            <p-dropdown
+            [options]="interviewDropdown"
+            [(ngModel)]="interviewSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'Interview')"
+            placeholder="Interview"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+          <!-- <app-dropdown-selector title="Interview" target="Interview" placeholder="Select Interview Name"
+                        [default]="{}" (valueSelected)="onValueSelected($event)">
+                    </app-dropdown-selector> -->
+        </div>
+        <div id="inputField" class="p-field col-md-6">
+          <label for="employeeId">Employee ID</label>
+          <input
+            id="employeeId"
+            type="text"
+            pInputText
+            [(ngModel)]="employeeInputDto.erp"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="row mt-3">
+
+        <div id="inputField" class="p-field col-md-6">
+          <label for="name">Employee Name</label>
+          <input
+            (keypress)="preventNonAlphabetic($event)"
+            [readOnly]="viewMode"
+            id="name"
+            type="text"
+            pInputText
+            [(ngModel)]="employeeInputDto.name"
+          />
+        </div>
+        <div class="p-field col-md-6">
+          <label for="probationStartDate"> Joining Date</label>
+          <p-calendar
+            (ngModelChange)="probationPeriodChange($event)"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.joiningDate"
+            [(ngModel)]="employeeInputDto.probationStartDate"
+            inputId="probationStartDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="probationPeriod">Probation Period (in days)</label>
+          <input
+            [readOnly]="viewMode"
+            autocomplete="off"
+            id="probationPeriod"
+            type="number"
+            min="0"
+            [(ngModel)]="employeeInputDto.probationPeriod"
+            pInputText
+            (ngModelChange)="probationPeriodChange()"
+            (keypress)="preventInvalidInput($event)"
+            (input)="validateInput($event)"
+          />
+        </div>
+
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="probationEndDate">Probation End Date</label>
+          <input
+            id="probationEndDate"
+            pInputText
+            [(ngModel)]="tempDate"
+            disabled
+          />
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="p-field col-md-6">
+          <!-- <label for="dob">Date of Birth</label>
+                    <input [readOnly]="viewMode" id="dob" type="date" pInputText
+                        [(ngModel)]="employeeInputDto.dateOfBirth" (ngModelChange)="OnDobChange($event)" /> -->
+          <label for="date"> Date of Birth</label>
+          <p-calendar
+            [disabled]="viewMode"
+            [disabled]="false"
+            [(ngModel)]="employeeInputDto.dateOfBirth"
+            inputId="date"
+            [maxDate]="maxDate"
+            appendTo="body"
+            (ngModelChange)="OnDobChange($event)"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+
+        <div id="inputField" class="p-field col-md-6">
+          <label for="age">Age</label>
+          <input
+            id="age"
+            pInputText
+            [(ngModel)]="employeeInputDto.age"
+            disabled
+          />
+        </div>
+        <div class="p-field col-md-6 mt-3">
+          <label >CNIC/TOKEN</label>
+          <div class="d-flex align-items-center gap-4" style="padding:7px 0;">
+            <div class="d-flex align-items-center gap-1">
+              <p-radioButton
+                name="cniC_TokenNumber"
+                value="CNIC"
+                [(ngModel)]="selectedOption"
+                (onClick)="onCniCTokenChange('CNIC')"
+              ></p-radioButton>
+              <label for="cnic" class="m-0">CNIC</label>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <p-radioButton
+                name="cniC_TokenNumber"
+                value="Token"
+                [(ngModel)]="selectedOption"
+                (onClick)="onCniCTokenChange('Token')"
+              ></p-radioButton>
+              <label for="token" class="m-0">Token</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-field col-md-6 mt-3" *ngIf="selectedOption === 'CNIC'">
+          <label for="newCnic"> CNIC</label>
+          <p-inputMask
+            type="text"
+            [style]="{ 'font-size': '0.875rem' }"
+            mask="99999-9999999-9"
+            placeholder="99999-9999999-9"
+            styleClass="form-control form-control-sm"
+            id="Employee_cnic"
+            name="Employee_cnic"
+            [(ngModel)]="employeeInputDto.cnic"
+            required
+          >
+          </p-inputMask>
+        </div>
+
+        <div
+          id="inputField"
+          class="p-field col-md-6 mt-3"
+          *ngIf="selectedOption === 'Token'"
+        >
+          <label for="tokenNumber">Token Number</label>
+          <input
+            [readOnly]="viewMode"
+            id="tokenNumber"
+            type="text"
+            maxlength="12"
+            pInputText
+            [(ngModel)]="employeeInputDto.cniC_TokenNumber"
+          />
+        </div>
+        <div
+          id="inputField"
+          *ngIf="selectedOption === 'CNIC'"
+          class="p-field col-md-6 mt-3"
+        >
+          <!-- <label for="newCnic">CNIC Expiry Date</label>
+                    <input [readOnly]="viewMode" id="newCnic" type="date" pInputText
+                        [(ngModel)]="employeeInputDto.cniC_ExpiryDate" /> -->
+          <label for="cniC_ExpiryDate"> CNIC Expiry Date</label>
+          <p-calendar
+            [minDate]="minDate"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.cniC_ExpiryDate"
+            inputId="cniC_ExpiryDate"
+            appendTo="body"
+            [showOnFocus]="true"
+            (onSelect)="expiryDateValidation()"
+          ></p-calendar>
+        </div>
+        <div
+          id="inputField"
+          *ngIf="selectedOption === 'Token'"
+          class="p-field col-md-6 mt-3"
+        >
+          <!-- <label for="TokenDate">Token Date</label>
+                    <input [readOnly]="viewMode" id="TokenDate" type="date" pInputText
+                        [(ngModel)]="employeeInputDto.tokenDate" /> -->
+          <label for="tokenDate"> Token Date</label>
+          <p-calendar
+            [maxDate]="maxDate"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.tokenDate"
+            inputId="tokenDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div class="col-md-6 mt-3">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'CostCenter'"
+            [id]="employeeInputDto.costCenterId"
+            [name]="employeeInputDto.costCenterName"
+            (valueSelected)="setPickerValue($event, 'CostCenter')"
+          ></app-picker> -->
+          <label for="name">CostCenter:</label>
+          <p-dropdown
+          [options]="costCenterDropdown"
+          [(ngModel)]="costCenterSelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          optionLabel="name"
+          (onChange)="onDropdownChange($event, 'CostCenter')"
+          placeholder="CostCenter"
+          >
+          <ng-template let-item pTemplate="item">
+              <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+           <ng-template let-item pTemplate="selectedItem">
+              <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+       
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Project'"
+            [id]="employeeInputDto.projectId"
+            [name]="employeeInputDto.projectName"
+            (valueSelected)="setPickerValue($event, 'Project')"
+          ></app-picker> -->
+          <label for="name">Project:</label>
+          <p-dropdown
+          [options]="projectDropdown"
+          [(ngModel)]="projectSelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          optionLabel="name"
+          (onChange)="onDropdownChange($event, 'Project')"
+          placeholder="Project"
+          >
+          <ng-template let-item pTemplate="item">
+              <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+           <ng-template let-item pTemplate="selectedItem">
+              <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+          </p-dropdown>
+        </div>
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Location'"
+            [id]="employeeInputDto.locationId"
+            [showId]="false"
+            [name]="employeeInputDto.locationName"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker> -->
+          <label for="name">Location:</label>
+          <p-dropdown
+          [options]="locationDropdown"
+          [(ngModel)]="locationSelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          optionLabel="name"
+          (onChange)="onDropdownChange($event, 'Location')"
+          placeholder="Location"
+          >
+          <ng-template let-item pTemplate="item">
+              <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+           <ng-template let-item pTemplate="selectedItem">
+              <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+          </p-dropdown>
+        </div>
+      <div class="col-md-8">
+        <!-- <app-picker
+          [enable]="rejoinMode"
+          [disable]="viewMode"
+          [title]="'Region'"
+          [id]="employeeInputDto.regionId"
+          [showId]="false"
+          [name]="employeeInputDto.regionName"
+          (valueSelected)="setPickerValue($event, 'Region')"
+        ></app-picker> -->
+      </div>
+      </div>
+        <div class="row col-12 flex-column mt-3 gap-1">
+          <div class="flex gap-2 align-items-center">
+            <p-checkbox
+              [disabled]="viewMode"
+              inputId="isActive"
+              [(ngModel)]="employeeInputDto.isActive"
+              [binary]="true"
+              inputId="binary"
+            />
+            <label for="isActive" class="mb-0">Active</label>
+          </div>
+          <div class="flex gap-2 align-items-center">
+            <p-checkbox
+              [disabled]="viewMode"
+              inputId="isAllowedOverTime"
+              [(ngModel)]="employeeInputDto.isAllowedOverTime"
+              [binary]="true"
+              inputId="binary"
+            />
+            <label for="isAllowedOverTime" class="mb-0">Over Time</label>
+          </div>
+          <div class="flex gap-2 align-items-center">
+            <p-checkbox
+              [disabled]="viewMode"
+              inputId="isAllowedLeaveEncashment"
+              [(ngModel)]="employeeInputDto.isAllowedLeaveEncashment"
+              [binary]="true"
+              inputId="binary"
+            />
+            <label for="isAllowedLeaveEncashment" class="mb-0"
+              >Leave Encashment</label
+            >
+          </div>
+          <div class="flex gap-2 align-items-center">
+            <p-checkbox
+              [disabled]="viewMode"
+              inputId="isHotListed"
+              [(ngModel)]="employeeInputDto.isHotListed"
+              [binary]="true"
+              inputId="binary"
+            />
+            <label for="isHotListed" class="mb-0">Hot listed</label>
+          </div>
+        </div>
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="Employee Information">
+    <div class="p-fluid">
+      <div class="row mt-3">
+        <div id="inputField" class="p-field col-md-12">
+          <label for="relatorName">Name </label>
+          <input
+            (keypress)="preventNonAlphabetic($event)"
+            id="relatorName"
+            pInputText
+            [(ngModel)]="employeeInputDto.relatorName"
+          />
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="p-field col-md-6">
+          <label for="phoneNumber">Phone No</label>
+          <p-inputMask
+            type="text"
+            [style]="{ 'font-size': '0.875rem' }"
+            mask="9999-9999999"
+            placeholder="9999-9999999"
+            styleClass="form-control form-control-sm"
+            id="phoneNumber"
+            name="phoneNumber"
+            [(ngModel)]="employeeInputDto.phoneNumber"
+            required
+          >
+          </p-inputMask>
+        </div>
+        <div class="p-field col-md-6">
+          <label for="emergencyContact">Next to Kin</label>
+          <p-inputMask
+            type="text"
+            [style]="{ 'font-size': '0.875rem' }"
+            mask="9999-9999999"
+            placeholder="9999-9999999"
+            styleClass="form-control form-control-sm"
+            id="emergencyContact"
+            name="emergencyContact"
+            [(ngModel)]="employeeInputDto.proxyContact"
+            required
+          >
+          </p-inputMask>
+        </div>
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="proxyName">Next to Kin Name</label>
+          <input
+            [readOnly]="viewMode"
+            id="proxyName"
+            (keypress)="preventNonAlphabetic($event)"
+            type="text"
+            pInputText
+            [(ngModel)]="employeeInputDto.proxyName"
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="proxyRelation">Next to Kin Relation</label>
+          <input
+            [readOnly]="viewMode"
+            id="proxyRelation"
+            (keypress)="preventNonAlphabetic($event)"
+            type="text"
+            pInputText
+            [(ngModel)]="employeeInputDto.proxyRelation"
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="familyCode">Family Code</label>
+          <input
+            [readOnly]="viewMode"
+            id="familyCode"
+            maxlength="12"
+            pInputText
+            [(ngModel)]="employeeInputDto.familyCode"
+          />
+        </div>
+        <div class="col-md-6 mt-3">
+          <!-- <app-picker
+            [disable]="viewMode"
+            [title]="'Religion'"
+            [id]="employeeInputDto.religionId"
+            [enable]="rejoinMode"
+            (valueSelected)="setPickerValue($event, 'Religion')"
+          ></app-picker> -->
+          <label for="name">Religion:</label>
+        <p-dropdown
+        [options]="religionDropdown"
+        [(ngModel)]="religionSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Religion')"
+        placeholder="Religion"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <!-- <div id="inputField" class="p-field p-mr-2 col-md-2">
+                    <label for="proxCard">Prox. Card#</label>
+                    <input id="proxCard" pInputText [(ngModel)]="employeeInputDto.proxCard" />
+                </div> -->
+      </div>
+
+      <div class="row mt-3">
+       
+        <div class="col-md-6">
+          <!-- <app-picker
+            [disable]="viewMode"
+            [title]="'SkillLevel'"
+            [id]="employeeInputDto.skillLevelId"
+            [name]="employeeInputDto.skillLevelName"
+            (valueSelected)="setPickerValue($event, 'SkillLevel')"
+          ></app-picker> -->
+          <label for="name">SkillLevel:</label>
+        <p-dropdown
+        [options]="skillLevelDropdown"
+        [(ngModel)]="skillLevelSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'SkillLevel')"
+        placeholder="SkillLevel"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'BloodGroup'"
+            [id]="employeeInputDto.bloodGroupId"
+            [name]="employeeInputDto.bloodGroupName"
+            (valueSelected)="setPickerValue($event, 'BloodGroup')"
+          ></app-picker> -->
+          <label for="name">BloodGroup:</label>
+        <p-dropdown
+        [options]="bloodGroupDropdown"
+        [(ngModel)]="bloodGroupSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'BloodGroup')"
+        placeholder="BloodGroup"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+      
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Gender'"
+            [id]="employeeInputDto.genderId"
+            [name]="employeeInputDto.genderName"
+            (valueSelected)="setPickerValue($event, 'Gender')"
+          ></app-picker> -->
+          <label for="name">Gender:</label>
+        <p-dropdown
+        [options]="genderDropdown"
+        [(ngModel)]="genderSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Gender')"
+        placeholder="Gender"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Relation'"
+            [id]="employeeInputDto.relationId"
+            [name]="employeeInputDto.relationName"
+            (valueSelected)="setPickerValue($event, 'Relation')"
+          ></app-picker> -->
+          <label for="name">Relation:</label>
+        <p-dropdown
+        [options]="relationDropdown"
+        [(ngModel)]="relationSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Relation')"
+        placeholder="Relation"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div
+          id="inputField"
+          class="p-field col-md-6"
+          *ngIf="employeeInputDto.maritalStatus == 'married'"
+        >
+          <label for="marriageDate">Marriage Date</label>
+          <p-calendar
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.marriageDate"
+            inputId="date"
+            [maxDate]="maxDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div
+          id="inputField"
+          class="p-field col-md-6"
+          *ngIf="employeeInputDto.maritalStatus == 'divorced'"
+        >
+          <label for="divorcedDate">Divorced Date</label>
+          <!-- <input [readOnly]="viewMode" id="divorcedDate" type="date" pInputText
+                        [(ngModel)]="employeeInputDto.divorcedDate" [maxDate]="today" /> -->
+          <p-calendar
+            [maxDate]="maxDate"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.divorcedDate"
+            inputId="divorcedDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+      </div>
+      <div class="row">
+        <div class="p-field col-12 d-flex flex-column gap-2">
+          <label for="maritalStatus">Martial Status</label>
+          <div class="flex align-items-center gap-3">
+            <div class="flex align-items-center gap-1">
+              <p-radioButton
+                value="married"
+                [(ngModel)]="employeeInputDto.maritalStatus"
+              ></p-radioButton>
+              <label for="cnic" class="mb-0">Married</label>
+            </div>
+            <div class="flex align-items-center gap-1">
+              <p-radioButton
+                value="single"
+                [(ngModel)]="employeeInputDto.maritalStatus"
+              ></p-radioButton>
+              <label for="token" class="mb-0">Single</label>
+            </div>
+            <div class="flex align-items-center gap-1">
+              <p-radioButton
+                value="divorced"
+                [(ngModel)]="employeeInputDto.maritalStatus"
+              ></p-radioButton>
+              <label for="token" class="mb-0">Divorced</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="Credentials">
+    <div class="p-fluid">
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'TypeOfEmployee'"
+            [id]="employeeInputDto.employeeTypeId"
+            [name]="employeeInputDto.typeOfEmployeeName"
+            (valueSelected)="setPickerValue($event, 'TypeOfEmployee')"
+          ></app-picker> -->
+          <label for="name">TypeOfEmployee:</label>
+        <p-dropdown
+        [options]="typeOfEmployeeDropdown"
+        [(ngModel)]="typeOfEmployeeSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'TypeOfEmployee')"
+        placeholder="TypeOfEmployee"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+
+        <div
+          *ngIf="employeeInputDto.typeOfEmployeeName == 'Contract'"
+          id="inputField"
+          class="p-field col-md-6"
+        >
+          <!-- <label for="contractStartDate">Contract Start Date</label>
+                    <input [readOnly]="viewMode" (ngModelChange)="OnProbationChange($event,true)" id="contractStartDate"
+                        type="date" pInputText [(ngModel)]="employeeInputDto.contractStartDate" /> -->
+          <label for="contractStartDate"> Contract Start Date</label>
+          <p-calendar
+            (ngModelChange)="OnProbationChange($event, true)"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.contractStartDate"
+            inputId="contractStartDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+        <div
+          *ngIf="employeeInputDto.typeOfEmployeeName == 'Contract'"
+          id="inputField"
+          class="p-field col-md-6 mt-3"
+        >
+          <!-- <label for="contractEndDate">Contract End Date</label>
+                    <input [readOnly]="viewMode" (ngModelChange)="OnProbationChange($event,false)" id="contractEndDate"
+                        type="date" pInputText [(ngModel)]="employeeInputDto.contractEndDate" /> -->
+          <label for="contractEndDate"> Contract End Date</label>
+          <p-calendar
+            (ngModelChange)="OnProbationChange($event, false)"
+            [disabled]="viewMode"
+            [(ngModel)]="employeeInputDto.contractEndDate"
+            inputId="contractEndDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+        <div
+          *ngIf="employeeInputDto.typeOfEmployeeName == 'Contract'"
+          id="inputField"
+          class="p-field col-md-6 mt-3"
+        >
+          <label for="contractPeriod">Contract Period (in months)</label>
+          <input
+            [readOnly]="viewMode"
+            id="contractPeriod"
+            type="text"
+            pInputText
+            readonly
+            [(ngModel)]="employeeInputDto.contractPeriod"
+            disabled
+          />
+        </div> 
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Shift'"
+            [id]="employeeInputDto.shiftId"
+            [name]="employeeInputDto.shiftName"
+            (valueSelected)="setPickerValue($event, 'Shift')"
+          ></app-picker> -->
+          <label for="name">Shift:</label>
+        <p-dropdown
+        [options]="shiftDropdown"
+        [(ngModel)]="shiftSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Shift')"
+        placeholder="Shift"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <div class="col-md-6 mt-3">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'CurrentPaymentMode'"
+            [id]="employeeInputDto.currentPaymentModeId"
+            [name]="employeeInputDto.currentPaymentModeName"
+            (valueSelected)="setPickerValue($event, 'CurrentPaymentMode')"
+          ></app-picker> -->
+          <label for="name">CurrentPaymentMode:</label>
+        <p-dropdown
+        [options]="currentPayDropdown"
+        [(ngModel)]="currentPaySelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'CurrentPaymentMode')"
+        placeholder="CurrentPaymentMode"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <div class="col-md-6 mt-3">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Currency'"
+            [id]="employeeInputDto.currencyId"
+            [name]="employeeInputDto.currencyName"
+            (valueSelected)="setPickerValue($event, 'Currency')"
+          ></app-picker> -->
+          <label for="name">Currency:</label>
+        <p-dropdown
+        [options]="currencyDropdown"
+        [(ngModel)]="currencySelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Currency')"
+        placeholder="Currency"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <!-- <div id="inputField" class="p-field p-mr-4 col-md-3">
+                    <label for="salary">Salary</label>
+                    <input [readOnly]="viewMode" id="salary" type="text" pInputText
+                        [(ngModel)]="employeeInputDto.salary" />
+                </div> -->
+        <div id="inputField" class="p-field col-md-6">
+          <label for="newExpDate">Employee Account Number</label>
+          <input
+            [readOnly]="viewMode"
+            maxlength="16"
+            [(ngModel)]="employeeInputDto.accountNumber"
+            min="0"
+            type="text"
+            id="newExpDate"
+            pInputText
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6">
+          <label for="companyBankId">Company Bank Id</label>
+          <input
+            id="companyBankId"
+            type="text"
+            pInputText
+            [(ngModel)]="employeeInputDto.companyBankId"
+            disabled
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6 mt-3">
+          <label for="companyBankName">Company Bank Tilte</label>
+          <input
+            id="companyBankName"
+            pInputText
+            [(ngModel)]="employeeInputDto.companyBankName"
+            disabled
+          />
+        </div>
+        <div class="col-md-6 mt-3">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Team'"
+            [id]="employeeInputDto.teamId"
+            [name]="employeeInputDto.teamName"
+            (valueSelected)="setPickerValue($event, 'Team')"
+          ></app-picker> -->
+          <label for="name">Team:</label>
+        <p-dropdown
+        [options]="teamDropdown"
+        [(ngModel)]="teamSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Team')"
+        placeholder="Team"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+      <div class="row mt-3">
+       
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Designation'"
+            [id]="employeeInputDto.designationId"
+            [name]="employeeInputDto.designationName"
+            (valueSelected)="setPickerValue($event, 'Designation')"
+          ></app-picker> -->
+          <label for="name">Designation:</label>
+        <p-dropdown
+        [options]="designationDropdown"
+        [(ngModel)]="designationSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Designation')"
+        placeholder="Designation"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Department'"
+            [id]="employeeInputDto.departmentId"
+            [name]="employeeInputDto.departmentName"
+            (valueSelected)="setPickerValue($event, 'Department')"
+          ></app-picker> -->
+          <label for="name">Department:</label>
+        <p-dropdown
+        [options]="departmentDropdown"
+        [(ngModel)]="departmentSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Department')"
+        placeholder="Department"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <!-- <app-picker
+            [enable]="rejoinMode"
+            [disable]="viewMode"
+            [title]="'Grade'"
+            [id]="employeeInputDto.gradeId"
+            [name]="employeeInputDto.gradeName"
+            (valueSelected)="setPickerValue($event, 'Grade')"
+          ></app-picker> -->
+          <label for="name">Grade:</label>
+        <p-dropdown
+        [options]="gradeDropdown"
+        [(ngModel)]="gradeSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Grade')"
+        placeholder="Grade"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+        </div>
+      </div>
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="Salary">
+    <div class="row mt-3">
+      <div id="inputField" class="flex flex-column col-md-6">
+        <label for="grossSalary">Salary Amount</label>
+        <input
+          id="grossSalary"
+          type="number"
+          min="0"
+          pInputText
+          [(ngModel)]="employeeInputDto.newGrossSalary"
+        />
+      </div>
+
+      <div id="inputField" class="flex flex-column col-md-6">
+        <label for="newGross">Gross Salary</label>
+        <input
+          disabled
+          id="newGross"
+          type="number"
+          pInputText
+          [(ngModel)]="employeeInputDto.salary"
+        />
+      </div>
+    </div>
+    <div class="row mt-3">
+      <h4 class="col-md-12">Deductions</h4>
+      <div id="inputField" class="flex flex-column col-md-12">
+        <label for="tax">Tax</label>
+        <input
+          id="tax"
+          type="number"
+          min="0"
+          pInputText
+          [(ngModel)]="monthlyTax"
+          readonly
+        />
+      </div>
+      <!-- <p-button (click)="displayTax = true" label="Show Tax Calculation" /> -->
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <h4>Allowances</h4>
+        <div *ngFor="let item of employeeInputDto.allowanceDetails">
+          <label [htmlFor]="item.name + 'Percentage'">{{
+            item.name ?? item.allowanceName
+          }}</label>
+          <div class="row">
+            <div class="col-4">
+              <input
+                class="form-control form-control-sm"
+                [id]="item.name + 'Percentage'"
+                [name]="item.name + 'Percentage'"
+                [(ngModel)]="item.percentage"
+                type="number"
+                required
+                [disabled]="!item.isAllowanceEditable"
+                pInputText
+                readonly
+              />
+            </div>
+            <div class="col-8">
+              <input
+                class="form-control form-control-sm"
+                [id]="item.name + 'Value'"
+                [name]="item.name + 'Value'"
+                [(ngModel)]="item.value"
+                [(ngModel)]="item.amount"
+                type="number"
+                required
+                [disabled]="!item.isSalaryEditable"
+                pInputText
+                [disabled]="item.percentage"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <button
+            type="button"
+            class="p-button-success text-white"
+            (click)="calculateSalary()"
+          >
+            Calculate Salary
+          </button>
+        </div>
+      </div>
+      
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="Replacement">
+    <div class="row align-items-end">
+      <div id="inputField" class="p-field flex flex-column col-md-9">
+        <label for="SSNo">Social Security Number</label>
+        <input
+          [disabled]="!employeeInputDto.isAllowedSocialSecurity"
+          [(ngModel)]="employeeInputDto.ssNumber"
+          maxlength="16"
+          min="0"
+          type="text"
+          id="SSNo"
+          pInputText
+        />
+      </div>
+      <div class="flex gap-2 col-md-3 align-items-center">
+        <p-checkbox
+          inputId="isSS"
+          [(ngModel)]="employeeInputDto.isAllowedSocialSecurity"
+          [binary]="true"
+          inputId="binary"
+        />
+        <label for="isSS" class="mb-0">Social Security</label>
+      </div>
+    </div>
+    <div class="row align-items-end mt-3">
+      <div id="inputField" class="p-field flex flex-column col-md-9">
+        <label for="EOBINo">EOBI Number</label>
+        <input
+          [disabled]="!employeeInputDto.isAllowedEOBI"
+          [(ngModel)]="employeeInputDto.eobiNumber"
+          maxlength="16"
+          min="0"
+          type="text"
+          id="EOBINo"
+          pInputText
+        />
+      </div>
+      <div class="flex gap-2 col-md-3 align-items-center">
+        <p-checkbox
+          inputId="isEOBI"
+          [(ngModel)]="employeeInputDto.isAllowedEOBI"
+          [binary]="true"
+          inputId="binary"
+        />
+        <label for="isEOBI" class="mb-0">EOBI</label>
+      </div>
+    </div>
+    <div class="row mt-3">
+     
+      <div id="inputField" class="p-field flex flex-column col-md-12">
+        <label for="EOBICardNo">EOBI Card Number</label>
+        <input
+          [disabled]="!employeeInputDto.isAllowedEOBI"
+          [(ngModel)]="employeeInputDto.eobiCardNumber"
+          maxlength="16"
+          min="0"
+          type="text"
+          id="EOBICardNo"
+          pInputText
+        />
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <!-- <app-picker
+          [title2]="'ResignedEmployees'"
+          [title]="'Replacement Of'"
+          [id]="employeeInputDto.replacementOfId"
+          [name]="employeeInputDto.replacementOfName"
+          (valueSelected)="setPickerValue($event, 'replacementOf')"
+        ></app-picker> -->
+        <label for="name">Replacement Of:</label>
+        <p-dropdown
+        [options]="replacementOfEmpDropdown"
+        [(ngModel)]="replacementOfEmpSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'replacementOf')"
+        placeholder="Replacement Of"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="col-md-6">
+        <!-- <app-picker
+          [title]="'Reporting To'"
+          [title2]="'Employee'"
+          [id]="employeeInputDto.reportingToId"
+          [name]="employeeInputDto.reportingToName"
+          (valueSelected)="setPickerValue($event, 'reportingTo')"
+        ></app-picker> -->
+        <label for="name">Reporting To:</label>
+        <p-dropdown
+        [options]="employeeDropdown"
+        [(ngModel)]="employeeSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'reportingTo')"
+        placeholder="Reporting To"
+        >
+        <ng-template let-item pTemplate="item">
+            <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+         <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="Education">
+   <div class="mt-3">
+      <app-grid
+        [viewMode]="viewMode"
+        [inputObject]="educationObject"
+        (outputArray)="handleEducation($event)"
+        [rowData]="employeeInputDto.educationDetails"
+      ></app-grid>
+   </div>
+  </p-tabPanel>
+  <p-tabPanel header="Address">
+    <!-- <app-grid [viewMode]="viewMode" [rowData]="employeeInputDto.addresses" [inputObject]="addressObject"
+            (outputArray)="handleAddress($event)"></app-grid> -->
+    <app-address-grid
+      [rowData]="employeeInputDto.addresses"
+      (outputLicenseArray)="handleAddress($event)"
+    ></app-address-grid>
+  </p-tabPanel>
+  <p-tabPanel header="PreviousJobHistory">
+    <!-- <app-grid [viewMode]="viewMode" [rowData]="employeeInputDto.previousJobHistoryDetails"
+            [inputObject]="previousJobHistoryObject" (outputArray)="handlePreviousJobHistory($event)"></app-grid> -->
+    <app-previous-job-grid
+      [rowData]="employeeInputDto.previousJobHistoryDetails"
+      (outputLicenseArray)="handlePreviousJobHistory($event)"
+    ></app-previous-job-grid>
+  </p-tabPanel>
+  <p-tabPanel header="FamilyDetail">
+    <div class="mt-3">
+      <app-grid
+      [viewMode]="viewMode"
+      [rowData]="employeeInputDto.familyParticularDetails"
+      [inputObject]="familyParticularDetailsObject"
+      (outputArray)="handleFamilyDetail($event)"
+    ></app-grid>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="MedicalHistory">
+    <div class="mt-3">
+      <app-grid
+      [viewMode]="viewMode"
+      [rowData]="employeeInputDto.medicalHistoryDetails"
+      [inputObject]="medicalHistoryDetailsObject"
+      (outputArray)="handleMedicalHistory($event)"
+    ></app-grid>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="AssetsHolding">
+   <div class="mt-3">
+    <app-grid
+    [viewMode]="viewMode"
+    [rowData]="employeeInputDto.assetHoldingDetails"
+    [inputObject]="assetHoldingDetailsObject"
+    (outputArray)="handleAssetsHolding($event)"
+  ></app-grid>
+   </div>
+  </p-tabPanel>
+  <p-tabPanel header="Current JD">
+    <div class="mt-3">
+      <app-grid
+      [viewMode]="viewMode"
+      [rowData]="employeeInputDto.jobDescriptionDetails"
+      [inputObject]="jobDescriptionDetailsObject"
+      (outputArray)="handleCurrentJD($event)"
+    ></app-grid>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="LicenseType">
+    <app-license-grid
+      [rowData]="employeeInputDto.licenseDetails"
+      (outputLicenseArray)="handleLicenseArray($event)"
+    ></app-license-grid>
+  </p-tabPanel>
+  <p-tabPanel header="EmployeeBio">
+    <div class="mt-3">
+      <app-grid
+      [viewMode]="viewMode"
+      [rowData]="employeeInputDto.employeeTraitsDetails"
+      [inputObject]="employeeTraitsDetailsObject"
+      (outputArray)="handleEmployeeBio($event)"
+    ></app-grid>
+    </div>
+  </p-tabPanel>
+  <!-- <p-tabPanel header="Financial Integrations">
+
+
+        <div class="row">
+            <app-picker [title]="'Control Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'Control Account')"></app-picker>
+            <app-picker [title]="'Expense Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'Expense Account')"></app-picker>
+        </div>
+        <div class="row">
+            <app-picker [title]="'Liability Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'Liability Account')"></app-picker>
+            <app-picker [title]="'O/T Expense Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'O/T Expense Account')"></app-picker>
+        </div>
+        <div class="row">
+            <app-picker [title]="'O/T Liability Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'O/T Liability Account')"></app-picker>
+            <app-picker [title]="'Tax Liability Account'" [id]="pickerID1" [name]="pickerName1"
+                (valueSelected)="setPickerValue($event,'Tax Liability Account')"></app-picker>
+        </div>
+
+    </p-tabPanel> -->
+</p-tabView>
+<div
+  *ngIf="!viewMode && rejoinMode"
+  class="button-container flex justify-content-end gap-2 position-absolute bottom-0 w-100"
+  style="left: 0; border-top: 1px solid #DBDBDB; background-color: #fbfbfb; padding: 16px 1.5rem;"
+>
+  <button
+    pButton
+    [label]="editMode ? 'Update' : 'Save'"
+    icon="pi pi-check"
+    class="p-button-success"
+    type="submit"
+    (click)="onSubmit()" 
+  ></button>
+  <button
+    pButton
+    label="Cancel"
+    icon="pi pi-times"
+    class="p-button-secondary"
+    type="button"
+    (click)="onClose()"
+  ></button>
+</div>
+
+<!-- <div>
+    <p-toast />
+    <p-confirmDialog />
+</div> -->
+
+<p-dialog
+  header="Tax Calculation"
+  draggable="false"
+  [(visible)]="displayTax"
+  [modal]="true"
+  [responsive]="true"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="fullSalary">Full Monthly Salary</label>
+      <input
+        id="fullSalary"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="fullSalary"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="monthlyTax">Monthly Tax</label>
+      <input
+        id="monthlyTax"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="monthlyTax"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="postTaxSalary">Post Tax Salary</label>
+      <input
+        id="postTaxSalary"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="postTaxSalary"
+      />
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="annualSalary">Annual Salary</label>
+      <input
+        id="annualSalary"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="annualSalary"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="annualTax">Annual Tax</label>
+      <input
+        id="annualTax"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="annualTax"
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="postTaxAnnualSalary">Annual Income Post-Tax</label>
+      <input
+        id="postTaxAnnualSalary"
+        type="text"
+        pInputText
+        readonly
+        [(ngModel)]="postTaxAnnualSalary"
+      />
+    </div>
+  </div>
+</p-dialog>

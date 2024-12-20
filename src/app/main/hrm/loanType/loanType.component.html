@@ -1,0 +1,46 @@
+<app-lookup action="LoanType"  class="loan-type" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateLoanType()">
+    <ng-template #dialogView>
+        <div class="row ">
+            <div id="inputField" class="col-md-12">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div id="inputField" class="col-md-12 p-field flex flex-column">
+                <!-- <app-picker
+                [title]="'ChartOfAccount'"
+                [id]="dto.chartOfAccountId"
+                [name]="dto.chartOfAccountName"
+                (valueSelected)="setPickerValue($event, 'ChartOfAccount')"
+                /> -->
+                <label for="name">ChartOfAccount:</label>
+                <p-dropdown
+                [options]="chartOfAccountDropdown"
+                [(ngModel)]="chartOfAccountSelectedItem"
+                [filter]="true"
+                [filterBy]="'id,name'"
+                [showClear]="true"
+                optionLabel="name"
+                (onChange)="onDropdownChange($event, 'ChartOfAccount')"
+                placeholder="ChartOfAccount"
+                appendTo="body"
+                >
+                <ng-template let-item pTemplate="item">
+                    <div class=" nowrap" style="max-width: 426px;" title="{{ item.id.split('/')[0] }} - {{ item.name }}">{{ item.id.split('/')[0] }} - {{ item.name }}</div>
+                </ng-template>
+                <ng-template let-item pTemplate="selectedItem">
+                    <div *ngIf="item" class=" nowrap" title="{{ item.id.split('/')[0] }} - {{ item.name }}">{{ item.id.split('/')[0] }} - {{ item.name }}</div>
+                </ng-template>
+                </p-dropdown>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-12 flex align-items-center gap-1">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <label class="m-0" for="active">Active</label>
+            </div>
+        </div>
+    </ng-template>
+</app-lookup>

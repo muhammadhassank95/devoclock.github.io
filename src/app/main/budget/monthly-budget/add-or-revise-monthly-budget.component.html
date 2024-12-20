@@ -1,0 +1,241 @@
+<!-- Form -->
+<div class="add-or-revise-monthly-budget">
+    <div class="row mt-3">
+        <div class="col-md-6 flex flex-column">
+            <label for="documentDate"> Budget Month </label>
+            <p-dropdown styleClass="" [options]="monthlyBudgetDto.months" [(ngModel)]="monthlyBudgetDto.month"
+                optionValue="id" optionLabel="name" placeholder="Select a Month" />
+        </div>
+        <div class="col-md-6 flex flex-column">
+            <!-- <app-picker [disable]="true" [title]="'FinancialYear'" [showId]="false"
+                [id]="monthlyBudgetDto.financialYearId" [name]="monthlyBudgetDto.financialYearName"
+                (valueSelected)="setPickerValue($event, 'FinancialYear')">
+            </app-picker> -->
+            <label for="name">FinancialYear:</label>
+            <p-dropdown
+            [options]="financialYearDropdown"
+            [(ngModel)]="financialYearSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'FinancialYear')"
+            placeholder="FinancialYear"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 300px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+        </div>
+        <div class="col-md-6 flex flex-column mt-3">
+            <label for="documentDate"> Document Date </label>
+            <!-- <p-calendar
+        [minDate]="financialStartDate"
+        [maxDate]="today"
+        (ngModelChange)="DocumentDateChange($event)"
+        [(ngModel)]="monthlyBudgetDto.documentDate"
+        inputId="documentDate"
+        appendTo="body"
+        [showOnFocus]="true"
+      > -->
+            <p-calendar [minDate]="financialStartDate" [maxDate]="today" (ngModelChange)="DocumentDateChange($event)"
+                [(ngModel)]="monthlyBudgetDto.documentDate" inputId="documentDate" appendTo="body" tabindex="1"
+                [showOnFocus]="true">
+            </p-calendar>
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column mt-3">
+            <label for="documentNumber">Document Number</label>
+            <input [(ngModel)]="monthlyBudgetDto.documentNumber" type="text" id="documentNumber" pInputText disabled />
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column mt-3">
+            <label for="budgetId">Budget Id</label>
+            <input [(ngModel)]="monthlyBudgetDto.budgetId" maxlength="16" type="number" id="budgetId" pInputText
+                disabled />
+        </div>
+        <div class="col-md-6 flex flex-column mt-3">
+            <!-- <app-picker [disable]="true" [title]="'CostCenter'" [id]="monthlyBudgetDto.costCenterId"
+                [name]="monthlyBudgetDto.costCenterName" (valueSelected)="setPickerValue($event, 'CostCenter')">
+            </app-picker> -->
+            <label for="name">CostCenter:</label>
+            <p-dropdown
+            [options]="costCenterDropdown"
+            [(ngModel)]="costCenterSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'CostCenter')"
+            placeholder="CostCenter"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 300px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="row mt-3">
+       
+        <div class="col-md-6 flex flex-column">
+            <!-- <app-picker [disable]="true" [title]="'Project'" [id]="monthlyBudgetDto.projectId"
+                [name]="monthlyBudgetDto.projectName" (valueSelected)="setPickerValue($event, 'Project')">
+            </app-picker> -->
+            <label for="name">Project:</label>
+            <p-dropdown
+            [options]="projectDropdown"
+            [(ngModel)]="projectSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'Project')"
+            placeholder="Project"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 300px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+        </div>
+        <div class="col-md-6 flex flex-column">
+            <!-- <app-picker [disable]="true" [title]="'Location'" [id]="monthlyBudgetDto.locationId"
+                [name]="monthlyBudgetDto.locationName" (valueSelected)="setPickerValue($event, 'Location')">
+            </app-picker> -->
+            <label for="name">Location:</label>
+            <p-dropdown
+            [options]="locationDropdown"
+            [(ngModel)]="locationSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'Location')"
+            placeholder="Location"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 300px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+        </div>
+    </div>
+
+  <div class="row col-12">
+    <div id="inputField" class="col-md-4 flex flex-column">
+      <label for="narration">Narration</label>
+      <textarea
+        rows="1"
+        pInputTextarea
+        [(ngModel)]="monthlyBudgetDto.narration"
+        id="narration"
+        autocomplete="off"
+      ></textarea>
+    </div>
+    <div class="col-md-4">
+      <!-- <app-picker
+        [disable]="true"
+        [title]="'Region'"
+        [id]="monthlyBudgetDto.regionId"
+        [name]="monthlyBudgetDto.regionName"
+        (valueSelected)="setPickerValue($event, 'Region')"
+      >
+      </app-picker> -->
+      <!-- <label for="name">Region:</label>
+            <p-dropdown
+            [options]="locationDropdown"
+            [(ngModel)]="locationSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'Region')"
+            placeholder="Region"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 300px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown> -->
+    </div>
+    <div *ngIf="reviseMode" id="inputField" class="col-md-3 flex-column flex">
+      <label for="revisionId">Revision Id</label>
+      <input
+        disabled
+        [(ngModel)]="monthlyBudgetDto.revisionCount"
+        maxlength="16"
+        type="number"
+        id="revisionId"
+        pInputText
+      />
+    </div>
+  </div>
+
+    <!-- Grid -->
+    <div class="my-3">
+        <div class="row ">
+            <ag-grid-angular style="width: 100%; height: 200px; margin-top: 12px" class="ag-theme-balham"
+                [rowData]="rowData" [columnDefs]="isRevised?reviseColDefs :colDefs" [animateRows]="true"
+                [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true" [rowSelection]="rowSelection"
+                [singleClickEdit]="true" (gridReady)="onGridReady($event)"
+                (cellValueChanged)="onCellValueChanged($event)">
+            </ag-grid-angular>
+        </div>
+        <!-- <div class="row col-md-12" *ngif="isRevised">
+      <ag-grid-angular
+        style="width: 100%; height: 200px; margin-top: 12px"
+        class="ag-theme-balham"
+        [rowData]="rowData"
+        [columnDefs]="reviseColDefs"
+        [animateRows]="true"
+        [suppressAutoSize]="true"
+        [suppressDragLeaveHidesColumns]="true"
+        [rowSelection]="rowSelection"
+        [singleClickEdit]="true"
+        (gridReady)="onGridReady($event)"
+        (cellValueChanged)="onCellValueChanged($event)"
+      >
+      </ag-grid-angular>
+    </div> -->
+  </div>
+
+    <div class="row" style="margin-bottom: 64px;">
+        <div id="inputField" class="col-md-6 flex flex-column">
+            <label for="totalIncome">Total Income</label>
+            <input readonly [(ngModel)]="totalIncome" maxlength="16" type="number" id="totalIncome" pInputText />
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column">
+            <label for="totalExpense">Total Expense</label>
+            <input readonly [(ngModel)]="totalExpense" maxlength="16" type="number" id="totalExpense" pInputText />
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column mt-3">
+            <label for="totalAmount">Difference Amount</label>
+            <input readonly [(ngModel)]="totalAmount" maxlength="16" type="number" id="totalAmount" pInputText />
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column mt-3">
+            <label for="p_l">Profit/Loss</label>
+            <input *ngIf="totalAmount > 0" value="Profit" readonly maxlength="16" type="text" id="p_l" pInputText />
+            <input *ngIf="totalAmount < 0" value="Loss" readonly maxlength="16" type="text" id="p_l" pInputText />
+        </div>
+    </div>
+
+    <div class="modal-footer mt-3 position-absolute bottom-0 right-0 w-100">
+        <p-button label="Cancel" severity="secondary" (click)="onClose()" />
+        <p-button [loading]="saving" label="Save" class="save" (click)="save()" />
+    </div>
+</div>
+
+<div>
+    <p-toast />
+    <p-confirmDialog class="cancel-modal" />
+</div>

@@ -1,0 +1,338 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Purchase Order</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+          style="height: 25px; cursor: pointer" />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <button pButton icon="pi pi-plus-circle" class="p-button-success" (click)="show()"></button>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table #policyTable [value]="tableData" styleClass="p-datatable-gridlines" [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="['serialNumber', 'voucherNumber', 'issueDate', '']">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          IssueDate <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          inwardStatus <p-sortIcon field="inwardStatus" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          inspectionStatus <p-sortIcon field="inspectionStatus" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          Document Status <p-sortIcon field="isActive" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>
+          <span [ngClass]="{
+              'yes-bg': item.inwardGatepassStatus === 'COMPLETED',
+              'no-bg': item.inwardGatepassStatus === 'PENDING'
+            }" [style]="{ height: '25px', cursor: 'pointer' }">
+            {{ item.inwardGatepassStatus }}
+          </span>
+        </td>
+
+        <td>
+          <span [ngClass]="{
+              'yes-bg': item.goodsInspectionNoteStatus === 'COMPLETED',
+              'no-bg': item.goodsInspectionNoteStatus === 'PENDING'
+            }" [style]="{ height: '25px', cursor: 'pointer' }">
+            {{ item.goodsInspectionNoteStatus }}
+          </span>
+        </td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg" style="height: 25px; cursor: pointer">{{ item.status
+            }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+            }}</span>
+        </td>
+
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" style="height: 25px; width: 25px; cursor: pointer" pButton pRipple
+            icon="pi pi-eye" class="p-button-rounded p-button-info mr-2" (click)="viewOnly(item.id)"></span>
+          <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-search"
+            class="p-button-rounded p-button-danger mr-2" (click)="
+              openTracingModal(item.id, item.voucherNumber, 'PurchaseOrder')
+            "></span>
+          <span *ngIf="item.status !== 'APPROVED'" style="height: 25px; width: 25px; cursor: pointer" pButton pRipple
+            icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2" (click)="edit(item.id)"></span>
+          <span *ngIf="item.status !== 'APPROVED'" style="height: 25px; width: 25px; cursor: pointer" pButton pRipple
+            icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2" (click)="delete(item.id)"></span>
+          <button pButton pRipple *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; cursor: pointer" label="Approve" class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"></button>
+          <span pButton pRipple icon="pi pi-file-pdf" class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="downloadPOReport(item.id)">
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator [rows]="5" [totalRecords]="this.count" (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]">
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" [header]="editMode ? 'Edit Purchase Order' : 'Create Purchase Order'" [modal]="true"
+  [(visible)]="displayModal" [draggable]="false">
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div class="row col-md-12" style="margin-bottom: 1rem">
+            <div id="types" class="col-md-4 d-flex align-items-center">
+              <label for=" name" style="margin-right: 10px">PO Type:</label>
+              <p-dropdown [options]="supplierTypes" id="types" placeholder="--Select--" [autoDisplayFirst]="false"
+                [style]="{ width: '100%', height: '45px' }" [(ngModel)]="purchaseOrder.purchaseOrderType"
+                (onChange)="onSupplierTypeChange($event)" tabindex="2">
+              </p-dropdown>
+            </div>
+            <div class="my-auto col-md-6">
+              <p-button (click)="OpenServiceRequisition()" label="Copy Purchase Requisition" [text]="true"
+                [raised]="true" severity="success" />
+            </div>
+          </div>
+          <div class="col-md-3 p-field">
+            <label for="date">Date</label>
+            <p-calendar (ngModelChange)="onDateChange($event)" [(ngModel)]="purchaseOrder.issueDate"
+              [minDate]="dateValue" [maxDate]="maxDate" [disabled]="this.calendar_disability" inputId="date"
+              inputId="date" appendTo="body" tabindex="1" [showOnFocus]="true"></p-calendar>
+          </div>
+          <div class="col-md-9 p-field">
+            <app-picker [showId]="false" [title]="'Location'" [id]="purchaseOrder.userLocationId"
+              [name]="purchaseOrder.userLocationName" (valueSelected)="setPickerValue($event, 'Location')"></app-picker>
+          </div>
+        </div>
+
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input readonly id="name" type="text" pInputText [(ngModel)]="purchaseOrder.voucherNumber" />
+          </div>
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Buy Month</label>
+            <p-calendar view="month" dateFormat="mm/yy" [(ngModel)]="purchaseOrder.budgetDate" inputId="budgetMonth"
+              appendTo="body" disabled></p-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [disable]="!this.purchaseOrder.purchaseOrderType" [title2]="'Subledger'" [title]="'Supplier'"
+              [id]="serialNumber" [name]="purchaseOrder.supplierName" [chartOfAccountSubLedgerType]="
+                this.purchaseOrder.purchaseOrderType
+              " (valueSelected)="setPickerValue($event, 'Subledger')"></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [disable]="false" [title2]="'CurrentPaymentMode'" [title]="'PaymentMode'"
+              [id]="purchaseOrder.paymentModeId" [name]="purchaseOrder.paymentModeName"
+              (valueSelected)="setPickerValue($event, 'CurrentPaymentMode')"></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'Employee'" [id]="EmpSerialNumber" [name]="purchaseOrder.employeeName"
+              (valueSelected)="setPickerValue($event, 'Employee')" disability>
+            </app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'CostCenter'" [id]="purchaseOrder.costCenterId" [name]="purchaseOrder.costCenterName"
+              (valueSelected)="setPickerValue($event, 'CostCenter')"></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'Project'" [id]="purchaseOrder.projectId" [name]="purchaseOrder.projectName"
+              (valueSelected)="setPickerValue($event, 'Project')"></app-picker>
+          </div>
+        </div>
+        <!-- <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title]="'Region'"
+              [id]="regionId"
+              [name]="regionName"
+              (valueSelected)="setPickerValue($event, 'Region')"
+            ></app-picker>
+          </div>
+        </div> -->
+        <!-- <div class="row col-md-12">
+
+                    <div id="inputField" class="col-md-12 p-field flex flex-column">
+                        <app-picker [showId]="false" [title]="'CurrentPaymentMode'" [id]="purchaseOrder.paymentModeId"
+                            [name]="purchaseOrder.paymentModeName"
+                            (valueSelected)="setPickerValue($event,'CurrentPaymentMode')"></app-picker>
+                    </div>
+                </div> -->
+      </div>
+    </div>
+  </div>
+  <br />
+
+  <!-- Grid -->
+  <div class="my-4">
+    <div class="row col-md-12">
+      <div class="">
+        <p-button (click)="onRemoveSelected()" label="Remove Row" size="small" severity="danger" style="
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            height: auto;
+            line-height: 1.25;
+          " />
+      </div>
+      <div class="my-auto d-flex flex-grow-1 justify-content-end">
+        <p-button (click)="updateRates()" label="Update Rate" [text]="true" [raised]="true" severity="primary" />
+      </div>
+      <ag-grid-angular style="width: 100%; height: 200px; margin-top: 12px" class="ag-theme-balham" [rowData]="rowData"
+        [columnDefs]="colDefs" [animateRows]="true" [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true"
+        [rowSelection]="rowSelection" [singleClickEdit]="true" (gridReady)="onGridReady($event)"
+        (cellValueChanged)="OnCellValueChanged($event)">
+      </ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="grossAmount">Gross Amount</label>
+      <input id="grossAmount" type="number" pInputText [(ngModel)]="purchaseOrder.grossAmount" readonly />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="discount">Discount</label>
+      <input (ngModelChange)="calculateNetAmount($event)" id="discount" type="number" pInputText
+        [(ngModel)]="purchaseOrder.discount" min="0" readonly />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="netAmount">Net Amount</label>
+      <input id="netAmount" type="number" pInputText [(ngModel)]="purchaseOrder.netAmount" readonly />
+    </div>
+    <div id="inputField" class="col-md-1 p-field flex flex-column">
+      <label for="serviceTaxPct">S. Tax (%)</label>
+      <input (ngModelChange)="OnTaxChange($event, true)" id="serviceTaxPct" type="number" pInputText
+        [(ngModel)]="purchaseOrder.serviceTaxPct" min="0" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="STaxAmount">Amount</label>
+      <input id="STaxAmount" type="number" pInputText [(ngModel)]="STaxAmount" readonly />
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-1 p-field flex flex-column">
+      <label for="excisePct">Excise (%)</label>
+      <input (ngModelChange)="OnTaxChange($event, false)" id="excisePct" type="number" pInputText
+        [(ngModel)]="purchaseOrder.excisePct" min="0" />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="ExciseAmount">Amount</label>
+      <input id="ExciseAmount" type="number" pInputText [(ngModel)]="ExciseAmount" readonly />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="totalAmount">Total Amount</label>
+      <input id="totalAmount" type="number" pInputText [(ngModel)]="purchaseOrder.totalAmount" readonly />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="freight">Freight</label>
+      <input (ngModelChange)="OnFreightChange($event)" id="freight" type="number" pInputText
+        [(ngModel)]="purchaseOrder.freight" min="0" />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="payable">Payable to Supplier</label>
+      <input id="payable" type="number" pInputText [(ngModel)]="purchaseOrder.payable" readonly />
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-9 p-field flex flex-column">
+      <label for="terms">Terms</label>
+      <input id="terms" type="text" pInputText [(ngModel)]="purchaseOrder.terms" />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="validityDays">Validity Days</label>
+      <input id="validityDays" type="number" pInputText [(ngModel)]="purchaseOrder.validityDays" min="0" />
+    </div>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button (onClick)="CloseModel()" label="Cancel" [outlined]="true" severity="warning" />
+    <p-button [loading]="saving" *ngIf="!editMode && !view" (click)="save()" label="Save" [outlined]="true"
+      severity="contrast" />
+    <p-button [loading]="saving" *ngIf="editMode && !view" (click)="update()" label="Update" [outlined]="true"
+      severity="contrast" />
+  </div>
+</p-dialog>
+
+<p-dialog [maximizable]="true" header="Copy Purchase Requisition" [modal]="true" [(visible)]="displayRequisition"
+  [draggable]="false">
+  <div class="p-4">
+    <p-table #requisitionTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="requisitionData" styleClass="p-datatable-gridlines" [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No <p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="issueDate">
+            Issue Date <p-sortIcon field="issueDate" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="action">
+            Actions <p-sortIcon field="action" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+          <td>
+            <button (click)="SelectRequisition(item.id)" pButton pRipple label="Select"
+              class="p-button-rounded p-button-info mr-2"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

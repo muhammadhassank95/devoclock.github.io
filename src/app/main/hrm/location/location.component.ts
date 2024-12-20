@@ -1,0 +1,37 @@
+import { Component, Injector } from '@angular/core';
+import { LookupComponent } from '@app/main/generics/components/lookup/lookup.component';
+import { MessageService } from 'primeng/api';
+
+@Component({
+  selector: 'app-location',
+  templateUrl: './location.component.html',
+})
+export class LocationComponent extends LookupComponent {
+  dto = {
+    id: 0,
+    name: null,
+    isActive: true,
+    shortName: null
+  }
+  validateFromParent = true;
+  constructor(
+    injector: Injector,
+    private msgService: MessageService
+  ) {
+    super(injector);
+  }
+
+  validateLocation() {
+    if (this.dto.name == '' || this.dto.name == null) {
+      this.msgService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fill the Name field' });
+      return;
+    }
+
+    if (this.dto.shortName == '' || this.dto.shortName == null) {
+      this.msgService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fill the title field' });
+      return;
+    }
+    this.validateFromParent = false;
+    this.createOrEditAfterValidation(this.dto, "Location")
+  }
+}

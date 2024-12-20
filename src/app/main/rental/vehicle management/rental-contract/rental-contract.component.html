@@ -1,0 +1,543 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Rental Contract</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (keydown.enter)="onEnter($event)"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [scrollable]="true"
+    scrollHeight="58vh"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'contractReferenceName',
+      'supplierName',
+      'issueDate',
+      'voucherNumber',
+      'userLocationName',
+      'employeeCode',
+      'rate',
+      'startDate',
+      'endDate',
+      'costCenterName',
+      'projectName',
+      'Status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          voucher Number <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          userLocationName<p-sortIcon field="userLocationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="projectName">
+          ProjectName<p-sortIcon field="projectName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="costCenterName">
+          CostCenter Name <p-sortIcon field="costCenterName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="supplierName">
+          Supplier Name<p-sortIcon field="supplierName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="rate">
+          Rate<p-sortIcon field="rate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="startDate">
+          Start Date <p-sortIcon field="startDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="endDate">
+          End Date<p-sortIcon field="endDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="contractReferenceName">
+          Contract Reference Name<p-sortIcon field="contractReferenceName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="rentalContractTypeName">
+          Rental ContractType<p-sortIcon field="rentalContractTypeName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="maximumTravelling">
+          Maximum Travelling <p-sortIcon field="maximumTravelling" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="employeeName">
+          Employee Name <p-sortIcon field="employeeName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="employeeCode">
+          Employee Code <p-sortIcon field="employeeCode" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          issue Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="status">
+          status <p-sortIcon field="status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="remarks">
+          remarks <p-sortIcon field="remarks" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Active <p-sortIcon field="Active" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isVehicleContract">
+          isVehicleContract <p-sortIcon field="isVehicleContract" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Contract Category">
+          Contract Category <p-sortIcon field="Contract Category" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED' || item.status == 'CLOSED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status != 'APPROVED' && item.status != 'CLOSED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="closeDocument(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.projectName }}</td>
+        <td>{{ item.costCenterName }}</td>
+        <td>{{ item.supplierName }}</td>
+        <td>{{ item.rate }}</td>
+        <td>{{ item.startDate | date }}</td>
+        <td>{{ item.endDate | date }}</td>
+        <td>{{ item.contractReferenceName }}</td>
+        <td>{{ item.rentalContractTypeTitle }}</td>
+        <td>{{ item.maximumTravelling }}</td>
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.employeeCode }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>{{ item.remarks }}</td>
+
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isVehicleContract" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isVehicleContract" class="no-bg">No</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.isVehicleContract"
+            style="
+              color: green;
+              font-weight: bold;
+              padding: 4px 8px;
+              border-radius: 4px;
+              background-color: #e6f4e6;
+            "
+          >
+            Vehicle
+          </span>
+          <span
+            *ngIf="!item.isVehicleContract"
+            style="
+              color: red;
+              font-weight: bold;
+              padding: 4px 8px;
+              border-radius: 4px;
+              background-color: #fdecea;
+            "
+          >
+            House
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 20, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [closeOnEscape]="false"
+  [header]="editMode ? 'Edit Rental Contract' : 'Create Rental Contract'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <ng-container>
+    <form [formGroup]="rentalcontractform" (ngSubmit)="save()">
+      <!-- <div class="flex gap-2 col-md-4 align-items-center">
+        <p-checkbox formControlName="isVehicleContract" (onChange)="onContractTypeChange()" inputId="isVehicleContract"
+          [binary]="true" inputId="binary" />
+        <label for="isVehicleContract">IsVehicleContract</label>
+      </div> -->
+      <div class="col-md-3">
+        <label for="rentalContractType">Choose Contract:</label>
+        <p-dropdown
+          [options]="chooseContractOptions"
+          id="rentalContractType"
+          placeholder="--Select--"
+          formControlName="isVehicleContract"
+          (onChange)="onContractTypeChange()"
+          [style]="{ width: '100%', height: '40px' }"
+          autocomplete="off"
+        >
+        </p-dropdown>
+      </div>
+      <div class="row col-md-12 mt-4">
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Date:</label>
+          <p-calendar
+            formControlName="issueDate"
+            (ngModelChange)="onDateChange($event)"
+            [minDate]="MinDate"
+            [maxDate]="today"
+            inputId="date"
+            appendTo="body"
+            tabindex="1"
+            [showOnFocus]="true"
+            name="issueDate"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('issueDate')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-4">
+          <app-picker
+            [title]="'Location'"
+            [id]="rentalcontractform.get('userLocationId')?.value"
+            [name]="rentalcontractform.get('userLocationName')?.value"
+            [showId]="false"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Voucher Number:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="voucherNumber"
+            id="voucherNumber"
+            autocomplete="off"
+            readonly
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('voucherNumber')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <div
+          *ngIf="rentalcontractform.get('isVehicleContract')?.value == true"
+          class="col-md-12"
+        >
+          <app-picker
+            [title]="'Vehicle'"
+            [id]="rentalcontractform.get('contractReferenceId')?.value"
+            [name]="rentalcontractform.get('contractReferenceName')?.value"
+            [locationId]="this.rentalcontractform.value.userLocationId"
+            (valueSelected)="setPickerValue($event, 'Vehicle')"
+          ></app-picker>
+        </div>
+        <div
+          *ngIf="rentalcontractform.get('isVehicleContract')?.value == false"
+          class="col-md-12"
+        >
+          <app-picker
+            [title]="'RentalHouse'"
+            [id]="rentalcontractform.get('contractReferenceId')?.value"
+            [name]="rentalcontractform.get('contractReferenceName')?.value"
+            [locationId]="this.rentalcontractform.value.userLocationId"
+            (valueSelected)="setPickerValue($event, 'RentalHouse')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div class="col-md-12">
+          <app-picker
+            [title]="'Supplier'"
+            [title2]="'Subledger'"
+            [id]="showSerialNumber"
+            [name]="rentalcontractform.get('supplierName')?.value"
+            [chartOfAccountSubLedgerType]="subLedgerType"
+            [locationId]="this.rentalcontractform.value.userLocationId"
+            (valueSelected)="setPickerValue($event, 'Supplier')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div class="col-md-12">
+          <app-picker
+            [title]="'CostCenter'"
+            [id]="rentalcontractform.get('costCenterId')?.value"
+            [name]="rentalcontractform.get('costCenterName')?.value"
+            (valueSelected)="setPickerValue($event, 'CostCenter')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div class="col-md-12">
+          <app-picker
+            [title]="'Project'"
+            [id]="rentalcontractform.get('projectId')?.value"
+            [name]="rentalcontractform.get('projectName')?.value"
+            (valueSelected)="setPickerValue($event, 'Project')"
+          ></app-picker>
+        </div>
+      </div>
+      <!-- <div class="row col-md-12">
+        <div class="col-md-12">
+          <app-picker
+            [title]="'Region'"
+            [id]="rentalcontractform.get('regionId')?.value"
+            [name]="rentalcontractform.get('regionName')?.value"
+            (valueSelected)="setPickerValue($event, 'Region')"
+          ></app-picker>
+        </div>
+      </div> -->
+      <div class="row col-md-12 mt-2">
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="name">Period From:</label>
+          <p-calendar
+            formControlName="startDate"
+            [maxDate]="maxDate"
+            (onSelect)="onChange()"
+            inputId="date"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('startDate')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="name">Period to:</label>
+          <p-calendar
+            formControlName="endDate"
+            inputId="date"
+            appendTo="body"
+            (onSelect)="onChange()"
+            [showOnFocus]="true"
+          ></p-calendar>
+          <div *ngIf="isFieldInvalid('endDate')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="rate">Rate:</label>
+          <p-inputNumber
+            formControlName="rate"
+            id="rate"
+            mode="decimal"
+            autocomplete="off"
+            [useGrouping]="false"
+          ></p-inputNumber>
+          <div *ngIf="isFieldInvalid('rate')" class="text-danger">
+            This field is required and must be numeric
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="rentalContractType">Rental Contract Type:</label>
+          <p-dropdown
+            [options]="rentalContractOptions"
+            id="rentalContractType"
+            placeholder="--Select--"
+            formControlName="rentalContractType"
+            [style]="{ width: '100%', height: '40px' }"
+            autocomplete="off"
+          >
+          </p-dropdown>
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <!-- <div id="inputField" class="col-md-4 flex flex-column">
+              <label for="maximumTravelling">Maximum Travelling:</label>
+              <input
+                type="text"
+                pInputText
+                formControlName="maximumTravelling"
+                id="maximumTravelling"
+                autocomplete="off"
+                style="position: relative; z-index: 1000"
+              />
+              <div *ngIf="isFieldInvalid('maximumTravelling')" class="text-danger">This field is required</div>
+            </div> -->
+        <div class="col-md-6">
+          <app-picker
+            [title]="'Cluster Owner'"
+            [title2]="'Employee'"
+            [id]="rentalcontractform.get('employeeErpId')?.value"
+            [name]="rentalcontractform.get('employeeName')?.value"
+            (valueSelected)="setPickerValue($event, 'Employee')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-6">
+          <label for="employeeCode">Cluster Code:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="employeeCode"
+            id="employeeCode"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('employeeCode')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-6 flex flex-column">
+          <label for="remarks">Remarks:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="remarks"
+            id="remarks"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('remarks')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <div id="inputField" class="col-md-6 flex flex-column">
+          <label for="refundableSecurityDeposit">Security Deposit:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="refundableSecurityDeposit"
+            id="refundableSecurityDeposit"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div
+            *ngIf="isFieldInvalid('refundableSecurityDeposit')"
+            class="text-danger"
+          >
+            This field is required
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 align-items-center">
+        <p-checkbox
+          formControlName="isActive"
+          inputId="isActive"
+          [binary]="true"
+          inputId="binary"
+        />
+        <label for="isActive">Active</label>
+      </div>
+
+      <div class="flex gap-1 justify-content-end mt-4">
+        <p-button
+          (onClick)="displayModal = false"
+          label="Cancel"
+          [outlined]="true"
+          severity="warning"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="!editMode && !viewMode"
+          (click)="save()"
+          [disabled]="!rentalcontractform.valid"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="editMode && !viewMode"
+          (click)="update()"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        />
+      </div>
+    </form>
+  </ng-container>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

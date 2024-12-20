@@ -1,0 +1,25 @@
+<app-lookup action="Location" class="location" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateLocation()">
+    <ng-template #dialogView>
+        <div class="row gap-3">
+            <div class="col-md-12 flex flex-column">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" />
+            </div>
+            <div class="col-md-12 flex flex-column">
+                <label for="title">shortName:</label>
+                <input type="text" pInputText [(ngModel)]="dto.shortName" id="shortName" autocomplete="off" />
+            </div>   
+        </div>
+        <div class="row mt-2">
+            <div class="col-12 flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <label for="active" class="mb-0">Active</label>
+            </div>
+        </div>
+    </ng-template>
+</app-lookup>
+<div>
+    <p-toast />
+    <p-confirmDialog class="cancel-modal"/>
+</div>

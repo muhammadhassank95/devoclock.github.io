@@ -1,0 +1,400 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Rental House</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <div class="gap-3 flex">
+        <span
+          pButton
+          style="height: 25px; width: 25px; cursor: pointer"
+          icon="pi pi-plus-circle"
+          class="p-button-success"
+          (click)="show()"
+        ></span>
+        <span class="block md:mt-0 p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            (keydown.enter)="onEnter($event)"
+            (input)="onGlobalFilter(policyTable, $event)"
+            placeholder="Search..."
+            style="height: 25px; cursor: pointer"
+          />
+        </span>
+        <span
+          pButton
+          style="height: 25px; width: 25px; cursor: pointer"
+          icon="pi pi-download"
+          class="p-button-info"
+          (click)="downloadCSVFile()"
+        ></span>
+      </div>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    [loading]="loading"
+    styleClass="p-datatable-gridlines"
+    [scrollable]="true"
+    scrollHeight="58vh"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'name',
+      'fullAddress',
+      'occupiedStatus',
+      'totalCoveredArea',
+      'houseType',
+      'description',
+      'isElectricityIncluded',
+      'isGasIncluded',
+      'isMaintenanceIncluded',
+      'isActive'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="name">
+          Name <p-sortIcon field="name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="address">
+          Full Address<p-sortIcon field="address" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="occupiedStatus">
+          Occupied Status<p-sortIcon field="occupiedStatus" />
+        </th>
+        <th style="min-width: 300px" pSortableColumn="occupiedStatus">
+          Total Covered Area <p-sortIcon field="occupiedStatus" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="occupiedStatus">
+          House Type<p-sortIcon field="occupiedStatus" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="description">
+          Description <p-sortIcon field="description" />
+        </th>
+        <th style="min-width: 250px" pSortableColumn="isElectricityIncluded">
+          Electricity Included <p-sortIcon field="isElectricityIncluded" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isGasIncluded">
+          Gas Included <p-sortIcon field="isGasIncluded" />
+        </th>
+        <th style="min-width: 250px" pSortableColumn="isGasIncluded">
+          Maintenance Included <p-sortIcon field="isGasIncluded" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isGasIncluded">
+          Water Included <p-sortIcon field="isGasIncluded" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          Active <p-sortIcon field="isActive" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="flex justify-content-center">
+          <span
+            style="height: 35px; width: 35px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-bu p-button-info mr-2"
+            (click)="show(item.id)"
+          ></span>
+          <span
+            style="height: 35px; width: 35px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p- p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.fullAddress }}</td>
+        <td>{{ item.occupiedStatus }}</td>
+        <td>{{ item.totalCoveredArea }}</td>
+        <td>{{ item.houseType }}</td>
+        <td>{{ item.description }}</td>
+        <td>
+          <span *ngIf="item.isElectricityIncluded" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isElectricityIncluded" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isGasIncluded" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isGasIncluded" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isMaintenanceIncluded" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isMaintenanceIncluded" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isWaterIncluded" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isWaterIncluded" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 20, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [closeOnEscape]="false"
+  [header]="editMode ? 'Edit Rental House' : 'Create Rental House'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+  style="width: 800vh"
+>
+  <ng-container>
+    <form [formGroup]="rentalhouseform" (ngSubmit)="save()">
+      <div class="row col-md-12 mt-4">
+        <!-- Name Field -->
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="name"
+            id="name"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('name')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <!-- Full Address Field -->
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="fullAddress">Full Address:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="fullAddress"
+            id="fullAddress"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('fullAddress')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+        <!-- occupiedStatus -->
+        <div id="inputField" class="col-md-4 flex flex-column">
+          <label for="occupiedStatus">Occupied Status:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="occupiedStatus"
+            id="occupiedStatus"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('occupiedStatus')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="row col-md-12">
+        <!-- Location -->
+        <div id="inputField" class="col-md-4 flex-column p-field">
+          <app-picker
+            [title2]="'Location'"
+            [title]="'Location'"
+            [id]="this.rentalhouseform.value.locationId"
+            [name]="this.rentalhouseform.value.locationName"
+            [showId]="false"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          />
+        </div>
+        <!-- Total Covered Area Dropdown -->
+        <div class="col-md-4 flex-column">
+          <label for="totalCoveredArea">Total Covered Area:</label>
+          <p-dropdown
+            [options]="coveredAreaOptions"
+            id="totalCoveredArea"
+            placeholder="--Select--"
+            formControlName="totalCoveredArea"
+            [style]="{
+              width: '100%',
+              height: '35px',
+              display: 'flex',
+              'align-items': 'center'
+            }"
+            autocomplete="off"
+          >
+          </p-dropdown>
+        </div>
+        <!-- House Type Dropdown -->
+        <div class="col-md-4 flex-column">
+          <label for="houseType">House Type:</label>
+          <p-dropdown
+            [options]="houseTypeOptions"
+            id="houseType"
+            placeholder="--Select--"
+            formControlName="houseType"
+            [style]="{
+              width: '100%',
+              height: '35px',
+              display: 'flex',
+              'align-items': 'center'
+            }"
+            autocomplete="off"
+          >
+          </p-dropdown>
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="row col-md-12">
+        <div class="col-md-12 flex flex-column mb-2">
+          <label for="description">Description:</label>
+          <input
+            type="text"
+            pInputText
+            formControlName="description"
+            id="description"
+            autocomplete="off"
+            style="position: relative; z-index: 1000"
+          />
+          <div *ngIf="isFieldInvalid('description')" class="text-danger">
+            This field is required
+          </div>
+        </div>
+      </div>
+      <!-- <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 flex-column p-field">
+          <app-picker
+            [title]="'Region'"
+            [id]="this.rentalhouseform.value.regionId"
+            [name]="this.rentalhouseform.value.regionName"
+            (valueSelected)="setPickerValue($event, 'Region')"
+          />
+        </div>
+      </div> -->
+
+      <!-- Checkboxes -->
+      <div class="col-md-12 row gap-5">
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isElectricityIncluded"
+            inputId="isElectricityIncluded"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isElectricityIncluded" class="mb-0"
+            >Electricity Included</label
+          >
+        </div>
+
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isGasIncluded"
+            inputId="isGasIncluded"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isGasIncluded" class="mb-0">Gas Included</label>
+        </div>
+
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isMaintenanceIncluded"
+            inputId="isMaintenanceIncluded"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isMaintenanceIncluded" class="mb-0"
+            >Maintenance Included</label
+          >
+        </div>
+
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isWaterIncluded"
+            inputId="isWaterIncluded"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isWaterIncluded" class="mb-0">Water Included</label>
+        </div>
+
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isAdminOnly"
+            inputId="isAdminOnly"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isAdminOnly" class="mb-0">For Admin</label>
+        </div>
+
+        <div class="flex align-items-center mb-2" style="margin-bottom: 10px">
+          <p-checkbox
+            formControlName="isActive"
+            inputId="isActive"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isActive" class="mb-0">Active</label>
+        </div>
+      </div>
+      <!-- Action Buttons -->
+      <div class="flex gap-1 justify-content-end mt-4">
+        <p-button
+          (onClick)="displayModal = false"
+          label="Cancel"
+          [outlined]="true"
+          severity="warning"
+        ></p-button>
+        <p-button
+          [loading]="saving"
+          *ngIf="!editMode"
+          (click)="save()"
+          [disabled]="!rentalhouseform.valid"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        ></p-button>
+        <p-button
+          [loading]="saving"
+          *ngIf="editMode"
+          (click)="update()"
+          [disabled]="!rentalhouseform.valid"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        ></p-button>
+      </div>
+    </form>
+  </ng-container>
+</p-dialog>
+<!-- Toast and Confirm Dialog -->
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

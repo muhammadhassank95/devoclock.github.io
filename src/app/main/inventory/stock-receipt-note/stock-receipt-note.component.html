@@ -1,0 +1,396 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Stock Receipt Note</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          (keydown.enter)="onEnter($event)"
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    [loading]="loading"
+    scrollHeight="58vh"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'supplierName',
+      'issueDate',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="id">
+          Id <p-sortIcon field="id" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Document Status <p-sortIcon field="Active" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <button
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; cursor: pointer"
+            label="Approve"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></button>
+        </td>
+        <td>{{ item.id }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            class="yes-bg"
+            style="height: 25px; cursor: pointer"
+            >{{ item.status }}</span
+          >
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Receipt Note' : 'Create Receipt Note'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div class="col-md-4 d-flex">
+            <p-button
+              (click)="OpenStockRequisition()"
+              label="Copy Stock Transfer"
+              [text]="true"
+              [raised]="true"
+              severity="success"
+            >
+            </p-button>
+          </div>
+        </div>
+        <div class="row col-md-12 mt-3">
+          <div class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="Location"
+              [title]="'User Location'"
+              [id]="this.stockRecieptRequest.userLocationId"
+              [name]="this.stockRecieptRequest.locationName"
+              [disable]="shouldDisablePicker()"
+              (valueSelected)="setPickerValue($event, 'Location')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="CostCenter"
+              [title]="'To CostCenter'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.stockRecieptRequest.toCostCenterId"
+              [name]="this.stockRecieptRequest.toCostCenterName"
+              (valueSelected)="setPickerValue($event, 'CostCenterTo')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="Project"
+              [title]="'To Project'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.stockRecieptRequest.toProjectId"
+              [name]="this.stockRecieptRequest.toProjectName"
+              (valueSelected)="setPickerValue($event, 'ProjectTo')"
+            ></app-picker>
+          </div>
+        </div>
+        <!-- <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="Region"
+              [title]="'To Region'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.requesterRegionId"
+              [name]="this.requesterRegionName"
+              (valueSelected)="setPickerValue($event, 'Region')"
+            ></app-picker>
+          </div>
+        </div> -->
+        <div class="row col-md-12 mt-3">
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Date</label>
+            <p-calendar
+              (ngModelChange)="onDateChange($event)"
+              [(ngModel)]="stockRecieptRequest.issueDate"
+              inputId="date"
+              appendTo="body"
+              [showOnFocus]="true"
+            ></p-calendar>
+          </div>
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              [(ngModel)]="stockRecieptRequest.voucherNumber"
+              readonly
+            />
+          </div>
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Budget Date</label>
+            <p-calendar
+              [(ngModel)]="this.stockRecieptRequest.budgetDate"
+              inputId="budgetDate"
+              appendTo="body"
+              [showOnFocus]="true"
+              disabled="true"
+            ></p-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="CostCenter"
+              [title]="'From CostCenter'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.stockRecieptRequest.fromCostCenterId"
+              [name]="this.stockRecieptRequest.fromCostCenterName"
+              (valueSelected)="setPickerValue($event, 'CostCenterFrom')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="Project"
+              [title]="'From Project'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.stockRecieptRequest.fromProjectId"
+              [name]="this.stockRecieptRequest.fromProjectName"
+              (valueSelected)="setPickerValue($event, 'ProjectFrom')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              title2="Location"
+              [title]="'From Location'"
+              [id]="this.stockRecieptRequest.fromLocation"
+              [name]="this.stockRecieptRequest.fromLocationName"
+              [disable]="shouldDisablePicker()"
+              (valueSelected)="setPickerValue($event, 'LocationFrom')"
+            ></app-picker>
+          </div>
+        </div>
+        <!-- <div class="row col-md-12">
+          <div id="inputField" class="p-field col-md-12 flex flex-column">
+            <app-picker
+              title2="Region"
+              [title]="'From Region'"
+              [disable]="shouldDisablePicker()"
+              [id]="this.regionId"
+              [name]="this.regionName"
+              (valueSelected)="setPickerValue($event, 'FromRegion')"
+            ></app-picker>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="my-4">
+    <div class="row col-md-12">
+      <ag-grid-angular
+        style="width: 100%; height: 200px; margin-top: 12px"
+        class="ag-theme-balham"
+        [rowData]="rowData"
+        [columnDefs]="colDefs"
+        [animateRows]="true"
+        [suppressAutoSize]="true"
+        [suppressDragLeaveHidesColumns]="true"
+        [rowSelection]="rowSelection"
+        [singleClickEdit]="true"
+        (gridReady)="onGridReady($event)"
+        (cellValueChanged)="OnCellValueChanged($event)"
+      >
+      </ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (onClick)="CloseModel()"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode && !view"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !view"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+
+<p-dialog
+  [maximizable]="true"
+  header="Copy Transfer Note"
+  [modal]="true"
+  [(visible)]="displayStock"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #stockTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="stockData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="namvouchere">
+            Voucher No <p-sortIcon field="voucher" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>
+            <button
+              (click)="SelectRequisition(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

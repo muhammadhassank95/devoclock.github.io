@@ -1,0 +1,50 @@
+<div class="row mt-3 px-3">
+    <div id="inputField" class="p-field col-md-12 flex flex-column">
+        <label for="employeeId">Employee ID</label>
+        <input id="employeeId" type="text" pInputText [(ngModel)]="markEmployeeAsResignedDto.erp" readonly />
+    </div>
+    <div id="inputField" class="p-field col-md-6 flex flex-column mt-3">
+        <label for="date">Resignation Date </label>
+        <p-calendar [(ngModel)]="markEmployeeAsResignedDto.resignationDate" inputId="date" appendTo="body"
+            [showOnFocus]="true" [minDate]="today"></p-calendar>
+    </div>
+    <div id="inputField" class="p-field col-md-6 flex flex-column mt-3">
+        <label for="date">Notice Start Date </label>
+        <p-calendar [(ngModel)]="markEmployeeAsResignedDto.noticeStartDate" inputId="date" appendTo="body"
+            [showOnFocus]="true"></p-calendar>
+    </div>
+    <div id="inputField" class="p-field col-md-6 flex flex-column mt-3">
+        <label for="date">Release Date </label>
+        <p-calendar [(ngModel)]="markEmployeeAsResignedDto.releaseDate" inputId="date" appendTo="body"
+            [showOnFocus]="true"></p-calendar>
+    </div>
+    <div id="inputField" class="p-field col-md-6 flex flex-column mt-3">
+        <label for="resignationReason">Resignation Reason</label>
+        <input id="resignationReason" type="text" pInputText
+            [(ngModel)]="markEmployeeAsResignedDto.resignationReason" />
+    </div>
+</div>
+
+<div class="row mt-3 px-3">
+    
+    <div class="col-12 flex align-items-start flex-column gap-2">
+        <div class="d-flex  align-items-center gap-2">
+            <p-checkbox  inputId="isActive" [(ngModel)]="markEmployeeAsResignedDto.isActive" [binary]="false"
+                inputId="binary" disabled />
+            <label class="m-0" for="isActive">Active</label>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <p-checkbox inputId="isTerminated" [(ngModel)]="markEmployeeAsResignedDto.isTerminated" [binary]="true"
+                inputId="binary" />
+            <label class="m-0" for="isTerminated">Is Terminated?</label>
+        </div>
+    </div>
+</div>
+<div class="flex justify-content-end gap-2 position-absolute bottom-0 w-100"
+     style="left: 0; border-top: 1px solid #DBDBDB; background-color: #fbfbfb; padding: 16px 1.5rem;"
+>
+    <button pButton label="Save" icon="pi pi-check" class="p-button-success" type="submit" (click)="onSubmit()">
+    </button>
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-secondary" type="button" (click)="onClose()">
+    </button>
+</div>

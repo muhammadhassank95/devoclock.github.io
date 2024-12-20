@@ -1,0 +1,13 @@
+<p-tabView>
+    <p-tabPanel *ngIf="isPermitted('LookUps.CostCenter')" header="Cost Center Master">
+        <app-cost-center></app-cost-center>
+    </p-tabPanel>
+    <p-tabPanel *ngIf="isPermitted('LookUps.CostCenterCategory')" header="Cost Center Category">
+        <app-cost-center-category></app-cost-center-category>
+    </p-tabPanel>
+</p-tabView>
+
+<div>
+    <p-toast />
+    <p-confirmDialog class="cancel-modal"/>
+</div>

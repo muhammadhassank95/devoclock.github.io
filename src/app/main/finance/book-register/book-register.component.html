@@ -1,0 +1,334 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <div class="flex items-center">
+      <h4 class="m-0">Book Register</h4>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="openModal()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  [paginator]="true"
+  [rows]="5"
+  #policyTable
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [value]="data"
+  styleClass="p-datatable-gridlines"
+  [loading]="loading"
+  [rowHover]="true"
+  [paginatorDropdownAppendTo]="'body'"
+  dataKey="id"
+  responsiveLayout="scroll"
+  [globalFilterFields]="['userLocationName', 'voucherNumber', '']"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="name">Location <p-sortIcon field="name" /></th>
+      <!-- <th pSortableColumn="religion">ChqNo<p-sortIcon field="religion" /></th> -->
+      <th pSortableColumn="voucherNumber">
+        Voucher Number <p-sortIcon field="voucherNumber" />
+      </th>
+      <!-- <th pSortableColumn="voucherNumber">
+          Cancelled <p-sortIcon field="voucherNumber" />
+        </th> -->
+      <th>Status</th>
+      <th pSortableColumn="Actions">Actions <p-sortIcon field="Actions" /></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{ item.userLocationName }}</td>
+      <!-- <td>{{ item.chequeNumber }}</td> -->
+      <td>{{ item.voucherNumber }}</td>
+      <!-- <td>{{ item.isCancelled ? "Yes" : "No" }}</td> -->
+      <td>{{ item.status }}</td>
+      <td>
+        <ng-container *ngIf="item.status !== 'APPROVED'">
+          <p-button icon="pi pi-pencil" (onClick)="handleEditCheque(item.id)" />
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></button>
+        </ng-container>
+        <button
+          pButton
+          pRipple
+          *ngIf="item.status === 'APPROVED'"
+          icon="pi pi-eye"
+          class="p-button-rounded p-button-warning mr-2"
+          (click)="handleEditCheque(item.id, true)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [header]="editMode ? 'Update Book Register' : 'Create Book Register'"
+  [modal]="true"
+  (visibleChange)="handleVisibleChange($event)"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+>
+  <form [formGroup]="bookRegisterFG" (ngSubmit)="handleSaveCheckRegister()">
+    <div class="p-2">
+      <div
+        class="row flex col-md-12 align-items-center -mt-2 align-content-center"
+      >
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+          <label for="name">Date</label>
+          <p-calendar
+            (ngModelChange)="onDateChange($event)"
+            [minDate]="MinDate"
+            [maxDate]="today"
+            inputId="date"
+            appendTo="body"
+            tabindex="1"
+            formControlName="issueDate"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <app-picker
+            [showId]="false"
+            [title]="'Location'"
+            [id]="bookRegisterFG.get('userLocationId')?.value"
+            [name]="bookRegisterFG.get('userLocationName')?.value"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+          <label for="name">Voucher Number</label>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            readonly
+            formControlName="voucherNumber"
+          />
+        </div>
+      </div>
+      <div
+        class="row flex align-content-around align-items-center mt-4 col-md-12"
+      >
+        <div id="inputField" class="col-md-6 p-field flex flex-column">
+          <app-picker
+            [title]="'CostCenter'"
+            [id]="bookRegisterFG.value.costCenterId"
+            [name]="bookRegisterFG.value.costCenterName"
+            (valueSelected)="setPickerValue($event, 'CostCenter')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-6 p-field flex flex-column">
+          <app-picker
+            [title]="'Project'"
+            [id]="bookRegisterFG.value.projectId"
+            [name]="bookRegisterFG.value.projectName"
+            (valueSelected)="setPickerValue($event, 'Project')"
+          ></app-picker>
+        </div>
+      </div>
+      <div
+        class="row flex align-content-around -mt-2 align-items-center col-md-12"
+      >
+        <div id="inputField" class="col-md-6 p-field -mb-6 flex flex-column">
+          <app-picker
+            [title]="'ServiceEquipment'"
+            [id]="bookRegisterFG.value.serviceEquipmentId"
+            [name]="bookRegisterFG.value.serviceEquipmentName"
+            (valueSelected)="setPickerValue($event, 'ServiceEquipment')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-6">
+          <label for="narration" class="form-label">Narration</label>
+          <input
+            id="narration"
+            formControlName="remarks"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="bookRegisterDto.comments"
+            class="form-control"
+            [ngClass]="{ 'is-invalid': isFieldInvalid('remarks') }"
+          />
+        </div>
+      </div>
+
+      <div
+        class="row col-md-12 mt-3 flex align-items-center align-content-center"
+      >
+        <div class="col-md-10 gap-3 row">
+          <div id="inputField" class="col-md-3 p-field row flex flex-column">
+            <label for="totalChecqueAmt">Bank No. Start</label>
+            <p-inputNumber
+              useGrouping="false"
+              id="totalChecqueAmt"
+              type="text"
+              [min]="0"
+              formControlName="bookNumberStart"
+            />
+          </div>
+          <div id="inputField" class="col-md-3 p-field row flex flex-column">
+            <label for="totalTaxAmt">Serial Start</label>
+            <p-inputNumber
+              useGrouping="false"
+              id="totalTaxAmt"
+              type="text"
+              [min]="0"
+              formControlName="serialNumberStart"
+            />
+          </div>
+          <div id="inputField" class="col-md-3 p-field row flex flex-column">
+            <label for="totalTaxAmt">No. of Book</label>
+            <p-inputNumber
+              useGrouping="false"
+              id="totalTaxAmt"
+              type="text"
+              [min]="1"
+              formControlName="numberOfBooks"
+            />
+          </div>
+          <div class="col-md-2 row flex justify-content-start mt-2">
+            <p-button
+              label="Generate"
+              [text]="true"
+              [disabled]="verifyAllChequesUtilized() || bookRegisterFG.disabled"
+              [raised]="true"
+              severity="info"
+              (onClick)="handleGenerateCheques()"
+            >
+            </p-button>
+          </div>
+        </div>
+      </div>
+      <br />
+      <h6>Cheques</h6>
+
+      <!-- Display generated cheques -->
+      <p-table
+        [paginator]="true"
+        [rows]="5"
+        [loading]="loading"
+        [totalRecords]="bookRegisterFG.value.visitBookRegisterDetails?.length"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [value]="bookRegisterFG.value.visitBookRegisterDetails"
+        styleClass="p-datatable-gridlines"
+        [rowHover]="true"
+        [paginatorDropdownAppendTo]="'body'"
+        dataKey="id"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Sr. No.</th>
+            <th pSortableColumn="religion">
+              ChqNo<p-sortIcon field="religion" />
+            </th>
+            <th *ngIf="editMode">Child V.No.</th>
+            <th pSortableColumn="isCancelled">
+              Cancelled <p-sortIcon field="isCancelled" />
+            </th>
+            <th>Utilized</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-index="rowIndex">
+          <tr>
+            <td>{{ index + 1 }}</td>
+            <td>{{ item.bookNumber }}</td>
+            <td *ngIf="editMode">{{ item.voucherNumber }}</td>
+            <td>
+              <p-inputSwitch
+                (onChange)="handleIsCheckCancelled($event, index, item)"
+                [ngModel]="item.isCancelled"
+                [disabled]="
+                  item.isUtilized ||
+                  item.isCancelled ||
+                  item.id === 0 ||
+                  documentStatus === 'PENDING'
+                "
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </td>
+            <td>{{ item.isUtilized ? "Yes" : "No" }}</td>
+            <td>
+              <button
+                pButton
+                [disabled]="item.isUtilized"
+                pRipple
+                *ngIf="documentStatus === 'PENDING'"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-warning mr-2"
+                (click)="deleteGeneratedCheque(index)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <div class="flex justify-content-end gap-2">
+        <div class="my-auto">
+          <p-button
+            (onClick)="dialogVisibility = false"
+            label="Cancel"
+            [outlined]="true"
+            severity="warning"
+          />
+          <p-button
+            [loading]="saving"
+            *ngIf="editMode == false"
+            type="submit"
+            [disabled]="bookRegisterFG.invalid"
+            label="Save"
+            [outlined]="true"
+            severity="contrast"
+          />
+          <p-button
+            [loading]="saving"
+            *ngIf="editMode == true && bookRegisterFG.enabled"
+            (click)="update()"
+            label="Update"
+            [outlined]="true"
+            severity="contrast"
+            [disabled]="bookRegisterFG.invalid"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

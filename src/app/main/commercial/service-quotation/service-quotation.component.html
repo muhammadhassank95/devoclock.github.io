@@ -1,0 +1,708 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Offer / Performa Invoice</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        (keydown.enter)="onEnter($event)"
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+    <!-- <div class="p-toolbar-group-left">
+        <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+        <p-button label="Tracing" class="p-button-success" (click)="openTracingComponent()"></p-button>
+      </div> -->
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    [loading]="loading"
+    scrollHeight="58vh"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'supplierName',
+      'issueDate',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucher">
+          Voucher <p-sortIcon field="voucher" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="type">
+          Location <p-sortIcon field="type" />
+        </th>
+        <!-- <th style="min-width: 200px" pSortableColumn="Active">
+          Transfer Status <p-sortIcon field="Active" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Purchase Status <p-sortIcon field="Active" />
+        </th> -->
+        <th style="min-width: 200px" pSortableColumn="status">
+          Linked Status <p-sortIcon field="status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Document Status <p-sortIcon field="Active" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+
+        <!-- <td>
+          <span
+            [ngClass]="{
+              'yes-bg': item.transferStatus === 'COMPLETED',
+              'no-bg': item.transferStatus === 'PENDING'
+            }"
+            [style]="{ height: '25px', cursor: 'pointer' }"
+          >
+            {{ item.transferStatus }}
+          </span>
+        </td>
+        <td>
+          <span
+            [ngClass]="{
+              'yes-bg': item.purchaseStatus === 'COMPLETED',
+              'no-bg': item.purchaseStatus === 'PENDING'
+            }"
+            [style]="{ height: '25px', cursor: 'pointer' }"
+          >
+            {{ item.purchaseStatus }}
+          </span>
+        </td> -->
+        <td>
+          <span
+            *ngIf="item.linkedStatus == 'COMPLETED'"
+            class="yes-bg"
+            style="height: 25px; cursor: pointer"
+            >{{ item.linkedStatus }}</span
+          >
+          <span *ngIf="item.linkedStatus != 'COMPLETED'" class="no-bg">{{
+            item.linkedStatus
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            class="yes-bg"
+            style="height: 25px; cursor: pointer"
+            >{{ item.status }}</span
+          >
+          <span *ngIf="item.status == 'PENDING'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [closeOnEscape]="false"
+  [header]="
+    editMode
+      ? 'Edit Offer / Performa Invoice'
+      : 'Create Offer / Performa Invoice'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <p-tabView class="custom-tabview">
+    <p-tabPanel header="Offer / Performa Invoice">
+      <div class="row col-md-12 flex mt-3">
+        <div class="border col-md-6">
+          <div class="row p-2">
+            <div class="row col-md-12">
+              <div class="p-field col-md-3">
+                <label for="date">Document Date</label>
+                <p-calendar
+                  (ngModelChange)="onDateChange($event)"
+                  [(ngModel)]="serviceQuotationDto.issueDate"
+                  inputId="date"
+                  appendTo="body"
+                  tabindex="1"
+                  [minDate]="MinDate"
+                  [maxDate]="today"
+                  [showOnFocus]="true"
+                ></p-calendar>
+              </div>
+            </div>
+
+            <div class="row col-md-12 flex">
+              <div id="inputField" class="p-field col-md-12">
+                <app-picker
+                  [disable]="editMode || addRow"
+                  title2="Location"
+                  [title]="'User Location'"
+                  [id]="serviceQuotationDto.userLocationId"
+                  [name]="serviceQuotationDto.userLocationName"
+                  (valueSelected)="setPickerValue($event, 'LocationTo')"
+                ></app-picker>
+              </div>
+            </div>
+
+            <div class="row col-md-12">
+              <div id="inputField" class="p-field col-md-12">
+                <app-picker
+                  [title2]="'Subledger'"
+                  [title]="'Client'"
+                  [id]="this.serviceQuotationDto.supplierSerialNumber"
+                  [name]="this.serviceQuotationDto.supplierName"
+                  [chartOfAccountSubLedgerType]="'3,4'"
+                  (valueSelected)="setPickerValue($event, 'Supplier')"
+                ></app-picker>
+              </div>
+            </div>
+
+            <div class="row col-md-12">
+              <div id="inputField" class="p-field col-md-12">
+                <app-picker
+                  [disable]="editMode || addRow"
+                  title2="Employee"
+                  [title]="'Employee'"
+                  [id]="this.serviceQuotationDto.employeeErpId"
+                  [name]="this.serviceQuotationDto.employeeName"
+                  (valueSelected)="setPickerValue($event, 'Employee')"
+                ></app-picker>
+              </div>
+            </div>
+
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-6 p-field flex flex-column">
+                <label for="name">Voucher Number</label>
+                <input
+                  readonly
+                  id="name"
+                  type="text"
+                  pInputText
+                  [(ngModel)]="serviceQuotationDto.voucherNumber"
+                />
+              </div>
+              <div id="inputField" class="col-md-4 p-field flex flex-column">
+                <label for="name">Business Month</label>
+                <p-calendar
+                  [disabled]="editMode"
+                  view="month"
+                  dateFormat="mm/yy"
+                  [(ngModel)]="serviceQuotationDto.businessMonth"
+                  inputId="businessMonth"
+                  appendTo="body"
+                ></p-calendar>
+              </div>
+              <!-- <div class="flex gap-2 align-items-center">
+                    <p-checkbox inputId="isActive" [(ngModel)]="serviceQuotationDto.isActive" [binary]="true"
+                        inputId="binary" />
+                    <label for="isActive">Active</label>
+                </div> -->
+            </div>
+          </div>
+        </div>
+
+        <div class="border col-md-6">
+          <div class="row p-2">
+            <div class="row col-md-12">
+              <div class="p-field col-md-6">
+                <label for="date">Invoice Submission Date</label>
+                <p-calendar
+                  [(ngModel)]="serviceQuotationDto.invoiceSubmissionDate"
+                  inputId="date"
+                  appendTo="body"
+                  tabindex="1"
+                  [maxDate]="maxDate"
+                  [showOnFocus]="true"
+                ></p-calendar>
+              </div>
+              <div id="inputField" class="col-md-6">
+                <label for="indentNumber" class="form-label"
+                  >Indent Number</label
+                >
+                <input
+                  id="indentNumber"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="this.serviceQuotationDto.indentNumber"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-6">
+                <label for="attentionPerson" class="form-label"
+                  >Attention Person</label
+                >
+                <input
+                  id="attentionPerson"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="this.serviceQuotationDto.attentionPerson"
+                  class="form-control"
+                />
+              </div>
+              <div id="inputField" class="col-md-6">
+                <label for="designation" class="form-label">Designation</label>
+                <input
+                  id="designation"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="this.serviceQuotationDto.designation"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row col-md-12">
+              <div id="inputField" class="col-md-4">
+                <label for="referenceNumber" class="form-label"
+                  >Reference Number</label
+                >
+                <input
+                  id="referenceNumber"
+                  [disabled]="editMode"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="this.serviceQuotationDto.referenceNumber"
+                  class="form-control"
+                />
+              </div>
+              <div id="inputField" class="col-md-4">
+                <label for="narration" class="form-label">Narration</label>
+                <input
+                  id="narration"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="serviceQuotationDto.remarks"
+                  class="form-control"
+                />
+              </div>
+              <div id="inputField" class="col-md-4">
+                <label for="narration" class="form-label">Site ID:</label>
+                <input
+                  id="siteId"
+                  required
+                  type="text"
+                  pInputText
+                  [(ngModel)]="serviceQuotationDto.siteId"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+
+      <!-- Grid -->
+      <div class="my-4">
+        <p-button (click)="onAddRow()" label="Add Row" size="small" />
+        <p-button
+          (click)="onRemoveSelected()"
+          label="Remove Row"
+          size="small"
+          severity="danger"
+        />
+        <div class="row col-md-12">
+          <ag-grid-angular
+            style="width: 100%; height: 200px; margin-top: 12px"
+            class="ag-theme-balham"
+            [rowData]="rowData"
+            [columnDefs]="colDefs"
+            [animateRows]="true"
+            [suppressAutoSize]="true"
+            [suppressDragLeaveHidesColumns]="true"
+            [rowSelection]="rowSelection"
+            [singleClickEdit]="true"
+            (gridReady)="onGridReady($event)"
+            (cellClicked)="cellClicked($event)"
+            (cellValueChanged)="OnCellValueChanged($event)"
+          >
+          </ag-grid-angular>
+        </div>
+      </div>
+
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="grossAmount" class="form-label">Gross Amount</label>
+          <p-inputNumber
+            useGrouping="false"
+            [readonly]="true"
+            aria-readonly="true"
+            id="grossAmount"
+            [(ngModel)]="serviceQuotationDto.grossAmount"
+            type="text"
+            [min]="0"
+          />
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="gstAmount" class="form-label">GST Amount</label>
+          <p-inputNumber
+            useGrouping="false"
+            aria-readonly="true"
+            [readonly]="true"
+            id="gstAmount"
+            [(ngModel)]="serviceQuotationDto.gstAmount"
+            type="text"
+            [min]="0"
+          />
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="pstAmount" class="form-label">PST Amount</label>
+          <p-inputNumber
+            useGrouping="false"
+            aria-readonly="true"
+            [readonly]="true"
+            id="pstAmount"
+            [(ngModel)]="serviceQuotationDto.pstAmount"
+            type="text"
+            [min]="0"
+          />
+        </div>
+        <div id="inputField" class="col-md-3 flex flex-column">
+          <label for="totalAmount" class="form-label">Total Amount</label>
+          <p-inputNumber
+            useGrouping="false"
+            id="totalAmount"
+            [readonly]="true"
+            [(ngModel)]="serviceQuotationDto.totalAmount"
+            type="text"
+            aria-readonly="true"
+            [min]="0"
+          />
+        </div>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Other Details">
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-6">
+          <app-picker
+            [title]="'CostCenter'"
+            [id]="serviceQuotationDto.costCenterId"
+            [name]="serviceQuotationDto.costCenterName"
+            (valueSelected)="setPickerValue($event, 'CostCenter')"
+          ></app-picker>
+        </div>
+        <!-- <div id="inputField" class="p-field col-md-6">
+          <app-picker
+            [title]="'Region'"
+            [id]="serviceQuotationDto.regionId"
+            [name]="serviceQuotationDto.regionName"
+            (valueSelected)="setPickerValue($event, 'Region')"
+          ></app-picker>
+        </div> -->
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-6">
+          <app-picker
+            [title]="'Project'"
+            [id]="serviceQuotationDto.projectId"
+            [name]="serviceQuotationDto.projectName"
+            (valueSelected)="setPickerValue($event, 'Project')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="p-field col-md-6">
+          <app-picker
+            [title]="'Site'"
+            [id]="serviceQuotationDto.siteId"
+            [name]="serviceQuotationDto.siteName"
+            (valueSelected)="setPickerValue($event, 'Site')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Subject</label>
+          <input
+            id="subject"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.subject"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Terms</label>
+          <input
+            id="terms"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.terms"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Origin</label>
+          <input
+            id="origin"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.origin"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Validity</label>
+          <input
+            id="validity"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.validity"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Starting Comments</label>
+          <input
+            id="comments"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.startingComments"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">Paragraph</label>
+          <input
+            id="paragraph"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.paragraph"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12">
+          <label for="narration" class="form-label">End Narration</label>
+          <input
+            id="endNarration"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.endingComments"
+            class="form-control"
+          />
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-6">
+          <app-picker
+            [title]="'VoucherStatus'"
+            [id]="serviceQuotationDto.voucherStatusId"
+            [name]="serviceQuotationDto.voucherStatusName"
+            (valueSelected)="setPickerValue($event, 'VoucherStatus')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-6">
+          <label for="narration" class="form-label"
+            >Voucher Status Remarks</label
+          >
+          <input
+            id="endNarration"
+            required
+            type="text"
+            pInputText
+            [(ngModel)]="serviceQuotationDto.remarks"
+            class="form-control"
+          />
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+
+  <div class="flex col-md-2 gap-2 align-items-center">
+    <p-checkbox
+      inputId="isConfirmed"
+      [binary]="true"
+      [(ngModel)]="serviceQuotationDto.isConfirmed"
+    />
+    <label for="isConfirmed">isConfirmed</label>
+  </div>
+  <!-- </div> -->
+
+  <p-dialog
+    [closeOnEscape]="false"
+    [maximizable]="true"
+    header="Linkind Item"
+    [modal]="true"
+    [(visible)]="displayItem"
+    [draggable]="false"
+  >
+    <div class="p-4">
+      <p-table
+        #requisitionTable
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [value]="itemData"
+        styleClass="p-datatable-gridlines"
+        [rowHover]="true"
+        [paginatorDropdownAppendTo]="'body'"
+        dataKey="id"
+        responsiveLayout="scroll"
+        [style]="{ width: '100%', 'overflow-y': 'auto' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="min-width: 200px" pSortableColumn="namvouchere">
+              Item Id <p-sortIcon field="voucher" />
+            </th>
+            <th style="min-width: 200px" pSortableColumn="date">
+              Item Title <p-sortIcon field="date" />
+            </th>
+            <th style="min-width: 200px" pSortableColumn="Actions">
+              Actions <p-sortIcon field="Actions" />
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+
+            <td>
+              <button
+                (click)="SelectItem(item)"
+                pButton
+                pRipple
+                label="Select"
+                class="p-button-rounded p-button-info mr-2"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-dialog>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (onClick)="CloseModel()"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode && !view"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !view"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

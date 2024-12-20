@@ -1,0 +1,548 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Purchase Invoice</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+      />
+    </span>
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <button
+        pButton
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></button>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [loading]="loading"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="['serialNumber', 'voucherNumber', 'issueDate', '']"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucher">
+          Voucher No <p-sortIcon field="voucher" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="terms">
+          IssueDate <p-sortIcon field="terms" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isActive">
+          Document Status <p-sortIcon field="isActive" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date }}</td>
+        <td>
+          <span
+            [ngClass]="{
+              'yes-bg': item.status === 'COMPLETED',
+              'no-bg': item.status === 'PENDING'
+            }"
+            [style]="{ height: '25px', cursor: 'pointer' }"
+          >
+            {{ item.status }}
+          </span>
+        </td>
+        <!-- <td>
+          <span
+            *ngIf="item.documentStatus == 'APPROVED'"
+            class="yes-bg"
+            style="height: 25px; cursor: pointer"
+            >{{ item.documentStatus }}</span
+          >
+          <span *ngIf="item.documentStatus != 'APPROVED'" class="no-bg">{{
+            item.documentStatus
+          }}</span>
+        </td> -->
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            style="height: 25px; cursor: pointer"
+            label="Approve"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          >
+          </span>
+          <span
+            pButton
+            pRipple
+            icon="pi pi-file-pdf"
+            class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="downloadBPReport(item.id)"
+          >
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Purchase Invoice' : 'Create Purchase Invoice'"
+  [modal]="true"
+  (onHide)="this.calendar_disability = true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div class="col-md-3 p-field">
+            <label for="date">Date</label>
+            <p-calendar
+              (ngModelChange)="onDateChange($event)"
+              [(ngModel)]="purchaseInvoiceDto.issueDate"
+              inputId="date"
+              [minDate]="MinDate"
+              [maxDate]="today"
+              appendTo="body"
+              tabindex="1"
+              [showOnFocus]="true"
+            ></p-calendar>
+          </div>
+          <div class="col-md-9 p-field">
+            <app-picker
+              [showId]="false"
+              [title]="'Location'"
+              [id]="purchaseInvoiceDto.userLocationId"
+              [name]="purchaseInvoiceDto.userLocationName"
+              (valueSelected)="setPickerValue($event, 'Location')"
+            ></app-picker>
+          </div>
+        </div>
+
+        <div class="row col-md-12" style="margin-bottom: 1rem">
+          <div id="inputField" class="col-md-6 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input
+              readonly
+              id="name"
+              type="text"
+              pInputText
+              [(ngModel)]="purchaseInvoiceDto.voucherNumber"
+            />
+          </div>
+        </div>
+        <br />
+        <div class="row col-md-12">
+          <div class="my-auto">
+            <p-button
+              (click)="OpenGoodsInpNote()"
+              label="Copy Goods Inspection Note"
+              [text]="true"
+              [raised]="true"
+              severity="success"
+              [disabled]="editMode"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-6">
+      <div class="row p-2">
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [disable]="editMode"
+              [title]="'Supplier'"
+              [id]="serialNumber"
+              [name]="purchaseInvoiceDto.supplierName"
+              (valueSelected)="setPickerValue($event, 'Supplier')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [disable]="editMode"
+              [title]="'Employee'"
+              [id]="EmpSerialNumber"
+              [name]="purchaseInvoiceDto.employeeName"
+              (valueSelected)="setPickerValue($event, 'Employee')"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title]="'CostCenter'"
+              [id]="purchaseInvoiceDto.costCenterId"
+              [name]="purchaseInvoiceDto.costCenterName"
+              (valueSelected)="setPickerValue($event, 'CostCenter')"
+              [disable]="true"
+            ></app-picker>
+          </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title]="'Project'"
+              [id]="purchaseInvoiceDto.projectId"
+              [name]="purchaseInvoiceDto.projectName"
+              (valueSelected)="setPickerValue($event, 'Project')"
+              [disable]="true"
+            ></app-picker>
+          </div>
+        </div>
+        <!-- <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker [title]="'Region'" [id]="purchaseInvoiceDto.regionId" [name]="purchaseInvoiceDto.regionName"
+              (valueSelected)="setPickerValue($event, 'Region')" [disable]="true"></app-picker>
+          </div>
+        </div> -->
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="grnNo">Gate Pass No.</label>
+            <input
+              id="grnNo"
+              type="text"
+              pInputText
+              [(ngModel)]="purchaseInvoiceDto.ginNumber"
+            />
+          </div>
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="invoiceNo">Invoice Number</label>
+            <input
+              id="invoiceNo"
+              type="text"
+              min="0"
+              pInputText
+              [(ngModel)]="purchaseInvoiceDto.invoiceNumber"
+            />
+          </div>
+          <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="invoiceDate">Invoice Date</label>
+            <p-calendar
+              [(ngModel)]="purchaseInvoiceDto.invoiceDate"
+              inputId="invoiceDate"
+              appendTo="body"
+              [showOnFocus]="true"
+              max
+            ></p-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br />
+
+  <!-- Grid -->
+
+  <div class="my-4">
+    <div class="row col-md-12">
+      <p-button
+        (click)="onRemoveSelected()"
+        label="Remove Row"
+        size="small"
+        severity="danger"
+        style="
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          height: auto;
+          line-height: 1.25;
+        "
+      />
+      <ag-grid-angular
+        style="width: 100%; height: 200px; margin-top: 12px"
+        class="ag-theme-balham"
+        [rowData]="rowData"
+        [columnDefs]="colDefs"
+        [animateRows]="true"
+        [suppressAutoSize]="true"
+        [suppressDragLeaveHidesColumns]="true"
+        [rowSelection]="rowSelection"
+        [singleClickEdit]="true"
+        (gridReady)="onGridReady($event)"
+        (cellValueChanged)="OnCellValueChanged($event)"
+      >
+      </ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="grossAmount">Gross Amount</label>
+      <input
+        id="grossAmount"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.grossAmount"
+      />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="discountBeforePct">Discount </label>
+      <input
+        (ngModelChange)="calculateNetAmount($event)"
+        id="discountBeforePct"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.discount"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="netAmount">Net Amount</label>
+      <input
+        id="netAmount"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.netAmount"
+      />
+    </div>
+    <div id="inputField" class="col-md-1 p-field flex flex-column">
+      <label for="serviceTaxPct">S. Tax</label>
+      <input
+        (ngModelChange)="OnTaxChange($event, true)"
+        id="serviceTaxPct"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.serviceTaxPct"
+      />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="STaxAmount">Amount</label>
+      <input
+        id="STaxAmount"
+        type="number"
+        pInputText
+        [(ngModel)]="STaxAmount"
+        readonly
+      />
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-1 p-field flex flex-column">
+      <label for="excisePrc">Excise %</label>
+      <input
+        (ngModelChange)="OnTaxChange($event, false)"
+        id="excisePrc"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.excisePct"
+      />
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="ExciseAmount">Amount</label>
+      <input
+        id="ExciseAmount"
+        type="number"
+        pInputText
+        [(ngModel)]="ExciseAmount"
+        readonly
+      />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="totalAmount">Total Amount</label>
+      <input
+        id="totalAmount"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.totalAmount"
+      />
+    </div>
+
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="freightPct">Freight</label>
+      <input
+        (ngModelChange)="OnFreightChange($event)"
+        id="freightPct"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.freight"
+      />
+    </div>
+    <div id="inputField" class="col-md-3 p-field flex flex-column">
+      <label for="netPayable">Net Payable</label>
+      <input
+        id="netPayable"
+        type="number"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.payable"
+      />
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <label for="comments">Naration</label>
+      <input
+        id="comments"
+        type="text"
+        pInputText
+        [(ngModel)]="purchaseInvoiceDto.terms"
+      />
+    </div>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (onClick)="CloseModel()"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode && !view"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !view"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+
+<p-dialog
+  [maximizable]="true"
+  header="Copy GIN"
+  [modal]="true"
+  [(visible)]="displayOrder"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #OrderTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="OrderData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="namvouchere">
+            Voucher No <p-sortIcon field="voucher" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Employee">
+            Employee Name<p-sortIcon field="Employee" />
+          </th>
+          <!-- <th style="min-width: 200px" pSortableColumn="coastCenterName">
+            CostCenter Name<p-sortIcon field="coastCenterName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectName">
+            Project Name<p-sortIcon field="projectName" />
+          </th> -->
+          <th style="min-width: 200px" pSortableColumn="Status">
+            Status <p-sortIcon field="Status" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.supplierName }}</td>
+          <!-- <td>{{ item.costCenterName }}</td>
+          <td>{{ item.projectName }}</td> -->
+
+          <td>
+            <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+              item.status
+            }}</span>
+            <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+              item.status
+            }}</span>
+          </td>
+          <td>
+            <button
+              (click)="SelectGetGoodsInpNote(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<!-- //////// Toastify /////// -->
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

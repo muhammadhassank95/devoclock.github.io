@@ -1,0 +1,117 @@
+<div class="row" style="z-index: 1050;" *ngIf="!forGrid">
+    <div class="col-md-2 form-group">
+        <label [htmlFor]="title+'ID'">{{title}}<span class="require-field"></span></label>
+    </div>
+    <div class="col-md-4 form-group">
+        <div class="input-group">
+            <input type="text" style="width:10%;" tabindex="3" [id]="id" class="form-control form-control-sm"
+                (keydown.shift.p)="openPicker()" [(ngModel)]="id" readonly required />
+            <div class="input-group-append">
+                <button [disabled]="disable" class="btn btn-primary blue btn-sm" (click)="openPicker()" type="button"
+                    tabindex="4"><i class="fa fa-search"></i>
+                    Pick
+                </button>
+            </div>
+            <div class="input-group-prepend">
+                <button [disabled]="disable" class="btn btn-danger btn-icon btn-sm" type="button" tabindex="5"
+                    (click)="setToNull()"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <input class="form-control form-control-sm" [id]="title+'title'" [(ngModel)]="name" [name]="name" type="text"
+            [disabled]="editable" (ngModelChange)="SetName($event)" />
+    </div>
+</div>
+
+
+<p-dialog [maximizable]="true" header="Select Chart of Account" [modal]="true" [(visible)]="openModal"
+    [draggable]="false">
+    <div id="suggestionTable" class="table-responsive modal-body">
+        <div class="row mb-4">
+            <div id="inputField" class="col-md-4 flex flex-column">
+                <label for="id">Account Id</label>
+                <input id="id" style="height: 41px; width:100%;" type="text" pInputText [(ngModel)]="serialNumber" />
+            </div>
+            <div id="inputField" class="col-md-8 d-flex align-items-end">
+                <div class="d-flex flex-column w-100">
+                    <label for="name">Name:</label>
+                    <input id="name" style="height: 41px; width:100%;" type="text" pInputText [(ngModel)]="name" />
+                </div>
+                <div class="" style="margin-left:10px;">
+                    <button 
+                     (click)="Search()"
+                     class="p-button-success"
+                     style="color:#ffffff;"
+                     >
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-0">
+            <p-table #requisitionTable [paginator]="false" [value]="chartOfAccountData"
+                styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+                responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }"
+                styleClass="p-datatable-gridlines p-datatable-sm" [style]="{ width: '100%', 'overflow-y': 'auto' }"
+                [tableStyle]="{ 'min-width': '54rem' }" responsiveLayout="scroll" [scrollable]="true"
+                scrollHeight="58vh" [loading]="loading" loadingIcon="pi pi-spin pi-spinner-dotted">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-nowrap" title="Id" pSortableColumn="id">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Id </span>
+                                <p-sortIcon field="id" />
+                            </div>
+                        </th>
+                        <th class="text-nowrap" title="Name" pSortableColumn="namvouchere">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Name </span>
+                                <p-sortIcon field="voucher" />
+                            </div>
+                        </th>
+                        <th class="text-nowrap" title="Account Id" pSortableColumn="Employee">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Account Id</span>
+                                <p-sortIcon field="Employee" />
+                            </div>
+                        </th>
+                        <th class="text-nowrap" title="Account Type" pSortableColumn="Status">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Account Type </span>
+                                <p-sortIcon field="Status" />
+                            </div>
+                        </th>
+                        <th class="text-nowrap" title="Short Name" pSortableColumn="Status">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Short Name </span>
+                                <p-sortIcon field="Status" />
+                            </div>
+                        </th>
+                        <th class="text-nowrap" title=" Actions" pSortableColumn="Actions">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data"> Actions </span>
+                                <p-sortIcon field="Actions" />
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td class="no-wrap-header" title="{{ item.id }}">{{ item.id }}</td>
+                        <td class="no-wrap-header" title="{{ item.name }}">{{ item.name }}</td>
+                        <td class="no-wrap-header" title="{{ item.serialNumber }}">{{ item.serialNumber }}</td>
+                        <td class="no-wrap-header" title="{{ item.accountTypeName }}">{{ item.accountTypeName }}</td>
+                        <td class="no-wrap-header" title="{{ item.accountTypeShortName }}">{{ item.accountTypeShortName }}</td>
+                        <td>
+                            <button (click)="SelectChartOfAccount(item)" pButton pRipple label="Select"
+                                class="edit-btn" style="font-size:12px; font-weight:500; padding:4px 8px !important; height: auto; width: auto;"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <p-paginator class="mt-3" (onPageChange)="onPageChange($event)" [totalRecords]="totalCount"
+                [rowsPerPageOptions]="[5, 20, 30, totalCount]" [rows]="5" />
+        </div>
+    </div>
+</p-dialog>

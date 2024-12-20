@@ -1,0 +1,69 @@
+<app-lookup
+  action="Allowance"
+  class="allowance"
+  [mainDto]="dto"
+  [excludedColumns]="[]"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validateAllowance()"
+>
+  <ng-template #dialogView>
+    <div class="row gap-3">
+      <div class="col-md-12 flex flex-column">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.name"
+          id="name"
+          autocomplete="off"
+        />
+      </div>
+      <div class="col-md-12 flex flex-column">
+        <label for="percentage">Percentage:</label>
+        <input
+          type="number"
+          pInputText
+          [(ngModel)]="dto.percentage"
+          id="percentage"
+          min="0"
+          max="100"
+          autocomplete="off"
+        />
+      </div>
+    </div>
+    <div class="d-flex flex-column justify-content-between gap-1 mt-3">
+      <div class="row">
+        <div class="col-12 flex align-items-center gap-2">
+          <p-checkbox
+            [(ngModel)]="dto.isActive"
+            [binary]="true"
+            inputId="active"
+          />
+          <label for="active" class="mb-0">Active</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 flex align-items-center gap-2">
+          <p-checkbox
+            [(ngModel)]="dto.isSalaryEditable"
+            [binary]="true"
+            inputId="salaryEditable"
+          />
+          <label for="salaryEditable" class="mb-0">Value Editable</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 flex align-items-center gap-2">
+          <p-checkbox
+            [(ngModel)]="dto.isAllowanceEditable"
+            [binary]="true"
+            inputId="allowanceEditable"
+          />
+          <label for="allowanceEditable" class="mb-0"
+            >Percentage Editable</label
+          >
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</app-lookup>

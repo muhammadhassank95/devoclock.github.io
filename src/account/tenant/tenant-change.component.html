@@ -1,0 +1,26 @@
+﻿<div *ngIf="isMultiTenancyEnabled" class="text-center text-sm tenant-change-component">
+  <div class="form-group mb-0 form-group-height" style="height: 84px; margin-top:4px;">
+    <div class="d-flex align-items-center gap-2 w-100 ">
+      <label for="tenancyName" class="text-left text-sm tenancy-lable"> 
+        {{ "Select Tenancy" | localize }} 
+      </label>
+      <i class="fa fa-info-circle tenancy-info-icon" style="cursor: pointer; margin-top: -6px;"></i>
+      <span class="tenancy-info" style="font-size:10px; margin-top: -12px; margin-left: -4px; color:#019999 ;"> 
+        {{ "LeaveEmptyToSwitchToHost" | localize }} 
+      </span>
+    </div>
+    <div class="input-group">
+      <input
+        id="tenancyName"
+        [(ngModel)]="inputTenancyName"
+        name="inputTenancyName"
+        (ngModelChange)="onInputChange($event)"
+        class="form-control"
+        style="height: 50px !important;"
+        placeholder="{{ 'Enter tenant name...' | localize }}"
+        required
+        maxlength="64"
+      />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,297 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Bank Reconcilation Entries</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      'chartOfAccountName',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="Actions" style="min-width: 200px">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+        <th pSortableColumn="name" style="width: 20%">
+          chartOfAccountName <p-sortIcon field="name" />
+        </th>
+        <th pSortableColumn="fromDate" style="min-width: 200px">
+          issueDate <p-sortIcon field="fromDate" />
+        </th>
+        <th pSortableColumn="toDate" style="min-width: 200px">
+          voucherNumber <p-sortIcon field="toDate" />
+        </th>
+        <th pSortableColumn="eventDate" style="min-width: 200px">
+          userLocationName <p-sortIcon field="eventDate" />
+        </th>
+        <th pSortableColumn="isRecurring" style="min-width: 200px">
+          remarks <p-sortIcon field="isRecurring" />
+        </th>
+        <th pSortableColumn="isRecurring" style="min-width: 200px">
+          status <p-sortIcon field="isRecurring" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>
+          <span
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+
+          <span
+            *ngIf="item.status === 'PENDING'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+        <td>{{ item.chartOfAccountName }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.remarks }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    isEditMode
+      ? 'Edit Bank Reconcilation Entries'
+      : 'Create Bank Reconcilation Entries'
+  "
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <form [formGroup]="bankReconciliationForm" (ngSubmit)="save()">
+    <div class="row col-md-12">
+      <div class="col-md-6 mt-2 p-field">
+        <app-picker
+          [title]="'Location'"
+          [id]="bankReconciliationForm.get('userLocationId')?.value"
+          [name]="bankReconciliationForm.get('userLocationName')?.value"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        >
+        </app-picker>
+      </div>
+      <div id="inputField" class="col-md-3 p-field">
+        <label for="date">Date</label>
+        <p-calendar
+          formControlName="issueDate"
+          (ngModelChange)="onDateChange($event)"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          [disabled]="isViewMode"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        >
+        </p-calendar>
+      </div>
+      <div id="inputField" class="col-md-3 p-field">
+        <label for="voucher">Voucher Number</label>
+        <input
+          formControlName="voucherNumber"
+          id="voucher"
+          type="text"
+          pInputText
+          [readonly]="true"
+          [disabled]="isViewMode"
+        />
+      </div>
+    </div>
+
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field">
+        <app-picker
+          [title]="'ChartOfAccount'"
+          [id]="bankReconciliationForm.get('chartOfAccountSerialNumber')?.value"
+          [name]="bankReconciliationForm.get('chartOfAccountName')?.value"
+          (valueSelected)="setPickerValue($event, 'ChartOfAccount')"
+        ></app-picker>
+      </div>
+      <div class="col-md-3 p-field">
+        <div class="form-group" id="inputField">
+          <label for="transactionType">Type Of Transaction</label>
+          <select
+            formControlName="transactionType"
+            id="transactionType"
+            class="form-control"
+            [disabled]="isViewMode"
+          >
+            <option value="">Select a transaction type</option>
+            <option *ngFor="let type of transactionTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="row col-md-12">
+      <div class="">
+        <p-button
+          (click)="onAddRow()"
+          label="Add Row"
+          size="small"
+          style="
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            height: auto;
+            line-height: 1.25;
+          "
+        />
+        <p-button
+          (click)="onRemoveSelected()"
+          label="Remove Row"
+          size="small"
+          severity="danger"
+          style="
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            height: auto;
+            line-height: 1.25;
+          "
+        />
+      </div>
+      <ag-grid-angular
+        class="ag-theme-quartz"
+        style="height: 200px; width: 100%"
+        [rowData]="rowData"
+        [columnDefs]="colDefs"
+        [rowSelection]="rowSelection"
+        (cellClicked)="cellClicked($event)"
+        (gridReady)="onGridReady($event)"
+        [singleClickEdit]="true"
+      >
+      </ag-grid-angular>
+
+      <div class="col-md-12 mt-3 flex">
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="remarks"> Narration </label>
+          <input
+            formControlName="remarks"
+            id="remarks"
+            type="remarks"
+            pInputText
+          />
+        </div>
+      </div>
+
+      <div class="flex gap-1 justify-content-end mt-4">
+        <p-button
+          (onClick)="displayModal = false"
+          label="Cancel"
+          [outlined]="true"
+          severity="warning"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="!isEditMode && !isViewMode"
+          (click)="save()"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+        />
+        <p-button
+          [loading]="saving"
+          *ngIf="isEditMode && !isViewMode"
+          (click)="update()"
+          label="Update"
+          [outlined]="true"
+          severity="contrast"
+        />
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

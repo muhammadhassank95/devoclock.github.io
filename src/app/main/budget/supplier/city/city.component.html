@@ -1,0 +1,63 @@
+<app-lookup
+  action="City"
+  class="city"
+  [mainDto]="dto"
+  [excludedColumns]="[]"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validateLocation()"
+  (emitMainDTO)="getEmittedValues($event)"
+>
+  <ng-template #dialogView>
+    <div class="row">
+      <div class="col-md-12 flex flex-column">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="dto.name"
+          id="name"
+          autocomplete="off"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 d-flex flex-column">
+          <!-- <app-picker [title]="'Province'" [id]="dto.provinceId" [name]="dto.provinceName"
+                    (valueSelected)="setPickerValue($event, 'Province')"></app-picker> -->
+          <label for="name">Province:</label>
+          <p-dropdown
+            [options]="provinceOneDropdown"
+            [(ngModel)]="provinceSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            (onChange)="onDropdownChange($event)"
+            optionLabel="name"
+            placeholder="Province"
+            appendTo="body"
+          >
+          <ng-template let-item pTemplate="item">
+            <div class="nowrap" style="max-width: 526px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+          <ng-template let-item pTemplate="selectedItem">
+            <div *ngIf="item" class="nowrap" style="max-width:480px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+    <div class="row col-md-12 my-3">
+      <div class="flex align-items-center gap-2">
+        <p-checkbox
+          [(ngModel)]="dto.isActive"
+          [binary]="true"
+          inputId="active"
+        />
+        <label for="active" class="mb-0">Active</label>
+      </div>
+    </div>
+  </ng-template>
+</app-lookup>
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal"/>
+</div>

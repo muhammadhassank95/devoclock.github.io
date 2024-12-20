@@ -1,0 +1,21 @@
+<app-lookup action="AccountType" class="accounttype" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateAccountType()">
+    <ng-template #dialogView>
+        <div class="row">
+            <div class="col-12 d-flex flex-column">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" />
+            </div>
+            <div class="col-12 d-flex flex-column">
+                <label for="name">Short Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.shortName" id="shortName" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12 flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <label for="active" class="mb-0">Active</label>
+            </div>
+        </div>
+    </ng-template>
+</app-lookup>

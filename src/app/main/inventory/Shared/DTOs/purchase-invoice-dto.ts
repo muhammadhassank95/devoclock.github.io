@@ -1,0 +1,33 @@
+export class PurchaseInvoiceDto {
+  id: number;
+  supplierId: number;
+  supplierName: string;
+  employeeId: number;
+  employeeName: string;
+  ginNumber: string;
+  // regionId: number;
+  // regionName: string;
+  invoiceNumber: string;
+  invoiceDate: Date;
+  costCenterId: number;
+  costCenterName: string;
+  projectId: number;
+  projectName: string;
+  grossAmount: number;
+  discount: number;
+  netAmount: number;
+  serviceTaxPct: number;
+  excisePct: number;
+  totalAmount: number;
+  freight: number;
+  payable: number;
+  terms: string;
+  validityDays: number;
+  isActive: true;
+  voucherNumber: string;
+  issueDate: Date;
+  userLocationId: number;
+  userLocationName: string;
+  status: string;
+  purchaseInvoiceDetails: any[];
+}

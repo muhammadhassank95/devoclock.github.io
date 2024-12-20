@@ -1,0 +1,374 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Vehicle Fuel Requistion</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (keydown.enter)="onEnter($event)"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        icon="pi pi-plus-circle"
+        style="height: 25px; width: 25px; cursor: pointer"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [loading]="tableLoading"
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No. <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location <p-sortIcon field="userLocationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Status">
+          Status <p-sortIcon field="Status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            pButton
+            style="height: 25px; width: 25px; cursor: pointer"
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            style="height: 25px; width: 25px; cursor: pointer"
+            icon="pi pi-trash"
+            *ngIf="item.status !== 'APPROVED'"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            style="height: 25px; width: 25px; cursor: pointer"
+            *ngIf="item.status !== 'APPROVED'"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="approve(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            style="height: 25px; width: 25px; cursor: pointer"
+            *ngIf="item.status === 'APPROVED'"
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 20, 100, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    vehicleFuelRequisitionFG.value.id > 0
+      ? 'Edit Vehicle Fuel Requistion'
+      : 'Create Vehicle Fuel Requistion'
+  "
+  [modal]="true"
+  [(visible)]="isManageVehicleFRModalVisible"
+  [draggable]="false"
+>
+  <form [formGroup]="vehicleFuelRequisitionFG" (ngSubmit)="save()">
+    <div class="row col-md-12">
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Location'"
+          [title2]="'Location'"
+          [id]="vehicleFuelRequisitionFG.value.userLocationId"
+          [name]="vehicleFuelRequisitionFG.value.userLocationName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        ></app-picker>
+      </div>
+      <div
+        id="inputField"
+        class="col-12 col-md-3 p-field flex gap-2 align-items-center"
+      >
+        <label class="m-0" for="name">Date</label>
+        <p-calendar
+          (ngModelChange)="MakeVoucher($event)"
+          formControlName="issueDate"
+          inputId="date"
+          [style]="{ width: '100%' }"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div
+        id="inputField"
+        class="col-12 col-md-3 p-field flex gap-2 align-items-center"
+      >
+        <label class="m-0">Voucher Number</label>
+        <input
+          type="text"
+          readonly
+          pInputText
+          formControlName="voucherNumber"
+        />
+      </div>
+    </div>
+    <div class="row col-md-12"></div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'CostCenter'"
+          [title2]="'CostCenter'"
+          [id]="vehicleFuelRequisitionFG.value.costCenterId"
+          [name]="vehicleFuelRequisitionFG.value.costCenterName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'CostCenter')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'VehicleVisitType'"
+          [title2]="'VehicleVisitType'"
+          [id]="vehicleFuelRequisitionFG.value.vehicleVisitTypeId"
+          [name]="vehicleFuelRequisitionFG.value.vehicleVisitTypeName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'VehicleVisitType')"
+        ></app-picker>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Employee'"
+          [title2]="'Employee'"
+          [id]="EmpSerialNumber"
+          [name]="vehicleFuelRequisitionFG.value.employeeName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Employee')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Project'"
+          [title2]="'Project'"
+          [id]="vehicleFuelRequisitionFG.value.projectId"
+          [name]="vehicleFuelRequisitionFG.value.projectName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Project')"
+        ></app-picker>
+      </div>
+    </div>
+    <!-- <div class="row col-md-12">
+      <div id="inputField" class="col-12 col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Region'"
+          [id]="vehicleFuelRequisitionFG.value.regionId"
+          [name]="vehicleFuelRequisitionFG.value.regionName"
+          [disable]="vehicleFuelRequisitionFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Region')"
+        ></app-picker>
+      </div>
+    </div> -->
+    <br />
+
+    <p-button (click)="onAddRow()" label="Add Row" size="small" />
+    <p-button
+      (click)="onRemoveSelected()"
+      label="Remove Row"
+      size="small"
+      severity="danger"
+    />
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      domLayout="autoHeight"
+      [rowData]="rowData"
+      rowSelection="multiple"
+      [columnDefs]="colDefs"
+      (gridReady)="onGridReady($event)"
+      (cellClicked)="cellClicked($event)"
+      (cellValueChanged)="cellValueChanged($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="row col-md-12">
+      <div class="p-field flex flex-column col-md-12">
+        <label for="narration">Narration</label>
+        <textarea
+          formControlName="remarks"
+          [required]="true"
+          class="form-control"
+          rows="3"
+          id="narration"
+        ></textarea>
+      </div>
+    </div>
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="isManageVehicleFRModalVisible = false"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <p-button
+        [loading]="loading"
+        *ngIf="
+          vehicleFuelRequisitionFG.value.id === 0 && !editMode && !viewMode
+        "
+        (click)="save()"
+        type="submit"
+        label="Save"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <p-button
+        [loading]="loading"
+        *ngIf="vehicleFuelRequisitionFG.value.id > 0 && editMode && !viewMode"
+        type="submit"
+        (click)="update()"
+        label="Update"
+        [outlined]="true"
+        severity="contrast"
+      />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Vehicles"
+  [modal]="true"
+  [(visible)]="displayVehicle"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="vehicleData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No<p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterId">
+            Cost Center Id <p-sortIcon field="costCenterId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterName">
+            Cost Center Name<p-sortIcon field="costCenterName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectId">
+            Project Id <p-sortIcon field="projectId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectName">
+            Project Name<p-sortIcon field="projectName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.costCenterId }}</td>
+          <td>{{ item.costCenterName }}</td>
+          <td>{{ item.projectId }}</td>
+          <td>{{ item.projectName }}</td>
+          <td>
+            <button
+              (click)="selectVehicle()"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

@@ -1,0 +1,759 @@
+<div class="card col-12">
+    <p-toolbar styleClass="my-4">
+        <ng-template pTemplate="left">
+            <div class="flex items-center">
+                <h3 class="tab-name m-0">Loan Management</h3>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="right">
+            <div class="table-search-container">
+                <span class="block md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="onGlobalFilter(leavePolicyTable, $event)"
+                        placeholder="Search..." class="globalSearchStyle" />
+                </span>
+                <div class="p-toolbar-group-left">
+                    <button pButton pRipple [rounded]="true" class="p-button-success create-btn"
+                        (click)="create()">Create</button>
+                </div>
+            </div>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #leavePolicyTable [value]="data" class="load-management-table"
+        [globalFilterFields]="['erpId', 'employeeName', 'comments', 'amount', 'status']"
+        styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" scrollHeight="80vh" [tableStyle]="{ 'min-width': '60rem' }" [rowHover]="true" dataKey="id"
+        responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }" >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="employeeERPId" class="nowrap" title="ID">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            ID
+                        </span> <p-sortIcon field="employeeERPId" />
+                    </div>
+                </th>
+                <th pSortableColumn="employeeName" class="nowrap" title="Employee Name">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            Employee Name
+                        </span><p-sortIcon field="employeeName" />
+                    </div>
+                </th>
+                <th pSortableColumn="Title" class="nowrap" title="Comments">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            Comments
+                        </span><p-sortIcon field="Title" />
+                    </div>
+                </th>
+                <th pSortableColumn="amount" class="nowrap" title="Amount">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            Amount
+                        </span><p-sortIcon field="amount" />
+                    </div>
+                </th>
+                <th pSortableColumn="Status" class="nowrap" title="Status">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            Status
+                        </span><p-sortIcon field="Status" />
+                    </div>
+                </th>
+                <th pSortableColumn="category" class="nowrap" title=" Actions ">
+                    <div class="d-flex justify-content-between">
+                        <span class="th-data">
+                            Actions
+                        </span><p-sortIcon field="category" />
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td class="no-wrap-header" title="{{ item.erpId }}">{{ item.erpId }}</td>
+                <td class="no-wrap-header" title="{{ item.employeeName }}">{{ item.employeeName }}</td>
+                <td class="no-wrap-header" title="{{ item.comments }}">{{ item.comments }}</td>
+                <td class="no-wrap-header" title="{{ item.amount }}">{{ item.amount }}</td>
+                <td class="no-wrap-header" title="{{ item.status }}">{{ item.status }}</td>
+                <!-- <td>
+<p-table
+  #leavePolicyTable
+  [value]="data"
+  [globalFilterFields]="[
+    'erpId',
+    'voucherNumber',
+    'employeeName',
+    'comments',
+    'amount',
+    'status'
+  ]"
+  styleClass="p-datatable-gridlines"
+  [tableStyle]="{ 'min-width': '60rem' }"
+  [rowHover]="true"
+  dataKey="id"
+  responsiveLayout="scroll"
+  [style]="{ width: '100%', 'overflow-y': 'auto' }"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="employeeERPId" style="width: 20%">
+        ID <p-sortIcon field="employeeERPId" />
+      </th>
+      <th pSortableColumn="voucherNumber" style="width: 20%">
+        Voucher Number <p-sortIcon field="voucherNumber" />
+      </th>
+      <th pSortableColumn="employeeName" style="width: 20%">
+        Employee Name <p-sortIcon field="employeeName" />
+      </th>
+      <th pSortableColumn="Title" style="width: 20%">
+        Comments <p-sortIcon field="Title" />
+      </th>
+      <th pSortableColumn="amount" style="width: 20%">
+        Amount <p-sortIcon field="amount" />
+      </th>
+      <th pSortableColumn="Status" style="width: 20%">
+        Status <p-sortIcon field="Status" />
+      </th>
+      <th pSortableColumn="category" style="width: 20%">
+        Actions <p-sortIcon field="category" />
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{ item.erpId }}</td>
+      <td>{{ item.voucherNumber }}</td>
+      <td>{{ item.employeeName }}</td>
+      <td>{{ item.comments }}</td>
+      <td>{{ item.amount }}</td>
+      <td>
+        <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+          item.status
+        }}</span>
+        <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+          item.status
+        }}</span>
+      </td>
+       <td>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2"
+                        (click)="delete(item.id)"></button>
+                    <button pButton pRipple icon="pi-minus-circle" (click)="displayFreezeLoanDialog(item.id)"
+                        class="p-button-rounded p-button-success mr-2"></button>
+                    <button *ngIf="item.status=='PENDING'" (click)="Edit(item.id)">Edit</button>
+                    <button *ngIf="item.status=='PENDING'" (click)="Approve(item.id)">Approve</button>
+                </td> -->
+
+      <!-- <td>
+                    <div class="card flex justify-content-center">
+                        <p-menu #menu [model]="items" [popup]="true" />
+                        <p-button (click)="menu.toggle($event)" icon="pi pi-ellipsis-v" />
+                    </div>
+                </td> -->
+
+      <td style="width: auto; text-wrap: nowrap">
+        <div class="btn-group" dropdown container="body">
+          <button
+            id="button-basic"
+            dropdownToggle
+            type="button"
+            class="create-btn text-white p-button-success dropdown-toggle"
+            aria-controls="dropdown-basic"
+          >
+            Action <span class="caret"></span>
+          </button>
+          <ul
+            id="dropdown-basic"
+            *dropdownMenu
+            class="action-dropdown-menu flex flex-column align-items-center justify-content-start m-0 p-0"
+            role="menu"
+            aria-labelledby="button-basic"
+          >
+            <p
+              class="action-dropdown-item"
+              (click)="delete(item.id)"
+            >
+              Delete
+            </p>
+            <p
+               class="action-dropdown-item"
+              (click)="displayFreezeLoanDialog(item.id)"
+            >
+              Freeze
+            </p>
+            <p
+              class="action-dropdown-item"
+              (click)="View(item.id)"
+            >
+              View
+            </p>
+            <p
+              class="action-dropdown-item"
+              *ngIf="item.status == 'PENDING'"
+              (click)="Edit(item.id)"
+            >
+              Edit
+            </p>
+            <p
+              class="action-dropdown-item"
+              *ngIf="item.status == 'PENDING'"
+              (click)="Approve(item.id)"
+            >
+              Approve
+            </p>
+          </ul>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+<p-paginator
+  class="mt-3"
+  [rows]="10"
+  [totalRecords]="this.count"
+  (onPageChange)="onPageChange($event)"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 50, 100, 500]"
+>
+</p-paginator>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Advance Loan Transaction "
+  class="load-management-modal"
+  [modal]="true"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+  [style]="{ width: '100vw', height: '100vh', z: '800' }"
+>
+  <div>
+    <div class="row">
+      <div class="col-md-6">
+        <!-- <app-picker
+          [showId]="false"
+          [disable]="isViewMode"
+          [title]="'Location'"
+          (valueSelected)="handleSelection($event, 'Location')"
+          [id]="inputLoanManagementDto.userLocationId"
+          [name]="inputLoanManagementDto.userLocationName"
+        ></app-picker> -->
+        <label for="name">Location:</label>
+            <p-dropdown
+            [options]="locationDropdown"
+            [(ngModel)]="locationSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'Location')"
+            placeholder="Location"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+      </div>
+      <div class="col-md-6">
+        <!-- <app-picker
+          [disable]="isViewMode"
+          [title]="'LoanType'"
+          (valueSelected)="handleSelection($event, 'LoanType')"
+          [id]="inputLoanManagementDto.loanTypeId"
+          [name]="inputLoanManagementDto.loanTypeName"
+        ></app-picker> -->
+        <label for="name">LoanType:</label>
+            <p-dropdown
+            [options]="loanTypeDropdown"
+            [(ngModel)]="loanTypeSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'LoanType')"
+            placeholder="LoanType"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+      </div>
+      <div class="col-md-6 mt-3">
+        <!-- <app-picker
+          [disable]="isViewMode"
+          [title2]="'ReasonOfDeduction'"
+          [title]="'Reason'"
+          (valueSelected)="handleSelection($event, 'ReasonOfDeduction')"
+          [id]="inputLoanManagementDto.reasonOfDeductionId"
+          [name]="inputLoanManagementDto.reasonOfDeductionName"
+        ></app-picker> -->
+        <label for="name">ReasonOfDeduction:</label>
+            <p-dropdown
+            [options]="reasonDropdown"
+            [(ngModel)]="reasonSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'ReasonOfDeduction')"
+            placeholder="ReasonOfDeduction"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+      </div>
+      <div class="col-md-6 mt-3">
+        <!-- <app-picker
+          [disable]="isViewMode"
+          [title]="'Employee'"
+          (valueSelected)="handleSelection($event, 'Employee')"
+          [id]="inputLoanManagementDto.employeeERPId"
+          [name]="inputLoanManagementDto.erpName"
+        ></app-picker> -->
+        <label for="name">Employee:</label>
+            <p-dropdown
+            [options]="employeeDropdown"
+            [(ngModel)]="employeeSelectedItem"
+            [filter]="true"
+            [filterBy]="'id,name'"
+            [showClear]="true"
+            optionLabel="name"
+            (onChange)="onDropdownChange($event, 'rejoinEmp')"
+            placeholder="Employee"
+            >
+            <ng-template let-item pTemplate="item">
+                <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+             <ng-template let-item pTemplate="selectedItem">
+                <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+            </ng-template>
+            </p-dropdown>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="documentDate1">Document Date</label>
+        <p-calendar
+          (ngModelChange)="onDateChange($event)"
+          tabindex="1"
+          [disabled]="isViewMode"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          [(ngModel)]="inputLoanManagementDto.documentDate"
+          tabindex="1"
+          inputId="documentDate"
+        />
+      </div>
+      <div id="inputField" class="col-md-6 flex flex-column">
+        <label for="voucherNumber">Voucher Number</label>
+        <input
+          [disabled]="isViewMode"
+          id="voucherNumber"
+          type="text"
+          pInputText
+          [(ngModel)]="inputLoanManagementDto.voucherNumber"
+          readonly
+        />
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="address">Address</label>
+        <input
+          disabled
+          style="height: 48px; padding-left:12px;"
+          type="text"
+          id="address"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.addresses"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="contact">Contact No</label>
+        <input
+          disabled
+          type="text"
+           style="height: 48px; padding-left:12px;"
+          id="contact"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.contactNo"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label for="contact">Cost Center</label>
+        <input
+          [id]="this.costCenterId"
+          [name]="this.costCenterName"
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="costCenterId"
+          autocomplete="off"
+          [(ngModel)]="this.costCenterName"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label for="contact">Project</label>
+        <input
+          [id]="this.projectId"
+          [name]="this.projectName"
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="projectId"
+          autocomplete="off"
+          [(ngModel)]="this.projectName"
+        />
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="address">Location</label>
+        <input
+          [id]="this.locationId"
+          [name]="this.locationName"
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="address"
+          autocomplete="off"
+          [(ngModel)]="this.locationName"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="contact">Joining Date</label>
+        <p-calendar
+          tabindex="1"
+          [disabled]="true"
+          [(ngModel)]="this.joiningDate"
+          tabindex="1"
+          inputId="joiningDate"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label for="departmentName">Department</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="departmentId"
+          autocomplete="off"
+          [(ngModel)]="this.departmentName"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label for="grossSalary">Gross Pay</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="grossSalary"
+          autocomplete="off"
+          [(ngModel)]="this.grossSalary"
+        />
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="lastArrear">Last Arrear</label>
+        <input
+          disabled
+          style="height: 48px; padding-left:12px;"
+          type="text"
+          id="lastArrear"
+          autocomplete="off"
+          [(ngModel)]="this.lastArrear"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column">
+        <label for="lastDeduction">Last Deduction</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="lastDeduction"
+          autocomplete="off"
+          [(ngModel)]="this.lastDeduction"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label for="lastLoan">Current Loan</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="lastLoan"
+          autocomplete="off"
+          [(ngModel)]="this.lastLoan"
+        />
+      </div>
+      <div class="col-md-3 flex flex-column">
+        <label for="contact">Region Name</label>
+        <input
+          [id]="this.regionName"
+          [name]="this.regionName"
+          disabled
+          type="text"
+          id="regionName"
+          autocomplete="off"
+          [(ngModel)]="this.regionName"
+        />
+      </div>
+      <!-- <div class="col-md-3 flex flex-column">
+                    <label for="grossSalary">Gross Pay</label>
+                    <input disabled type="text" id="grossSalary" autocomplete="off" [(ngModel)]="this.grossSalary" />
+                </div> -->
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-3 flex flex-column">
+        <label for="jobDuration">Job Duration</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="jobDuration"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.jobDuration"
+        />
+      </div>
+      <!-- <div class="col-md-3 flex flex-column">
+                    <label for="grossSalary">Gross Pay</label>
+                    <input disabled type="text" id="grossSalary" autocomplete="off" [(ngModel)]="this.grossSalary" />
+                </div> -->
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="currentSalary">Current Salary</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="currentSalary"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.currentSalary"
+        />
+      </div>
+      <!-- <div class="col-md-3 flex flex-column">
+                    <label for="currentLoan">Current Loan</label>
+                    <input disabled type="text" id="currentLoan" autocomplete="off"
+                        [(ngModel)]="inputLoanManagementDto.currentLoan" />
+                </div> -->
+      <div class="col-md-6 flex flex-column">
+        <label for="attendanceScore">Attendance Score</label>
+        <input
+          disabled
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="attendanceScore"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.attendanceScore"
+        />
+      </div>
+    </div>
+    <div class="row gap-y-3 mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="amount">Amount</label>
+        <input
+          [disabled]="isViewMode"
+           style="height: 48px; padding-left:12px;"
+          type="number"
+          id="amount"
+          min="0"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.amount"
+        />
+      </div>
+      <div
+        *ngIf="inputLoanManagementDto.loanTypeName != 'P.F.Loan'"
+        class="col-md-6 flex flex-column"
+      >
+        <label for="InstallmentAmount">Installment Amount</label>
+        <input
+          [disabled]="isViewMode"
+           style="height: 48px; padding-left:12px;"
+          [(ngModel)]="inputLoanManagementDto.installmentAmount"
+          type="number"
+          min="0"
+          id="InstallmentAmount"
+          autocomplete="off"
+        />
+      </div>
+      <div class="col-md-6 flex flex-column mt-3">
+        <label
+          *ngIf="inputLoanManagementDto.loanTypeName != 'P.F.Loan'"
+          for="startMonth"
+          >Start Month</label
+        >
+        <label
+          *ngIf="inputLoanManagementDto.loanTypeName == 'P.F.Loan'"
+          for="startMonth"
+          >Month</label
+        >
+        <p-calendar
+          [disabled]="isViewMode"
+          view="month"
+          dateFormat="mm/yy"
+          inputId="startMonth"
+          [(ngModel)]="inputLoanManagementDto.repaymentStartDate"
+        />
+      </div>
+      <div
+        *ngIf="inputLoanManagementDto.loanTypeName != 'P.F.Loan'"
+        class="col-md-6 flex flex-column mt-3"
+      >
+        <label for="NoInstallment">No Of Installments</label>
+        <input
+          [disabled]="isViewMode"
+           style="height: 48px; padding-left:12px;"
+          type="text"
+          id="NoInstallment"
+          autocomplete="off"
+          [(ngModel)]="inputLoanManagementDto.numberOfInstallments"
+          readonly
+        />
+      </div>
+      <div class="row mt-3">
+       <div class="col-12">
+        <button
+        *ngIf="inputLoanManagementDto.loanTypeName != 'P.F.Loan'"
+        pButton
+        pRipple
+        label="Generate"
+        class="p-button-success small"
+        size="small"
+        (click)="generateInstallments()"
+      ></button>
+      <button
+        *ngIf="inputLoanManagementDto.loanTypeName == 'P.F.Loan'"
+        pButton
+        pRipple
+        label="Generate"
+        class="p-button-success small"
+        size="small"
+        (click)="genratePF()"
+      ></button>
+       </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <ag-grid-angular
+      style="width: 200%; height: 200px; margin-top: 12px"
+      class="ag-theme-balham"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [animateRows]="true"
+      [suppressAutoSize]="true"
+      (gridReady)="onGridReady($event)"
+    >
+    </ag-grid-angular>
+  </div>
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <!-- <app-picker
+        [disable]="isViewMode"
+        [title]="'RecommendedByEmployee'"
+        [title2]="'Employee'"
+        (valueSelected)="handleSelection($event, 'RecommendedByEmployee')"
+        [id]="inputLoanManagementDto.recommendedByERPId"
+        [name]="inputLoanManagementDto.recommendedByERPName"
+      ></app-picker> -->
+      <label for="name">RecommendedByEmployee:</label>
+              <p-dropdown
+              [options]="recommendedByDropdown"
+              [(ngModel)]="recommendedBySelectedItem"
+              [filter]="true"
+              [filterBy]="'id,name'"
+              [showClear]="true"
+              optionLabel="name"
+              (onChange)="onDropdownChange($event, 'RecommendedByEmployee')"
+              placeholder="RecommendedByEmployee"
+              >
+              <ng-template let-item pTemplate="item">
+                  <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+              </ng-template>
+               <ng-template let-item pTemplate="selectedItem">
+                  <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+              </ng-template>
+              </p-dropdown>
+    </div>
+    <div class="col-md-6 flex flex-column">
+      <label for="totalAmount">Total Amount</label>
+      <input
+        [disabled]="isViewMode"
+         style="height: 48px; padding-left:12px;"
+        readonly
+        [(ngModel)]="totAmount"
+        type="text"
+        id="totalAmount"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-md-12 flex flex-column">
+      <label for="comments">Comments</label>
+      <textarea
+        [disabled]="isViewMode"
+        [(ngModel)]="inputLoanManagementDto.comments"
+        id="comments"
+        rows="1"
+        cols="30"
+        class="project-description"
+        pInputTextarea
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end gap-2 position-absolute bottom-0 w-100"
+  style="left: 0; border-top: 1px solid #DBDBDB; background-color: #fbfbfb; padding: 16px 1.5rem;">
+    <p-button
+      *ngIf="!isViewMode"
+      label="Cancel"
+      severity="secondary"
+      (click)="onDialogClose()"
+    />
+    <p-button
+      *ngIf="!isViewMode && !isEditMode"
+      label="Save"
+      class="save"
+      (click)="save()"
+    />
+    <p-button
+      *ngIf="!isViewMode && isEditMode"
+      label="Update"
+      class="save"
+      (click)="update()"
+    />
+  </div>
+</p-dialog>
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Freeze Loan"
+  draggable="false"
+  [(visible)]="openFreezeLoanDialog"
+  [modal]="true"
+  [responsive]="true"
+  [style]="{ width: '90vw' }"
+>
+  <app-freeze-loan
+    [loanid]="LoanIdForFreezeLoan"
+    (close)="onClose()"
+    class="freeze-loan-modal"
+  ></app-freeze-loan>
+</p-dialog>

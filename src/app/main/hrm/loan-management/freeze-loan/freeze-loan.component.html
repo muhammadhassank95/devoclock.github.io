@@ -1,0 +1,40 @@
+<div class="row mt-2">
+    <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="loanid">Loan ID</label>
+        <input id="loanid" type="text" pInputText [(ngModel)]="loanid" readonly />
+    </div>
+    <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="repaymentId">Installment ID</label>
+        <input id="repaymentId" type="text" pInputText [(ngModel)]="freezeLoanDto.RepaymentId" readonly />
+    </div>
+    <div id="inputField" class="p-field col-md-6 mt-3 flex flex-column">
+        <label for="date">Original Month </label>
+        <p-calendar dateFormat="mm/yy" disabled [(ngModel)]="tempDate" inputId="date" appendTo="body"
+            [showOnFocus]="true"></p-calendar>
+    </div>
+    <div id="inputField" class="p-field col-md-6 mt-3 flex flex-column">
+        <label for="date">Installmet Month </label>
+        <p-calendar dateFormat="mm/yy" view="month" [maxDate]="upperLimitDate"
+            [(ngModel)]="freezeLoanDto.TransferredToDate" inputId="date" appendTo="body"
+            [showOnFocus]="true"></p-calendar>
+    </div>
+</div>
+<div class="mb-5">
+    <div class="row">
+        <div class="col-12">
+            <ag-grid-angular style="width: 100%; height: 200px;margin-top: 12px;" class="ag-theme-balham" [rowData]="rowData"
+                [columnDefs]="colDefs" [animateRows]="true" [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true"
+                [rowSelection]="rowSelection" [singleClickEdit]="true" (gridReady)="onGridReady($event)"
+                (cellClicked)="cellClicked($event)">
+            </ag-grid-angular>
+        </div>
+    </div>
+</div>
+
+<div class="flex justify-content-end gap-2 position-absolute bottom-0 w-100"
+     style="left: 0; border-top: 1px solid #DBDBDB; background-color: #fbfbfb; padding: 16px 1.5rem;">
+    <button pButton label="Save" icon="pi pi-check" class="p-button-success" type="submit" (click)="onSubmit()">
+    </button>
+    <button pButton label="Cancel" icon="pi pi-times" class="p-button-secondary" type="button" (click)="onClose()">
+    </button>
+</div>

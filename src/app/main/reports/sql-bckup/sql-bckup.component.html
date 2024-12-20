@@ -1,0 +1,63 @@
+<div class="card col-md-12 mt-4">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h3 class="tab-name m-0">SQL Backup</h3>
+    </ng-template>
+  </p-toolbar>
+  <div id="inputField" class="col-md-12 flex flex-column">
+    <label for="name">Database:</label>
+    <input
+      type="text"
+      pInputText
+      id="database"
+      autocomplete="off"
+      [(ngModel)]="database"
+      readonly
+      style="position: relative; height:48px; z-index: 1000"
+    />
+  </div>
+  <div id="inputField" class="col-md-12 flex flex-column mt-3">
+    <label for="rentalContractType">Choose Path:</label>
+    <p-dropdown
+      [options]="chooseContractOptions"
+      id="rentalContractType"
+      placeholder="--Select--"
+      [(ngModel)]="selectedPath"
+      [style]="{ width: '100%', height: '48px' }"
+      autocomplete="off"
+    >
+    </p-dropdown>
+  </div>
+</div>
+<div class=" flex gap-2 align-items-center backup-checkbox" style="padding:0 15px ;">
+  <p-checkbox
+    [(ngModel)]="fullBackup"
+    inputId="fullBackup"
+    [binary]="true"
+    inputId="binary"
+  />
+  <label for="isActive" class="m-0">Full Backup</label>
+</div>
+<div class="flex gap-1 justify-content-end mt-4" style="padding:0 15px ;">
+  <p-button
+    (click)="getSqlBackup()"
+    label="Backup"
+    [outlined]="true"
+    severity="contrast"
+  />
+</div>
+<p-progressSpinner
+  *ngIf="loading"
+  [style]="{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: '1000'
+  }"
+></p-progressSpinner>
+
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal" />
+</div>

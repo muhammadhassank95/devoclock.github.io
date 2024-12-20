@@ -1,0 +1,354 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <div class="flex items-center">
+      <h4 class="m-0">Provident Fund Profit</h4>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="flex items-center">
+      <div class="mt-0">
+        <span
+          *ngIf="isGranted(this.permissions.CREATE)"
+          pButton
+          pRipple
+          style="height: 25px; width: 25px; cursor: pointer"
+          icon="pi pi-plus-circle"
+          class="p-button-success mr-2"
+          (click)="openModal()"
+        ></span>
+      </div>
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(holidayTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+          (keydown.enter)="onEnter($event)"
+        />
+      </span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  #holidayTable
+  [value]="data"
+  styleClass="p-datatable-gridlines p-2"
+  [rowHover]="true"
+  [loading]="loading"
+  dataKey="id"
+  responsiveLayout="scroll"
+  [globalFilterFields]="[
+    'voucherNumber',
+    'debitToCOAName',
+    'creditToCOAName',
+    'reason',
+    'status'
+  ]"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="Voucher" style="width: 20%">
+        Voucher <p-sortIcon field="Voucher" />
+      </th>
+      <th pSortableColumn="Debit" style="width: 20%">
+        Debit to <p-sortIcon field="Debit" />
+      </th>
+      <th pSortableColumn="Credit" style="width: 20%">
+        Credit to <p-sortIcon field="Credit" />
+      </th>
+      <th pSortableColumn="Reason" style="width: 20%">
+        Reason <p-sortIcon field="Reason" />
+      </th>
+      <th pSortableColumn="Status" style="width: 20%">
+        Status <p-sortIcon field="Status" />
+      </th>
+      <th pSortableColumn="Actions" style="min-width: 200px">
+        Actions <p-sortIcon field="Actions" />
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+    <tr>
+      <td>{{ item.voucherNumber }}</td>
+      <td>{{ item.debitToCOAName }}</td>
+      <td>{{ item.creditToCOAName }}</td>
+      <td>{{ item.reason }}</td>
+      <td>
+        <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+          item.status
+        }}</span>
+        <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+          item.status
+        }}</span>
+      </td>
+      <td>
+        <span
+          *ngIf="item.status == 'APPROVED'"
+          style="height: 25px; width: 25px; cursor: pointer"
+          pButton
+          pRipple
+          icon="pi pi-eye"
+          class="p-button-rounded p-button-info mr-2"
+          (click)="viewOnly(item.id)"
+        ></span>
+        <span
+          *ngIf="isGranted(this.permissions.EDIT) && item.status !== 'APPROVED'"
+          style="height: 25px; width: 25px; cursor: pointer"
+          pButton
+          pRipple
+          icon="pi pi-pencil"
+          class="p-button-rounded p-button-info mr-2"
+          (click)="edit(item.id)"
+        ></span>
+        <span
+          *ngIf="
+            isGranted(this.permissions.DELETE) && item.status !== 'APPROVED'
+          "
+          style="height: 25px; width: 25px; cursor: pointer"
+          pButton
+          pRipple
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-warning mr-2"
+          (click)="delete(item.id)"
+        ></span>
+        <span
+          pButton
+          pRipple
+          *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+          icon="pi pi-check"
+          style="height: 25px; width: 25px; cursor: pointer"
+          class="p-button-rounded p-button-success mr-2"
+          (click)="approve(item.id)"
+        ></span>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+<p-paginator
+  [rows]="10"
+  [totalRecords]="this.count"
+  (onPageChange)="this.onPageChange($event)"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 20, 30, this.count]"
+>
+</p-paginator>
+
+<p-dialog
+  maximizable="true"
+  [closeOnEscape]="false"
+  [header]="
+    editMode ? 'Edit Provident Fund Profit' : 'Create Provident Fund Profit'
+  "
+  [modal]="true"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+>
+  <div class="p-2">
+    <div class="row col-md-12 gap-2">
+      <div class="row col-md-4 border p-4">
+        <div class="p-field col-md-6 flex flex-column">
+          <label for="issueDate">Date</label>
+          <p-calendar
+            tabindex="1"
+            (ngModelChange)="onDateChange($event)"
+            [(ngModel)]="providentFundProfitDto.issueDate"
+            inputId="issueDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div class="col-md-6">
+          <app-picker
+            [title]="'Location'"
+            [id]="providentFundProfitDto.userLocationId"
+            [name]="providentFundProfitDto.userLocationName"
+            [showId]="false"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="p-field col-md-12">
+          <label for="voucherNumber">Voucher Number</label>
+          <input
+            id="voucherNumber"
+            type="text"
+            readonly
+            pInputText
+            [(ngModel)]="providentFundProfitDto.voucherNumber"
+          />
+        </div>
+      </div>
+      <div class="row col-md-8 border p-4">
+        <div class="col-md-9">
+          <app-picker
+            title2="ChartOfAccount"
+            [title]="'Debit To'"
+            [id]="providentFundProfitDto.debitToCOASerialNumber"
+            [name]="providentFundProfitDto.debitToCOAName"
+            (valueSelected)="setPickerValue($event, 'Debit')"
+          >
+          </app-picker>
+        </div>
+        <div class="col-md-3"></div>
+        <div id="inputField" class="p-field col-md-3">
+          <label for="reference">Reference</label>
+          <input
+            id="reference"
+            type="text"
+            pInputText
+            [(ngModel)]="providentFundProfitDto.reference"
+          />
+        </div>
+        <div class="p-field col-md-3 flex flex-column">
+          <label for="referenceDate">Ref Date</label>
+          <p-calendar
+            [(ngModel)]="providentFundProfitDto.referenceDate"
+            inputId="referenceDate"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+        <div id="inputField" class="p-field col-md-3 flex flex-column">
+          <label for="profitAmount">Profit Amount</label>
+          <input
+            min="0"
+            id="profitAmount"
+            type="number"
+            pInputText
+            [(ngModel)]="providentFundProfitDto.profitAmount"
+          />
+        </div>
+        <div class="col-md-3"></div>
+        <div class="p-field col-md-3 flex flex-column">
+          <label for="startPeriod"> Start Date</label>
+          <p-calendar
+            [(ngModel)]="providentFundProfitDto.startPeriod"
+            inputId="startPeriod"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+        <div class="p-field col-md-3 flex flex-column">
+          <label for="endPeriod"> End Date</label>
+          <p-calendar
+            [(ngModel)]="providentFundProfitDto.endPeriod"
+            inputId="endPeriod"
+            appendTo="body"
+            [showOnFocus]="true"
+          >
+          </p-calendar>
+        </div>
+      </div>
+    </div>
+
+    <p-button
+      [disabled]="
+        !providentFundProfitDto.startPeriod || !providentFundProfitDto.endPeriod
+      "
+      (click)="onAddRow()"
+      label="Add Row"
+      size="small"
+      style="
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        height: auto;
+        line-height: 1.25;
+      "
+    />
+    <p-button
+      (click)="onRemoveSelected()"
+      label="Remove Row"
+      size="small"
+      severity="danger"
+      style="
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        height: auto;
+        line-height: 1.25;
+      "
+    />
+
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      style="height: 300px"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [rowSelection]="rowSelection"
+      (gridReady)="onGridReady($event)"
+      (cellClicked)="cellClicked($event)"
+      (cellValueChanged)="cellValueChanged($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="row col-md-12">
+      <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="reason">Reason</label>
+        <input
+          id="reason"
+          type="text"
+          pInputText
+          [(ngModel)]="providentFundProfitDto.reason"
+        />
+      </div>
+      <div id="inputField" class="p-field flex flex-column col-md-3">
+        <label for="totalAmount">Total Amount</label>
+        <input
+          id="totalAmount"
+          type="text"
+          pInputText
+          [(ngModel)]="providentFundProfitDto.totalAmount"
+          readonly
+        />
+      </div>
+      <!-- <div id="inputField" class="p-field flex flex-column col-md-3">
+                <label for="totalProfDis">Total Prof Dis</label>
+                <input id="totalProfDis" type="number" pInputText [(ngModel)]="totalProfDis" />
+            </div> -->
+    </div>
+
+    <div class="row col-md-12 mt-2">
+      <div class="col-md-9">
+        <app-picker
+          title2="ChartOfAccount"
+          [title]="'Credit To'"
+          [id]="providentFundProfitDto.creditToCOASerialNumber"
+          [name]="providentFundProfitDto.creditToCOAName"
+          (valueSelected)="setPickerValue($event, 'Credit')"
+        >
+        </app-picker>
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-2">
+      <div class="my-auto">
+        <p-button
+          size="small"
+          label="Cancel"
+          [outlined]="true"
+          severity="contrast"
+          (click)="onDialogClose()"
+        />
+        <p-button
+          size="small"
+          *ngIf="editMode && !view"
+          [loading]="saving"
+          label="Save"
+          [outlined]="true"
+          severity="contrast"
+          (click)="create()"
+        />
+      </div>
+    </div>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

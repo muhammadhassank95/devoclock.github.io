@@ -1,0 +1,854 @@
+<div class="card mb-0 col-12">
+    <p-toolbar styleClass="mb-3 mt-2">
+        <ng-template pTemplate="left">
+            <h3 class="tab-name m-0">Sub Ledger</h3>
+        </ng-template>
+        <ng-template pTemplate="right">
+            <span class="block md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilterForSubledger(subledgerTable, $event)"
+                    placeholder="Search..." class="globalSearchStyle" />
+            </span>
+        </ng-template>
+    </p-toolbar>
+    <p-table #subledgerTable [rows]="10" class="sub-ledger-table" [loading]="loading" [value]="tableData" styleClass="p-datatable-gridlines"
+        [scrollable]="true" scrollHeight="58vh" [rowHover]="true" responsiveLayout="scroll"
+        [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+        [style]="{ width: '100%', 'overflow-y': 'auto' }"
+        [globalFilterFields]="['serialNumber', 'name', 'locationName', 'chartOfAccountId', 'lvl1_Name', 'linkWithName', 'accountTypeName', '']">
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="text-nowrap" title="Account Id" pSortableColumn="serialNumber">
+                    <div class="d-flex justify-content-between"><span class="th-data">Account Id </span>
+                        <p-sortIcon field="serialNumber" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Account Name" pSortableColumn="name">
+                    <div class="d-flex justify-content-between"><span class="th-data">Account Name </span>
+                        <p-sortIcon field="name" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 3 Acc name" pSortableColumn="lvl3_Name">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 3 Acc name </span>
+                        <p-sortIcon field="lvl3_Name" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 3 Account id" pSortableColumn="lvl3_SerialNumber">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 3 Account id </span>
+                        <p-sortIcon field="lvl3_SerialNumber" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 2 Acc name" pSortableColumn="lvl3_Name">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 2 Acc name </span>
+                        <p-sortIcon field="lvl2_Name" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 2 Account id " pSortableColumn="lvl3_SerialNumber">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 2 Account id </span>
+                        <p-sortIcon field="lvl2_SerialNumber" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 1 Acc name" pSortableColumn="lvl3_Name">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 1 Acc name </span>
+                        <p-sortIcon field="lvl1_Name" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Level 1 Acc name" pSortableColumn="lvl1_SerialNumber">
+                    <div class="d-flex justify-content-between"><span class="th-data">Level 1 Acc name </span>
+                        <p-sortIcon field="lvl1_SerialNumber" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Account Type" pSortableColumn="accountTypeName">
+                    <div class="d-flex justify-content-between"><span class="th-data">Account Type </span>
+                        <p-sortIcon field="accountTypeName" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Currency Name" pSortableColumn="currencyName">
+                    <div class="d-flex justify-content-between"><span class="th-data">Currency Name </span>
+                        <p-sortIcon field="currencyName" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Short Name" pSortableColumn="shortName">
+                    <div class="d-flex justify-content-between"><span class="th-data">Short Name </span>
+                        <p-sortIcon field="shortName" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Credit" pSortableColumn="credit">
+                    <div class="d-flex justify-content-between"><span class="th-data">Credit </span>
+                        <p-sortIcon field="credit" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Debit" pSortableColumn="debit">
+                    <div class="d-flex justify-content-between"><span class="th-data">Debit </span>
+                        <p-sortIcon field="debit" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Stop Entry Before" pSortableColumn="stopEntryBefore">
+                    <div class="d-flex justify-content-between"><span class="th-data">Stop Entry Before </span>
+                        <p-sortIcon field="stopEntryBefore" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Location Name" pSortableColumn="locationName">
+                    <div class="d-flex justify-content-between"><span class="th-data">Location Name </span>
+                        <p-sortIcon field="locationName" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Transection Limit" pSortableColumn="limit">
+                    <div class="d-flex justify-content-between"><span class="th-data">Transection Limit </span>
+                        <p-sortIcon field="limit" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Link With Name" pSortableColumn="linkWithName">
+                    <div class="d-flex justify-content-between"><span class="th-data">Link With Name </span>
+                        <p-sortIcon field="linkWithName" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Check Budget" pSortableColumn="checkBudget">
+                    <div class="d-flex justify-content-between"><span class="th-data">Check Budget </span>
+                        <p-sortIcon field="checkBudget" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Has SubLedger" pSortableColumn="hasSubLedger">
+                    <div class="d-flex justify-content-between"><span class="th-data">Has SubLedger </span>
+                        <p-sortIcon field="hasSubLedger" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Active" pSortableColumn="Active">
+                    <div class="d-flex justify-content-between"><span class="th-data">Active </span>
+                        <p-sortIcon field="Active" />
+                    </div>
+                </th>
+                <th class="text-nowrap" title="Actions" pSortableColumn="Actions">
+                    <div class="d-flex justify-content-between"><span class="th-data">Actions </span>
+                        <p-sortIcon field="Actions" />
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td class="no-wrap-header" title="{{ item.serialNumber }}">{{ item.serialNumber }}</td>
+                <td class="no-wrap-header" title="{{ item.name }}">{{ item.name }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl3_Name }}">{{ item.lvl3_Name }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl3_SerialNumber }}">{{ item.lvl3_SerialNumber }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl2_Name }}">{{ item.lvl2_Name }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl2_SerialNumber }}">{{ item.lvl2_SerialNumber }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl1_Name }}">{{ item.lvl1_Name }}</td>
+                <td class="no-wrap-header" title="{{ item.lvl1_SerialNumber }}">{{ item.lvl1_SerialNumber }}</td>
+                <td class="no-wrap-header" title="{{ item.accountTypeName }}">{{ item.accountTypeName }}</td>
+                <td class="no-wrap-header" title="{{ item.currencyName }}">{{ item.currencyName }}</td>
+                <td class="no-wrap-header" title="{{ item.shortName }}">{{ item.shortName }}</td>
+                <td class="no-wrap-header" title="{{ item.credit }}">{{ item.credit }}</td>
+                <td class="no-wrap-header" title="{{ item.debit }}">{{ item.debit }}</td>
+                <td class="no-wrap-header" title="{{ item.stopEntryBefore | date }}">{{ item.stopEntryBefore | date }}
+                </td>
+                <td class="no-wrap-header" title="{{ item.locationName }}">{{ item.locationName }}</td>
+                <td class="no-wrap-header" title="{{ item.limit }}">{{ item.limit }}</td>
+                <td class="no-wrap-header" title="{{ item.linkWithName }}">{{ item.linkWithName }}</td>
+                <!-- <td>
+                    <span *ngIf="item.checkBudget" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.checkBudget" class="no-bg">No</span>
+                </td> -->
+                <td>
+                    <div *ngIf="item.checkBudget" class="active-box">
+                        yes
+                    </div>
+                    <div *ngIf="!item.checkBudget" class="deactive-box">
+                        No
+                    </div>
+                </td>
+                <!-- <td>
+                    <span *ngIf="item.hasSubLedger" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.hasSubLedger" class="no-bg">No</span>
+                </td> -->
+                <td>
+                    <div *ngIf="item.hasSubLedger" class="active-box">
+                        yes
+                    </div>
+                    <div *ngIf="!item.hasSubLedger" class="deactive-box">
+                        No
+                    </div>
+                </td>
+
+                <!-- <td>
+                    <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.isActive" class="no-bg">No</span>
+                </td> -->
+                <td>
+                    <div *ngIf="item.isActive" class="active-box">
+                        yes
+                    </div>
+                    <div *ngIf="!item.isActive" class="deactive-box">
+                        No
+                    </div>
+                </td>
+                <!-- <td>
+                    <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-eye"
+                        class="p-button-rounded p-button-info mr-2" (click)="view(item.id)"></span>
+                    <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-plus-circle"
+                        class="p-button-rounded p-button-warning mr-2" (click)="create(item)"></span>
+                </td> -->
+                <td class="icon-group">
+                    <span pButton icon="pi pi-eye" (click)="view(item.id)" class="edit-btn">
+                        <!-- <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clip-path="url(#clip0_530_1269)">
+                      <path d="M12.7146 4.5625L13.4081 3.86903C13.5213 3.75589 13.6111 3.62156 13.6723 3.47371C13.7336 3.32585 13.7651 3.16738 13.7651 3.00733C13.7651 2.84729 13.7336 2.68882 13.6723 2.54096C13.6111 2.39311 13.5213 2.25878 13.4081 2.14564L12.1197 0.857056C11.8911 0.628617 11.5811 0.500298 11.2579 0.500298C10.9347 0.500298 10.6247 0.628617 10.3961 0.857056L9.70264 1.55054L12.7146 4.5625Z" fill="#019999"/>
+                      <path d="M9.12837 2.125L1.29061 9.96278C1.22851 10.0248 1.18821 10.1052 1.17576 10.1921L0.76533 13.0358C0.757082 13.0935 0.761311 13.1522 0.77773 13.2081C0.794149 13.2639 0.822375 13.3156 0.860499 13.3596C0.898622 13.4036 0.945753 13.4389 0.998704 13.4632C1.05165 13.4874 1.10919 13.4999 1.16742 13.5C1.1866 13.5001 1.20575 13.4987 1.22474 13.496L4.07266 13.0898C4.1597 13.0773 4.24036 13.0369 4.30255 12.9747L12.1403 5.13696L9.12837 2.125Z" fill="#019999"/>
+                      </g>
+                      <defs>
+                      <clipPath id="clip0_530_1269">
+                      <rect width="13" height="13" fill="white" transform="translate(0.765137 0.5)"/>
+                      </clipPath>
+                      </defs>
+                      </svg>    -->
+                    </span>
+                    <span pButton icon="pi pi-plus-circle" class="delete-btn mr-2" (click)="create(item)">
+                        <!-- <svg width="15" height="19" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14.1401 2.75H10.7651V2.375C10.7651 1.34113 9.92401 0.5 8.89014 0.5H6.64014C5.60626 0.5 4.76514 1.34113 4.76514 2.375V2.75H1.39014C0.976137 2.75 0.640137 3.086 0.640137 3.5V4.625C0.640137 5.039 0.976137 5.375 1.39014 5.375H14.1401C14.5541 5.375 14.8901 5.039 14.8901 4.625V3.5C14.8901 3.086 14.5541 2.75 14.1401 2.75ZM6.26514 2.375C6.26514 2.16838 6.43351 2 6.64014 2H8.89014C9.09676 2 9.26514 2.16838 9.26514 2.375V2.75H6.26514V2.375Z" fill="#FF0000"/>
+                      <path d="M13.8703 6.37063C13.7282 6.21425 13.5264 6.125 13.3153 6.125H2.2153C2.00418 6.125 1.80242 6.21425 1.6603 6.37063C1.51817 6.527 1.4488 6.73625 1.46867 6.94662L2.39042 16.5796C2.49505 17.6746 3.45842 18.5004 4.63142 18.5004H10.8992C12.0718 18.5004 13.0355 17.6746 13.1402 16.5796L14.0619 6.94662C14.0822 6.73625 14.0124 6.527 13.8703 6.37063ZM6.01255 16.6235C5.99643 16.6242 5.98067 16.625 5.96455 16.625C5.57192 16.625 5.24193 16.3197 5.2168 15.9222L4.7668 8.79725C4.74092 8.384 5.0548 8.02775 5.46805 8.0015C5.88243 7.979 6.23793 8.2895 6.2638 8.70275L6.7138 15.8277C6.73967 16.241 6.4258 16.5972 6.01255 16.6235ZM10.3138 15.9222C10.2887 16.3197 9.95867 16.625 9.56605 16.625C9.5503 16.625 9.53417 16.6246 9.51805 16.6235C9.10442 16.5972 8.79093 16.241 8.8168 15.8277L9.2668 8.70275C9.29305 8.28912 9.64742 7.97825 10.0625 8.0015C10.4762 8.02775 10.7897 8.384 10.7638 8.79725L10.3138 15.9222Z" fill="#FF0000"/>
+                      </svg>                 -->
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <p-paginator class="mt-4" [rows]="10" [totalRecords]="this.count"
+        (onPageChange)="this.onPageChangeForSubLedger($event)"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[5, 10, 50, 100, this.count]">
+    </p-paginator>
+</div>
+
+<p-dialog [maximizable]="true" class="sub-ledger-modal" [closeOnEscape]="false" [header]="editMode ? 'Edit SubLedger' : 'Create SubLedger'"
+    [modal]="true" [(visible)]="displayModal" [draggable]="false">
+    <ng-container>
+        <form [formGroup]="subLedgerForm" (ngSubmit)="save()">
+            <div class="row">
+                <div id="serialNumber" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">COAserialNumber:</label>
+                    <input type="text" pInputText formControlName="chartOfAccountSerialNumber"
+                        id="chartOfAccountSerialNumber" readonly autocomplete="off"
+                     tabindex="2" />
+                </div>
+
+                <div id="serialNumber" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">COA Title:</label>
+
+                    <input type="text" pInputText formControlName="chartOfAccountName" id="chartOfAccountName" readonly
+                        autocomplete="off" tabindex="2" />
+                </div>
+
+                <div id="serialNumber" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Sub-Ledger Id:</label>
+                    <input type="text" pInputText formControlName="serialNumber" id="serialNumber" readonly
+                        autocomplete="off" tabindex="2" />
+                </div>
+                <div id="chartOfAccountSubLedgerType" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Sub-Ledger Type:</label>
+                    <p-dropdown [filter]="true" [options]="subLedgerTypes" formControlName="chartOfAccountSubLedgerType"
+                        id="chartOfAccountSubLedgerType" placeholder="Select Sub-Ledger Type" [autoDisplayFirst]="false"
+                        [style]="{ width: '100%' }"  tabindex="2">
+                    </p-dropdown>
+                </div>
+                <div id="chequeTitle" class="col-md-6 mt-3 flex flex-column">
+                    <label for="chequeTitle">Cheque Title</label>
+                    <input type="text" pInputText formControlName="chequeTitle" id="chequeTitle"
+                     tabindex="2" />
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="title">Title:</label>
+                    <input type="text" pInputText formControlName="title" id="title" autocomplete="off"
+                     />
+                    <div *ngIf="isFieldInvalid('title')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+            </div>
+            <div class="row"> 
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Short Name:</label>
+                    <input type="text" pInputText formControlName="shortName" id="shortName" autocomplete="off"
+                     />
+                    <div *ngIf="isFieldInvalid('shortName')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Address:</label>
+                    <input type="text" pInputText formControlName="address" id="address" autocomplete="off"
+                     />
+                    <div *ngIf="isFieldInvalid('address')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="title">Phone Number:</label>
+                    <input type="text" pInputText id="phoneNumber" formControlName="phoneNumber" autocomplete="off"
+                     />
+                    <div *ngIf="isFieldInvalid('phoneNumber')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'City'" [id]="subLedgerForm.get('cityId')?.value"
+                        [name]="subLedgerForm.get('cityName')?.value"
+                        (valueSelected)="setPickerValue($event, 'City')"></app-picker> -->
+                        <label for="name">City:</label>
+                        <p-dropdown
+                        [options]="cityDropdown"
+                        [(ngModel)]="citySelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="City"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+            </div>
+            <div class="row">    
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'Province'" [id]="subLedgerForm.get('provinceId')?.value"
+                        [name]="subLedgerForm.get('provinceName')?.value"
+                        (valueSelected)="setPickerValue($event, 'Province')"></app-picker> -->
+                        <label for="name">Province:</label>
+                        <p-dropdown
+                        [options]="provinceDropdown"
+                        [(ngModel)]="provinceSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="Province"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'Country'" [id]="subLedgerForm.get('countryId')?.value"
+                        [name]="subLedgerForm.get('countryName')?.value"
+                        (valueSelected)="setPickerValue($event, 'Country')"></app-picker> -->
+                        <label for="name">Country:</label>
+                        <p-dropdown
+                        [options]="countryDropdown"
+                        [(ngModel)]="countrySelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="Country"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+            </div>
+            <div class="row">
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">GST Rate:</label>
+                    <input type="text" pInputText formControlName="gstRate" id="gstRate" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('gstRate')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">POC Name:</label>
+                    <input type="text" pInputText formControlName="pocName" id="pocName" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('pocName')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">POC Number:</label>
+                    <input type="text" pInputText formControlName="pocNumber" id="pocNumber" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('pocNumber')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Fax Number:</label>
+                    <input type="text" pInputText formControlName="faxNumber" id="faxNumber" autocomplete="off" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">NTN:</label>
+                    <input type="text" pInputText formControlName="ntn" id="ntn" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('ntn')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">STN:</label>
+                    <input type="text" pInputText formControlName="stn" id="stn" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('stn')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="cnic">CNIC:</label>
+                    <p-inputMask mask="99999-9999999-9" formControlName="cnic" placeholder="99999-9999999-9"
+                        id="cnic" />
+                    <div *ngIf="isFieldInvalid('cnic')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Email:</label>
+                    <input type="text" pInputText formControlName="email" id="email" autocomplete="off" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="numberOfDays">No Of Days:</label>
+                    <input type="text" pInputText formControlName="" id="numberOfDays" autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('numberOfDays')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="totalCreditLimit">Total Credit Limit:</label>
+                    <input type="text" pInputText formControlName="totalCreditLimit" id="totalCreditLimit"
+                        autocomplete="off" />
+                    <div *ngIf="isFieldInvalid('totalCreditLimit')" class="text-danger">
+                        This field is required
+                    </div>
+                </div>
+                <div id="terms" class="col-md-6 mt-3 flex flex-column">
+                    <label for="terms">Terms:</label>
+                    <p-dropdown [filter]="true" [options]="DropdownTerms" formControlName="terms" id="terms" placeholder="Terms"
+                        [autoDisplayFirst]="false" [style]="{ width: '100%' }" tabindex="2">
+                    </p-dropdown>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'Employee'" [id]="employeeErpId"
+                        [name]="subLedgerForm.get('employeeName')?.value"
+                        (valueSelected)="setPickerValue($event, 'Employee')"></app-picker> -->
+                        <label for="name">Employee:</label>
+                        <p-dropdown
+                        [options]="employeeDropdown"
+                        [(ngModel)]="employeeSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="Employee"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'VendorType'" [id]="subLedgerForm.get('vendorTypeId')?.value"
+                        [name]="subLedgerForm.get('vendorTypeName')?.value"
+                        (valueSelected)="setPickerValue($event, 'VendorType')"></app-picker> -->
+                        <label for="name">VendorType</label>
+                        <p-dropdown
+                        [options]="vendorTypeDropdown"
+                        [(ngModel)]="vendorTypeSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="VendorType"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'TaxSection'" [id]="subLedgerForm.get('taxSectionId')?.value"
+                        [name]="subLedgerForm.get('taxSectionName')?.value"
+                        (valueSelected)="setPickerValue($event, 'TaxSection')"></app-picker> -->
+                        <label for="name">TaxSection:</label>
+                        <p-dropdown
+                        [options]="taxSectionDropdown"
+                        [(ngModel)]="taxSectionSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="TaxSection"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+            </div>
+            <div class="row">
+
+                <div id="inputField" class="col-md-6 mt-3 flex flex-column">
+                    <label for="name">Tax %:</label>
+                    <input type="text" pInputText formControlName="tax" id="tax" autocomplete="off" />
+                </div>
+                <div class="col-md-6 mt-3">
+                    <!-- <app-picker [title]="'Location'" [id]="subLedgerForm.get('locationId')?.value"
+                        [name]="subLedgerForm.get('locationName')?.value"
+                        (valueSelected)="setPickerValue($event, 'Location')"></app-picker> -->
+                        <label for="name">Location:</label>
+                        <p-dropdown
+                        [options]="locationDropdown"
+                        [(ngModel)]="locationSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        placeholder="Location"
+                        appendTo="body"
+                        >
+                            <ng-template let-item pTemplate="item">
+                        <div class="nowrap" style="max-width: 366px;"  title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                            <ng-template let-item pTemplate="selectedItem">
+                        <div *ngIf="item" class="nowrap" style="max-width: 334px;" title="{{ item.id.split('/').pop() }} - {{ item.name }}">{{ item.id.split('/').pop() }} - {{ item.name }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12 flex align-items-center gap-2">
+                  <p-checkbox formControlName="isActive" [binary]="true" inputId="active" />
+                  <label for="active" class="mb-0">Active</label>
+                </div>
+              </div>
+
+            <div class="flex gap-2 justify-content-end mt-3 col-12 position-absolute bottom-0" style="left:0; border-top: 1px solid #DBDBDB; background-color:#fbfbfb; padding:16px 1.5rem; ">
+                <p-button (onClick)="displayModal = false" label="Cancel" [outlined]="true" severity="warning" />
+                <p-button [loading]="saving" *ngIf="!editMode" (click)="save()" [disabled]="!subLedgerForm.valid"
+                    label="Save" [outlined]="true" severity="contrast" />
+                <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+                    severity="contrast" />
+            </div>
+        </form>
+    </ng-container>
+</p-dialog>
+
+<p-dialog [maximizable]="true" [closeOnEscape]="false" [modal]="true" [(visible)]="displaytableModal"
+    [draggable]="false" [style]="{ width: '80vw', height: 'auto', }" class="view-sub-ledger-dailog">
+    <ng-container>
+        <div class="card col-12">
+            <p-toolbar styleClass="mb-2">
+                <ng-template pTemplate="left">
+                    <h3 class="tab-name m-0">View Sub-Ledger</h3>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <span class="block md:mt-0 p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+                        class="globalSearchStyle"  />
+                    </span>
+                </ng-template>
+            </p-toolbar>
+            <p-table #policyTable [rows]="10" class="view-sub-ledger" [value]="SubledgertableData" [loading]="loading"
+                styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="58vh" [rowHover]="true"
+                responsiveLayout="scroll" [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+                [style]="{ width: '100%', 'overflow-y': 'auto' }" [globalFilterFields]="[
+          'id',
+          'title',
+          'shortName',
+          'address',
+          'phoneNumber',
+          'cityId',
+          'cityName',
+          'provinceId',
+          'provinceName',
+          'countryId',
+          'countryName',
+          'gstRate',
+          'pocName',
+          'pocNumber',
+          'faxNumber',
+          'ntn',
+          'stn',
+          'cnic',
+          'email',
+          'taxSectionId',
+          'taxSectionName',
+          'chartOfAccountId',
+          'chartOfAccountName',
+          'employeeId',
+          'employeeName',
+          'vendorTypeId',
+          'vendorTypeName',
+          'serialNumber',
+          'tax',
+          'isActive'
+        ]">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="nowrap" title=" Account Id" pSortableColumn="serialNumber">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Account Id</span><p-sortIcon field="serialNumber" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Tilte" pSortableColumn="title">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Tilte</span><p-sortIcon field="title" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Short Name" pSortableColumn="shortName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Short Name</span> <p-sortIcon field="shortName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Address" pSortableColumn="address">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Address </span><p-sortIcon field="address" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title=" Phone No." pSortableColumn="phoneNumber">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Phone No. </span><p-sortIcon field="phoneNumber" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="City Id" pSortableColumn="cityId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    City Id</span><p-sortIcon field="cityId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="City Name" pSortableColumn="cityName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    City Name</span> <p-sortIcon field="cityName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Country Id" pSortableColumn="countryId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Country Id </span><p-sortIcon field="countryId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Country Name" pSortableColumn="countryName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Country Name </span><p-sortIcon field="countryName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="GS Rate" pSortableColumn="gstRate">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    GS Rate</span> <p-sortIcon field="gstRate" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="POC Name" pSortableColumn="pocName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    POC Name</span> <p-sortIcon field="pocName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="POC Number" pSortableColumn="pocNumber">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    POC Number</span> <p-sortIcon field="pocNumber" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Fax Number" pSortableColumn="faxNumber">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Fax Number</span> <p-sortIcon field="faxNumber" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="NTN" pSortableColumn="ntn">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    NTN</span> <p-sortIcon field="ntn" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="STN" pSortableColumn="stn">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    STN</span><p-sortIcon field="stn" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="CNIC" pSortableColumn="cnic">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    CNIC </span><p-sortIcon field="cnic" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Email" pSortableColumn="email">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Email</span> <p-sortIcon field="email" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Tax Section Id" pSortableColumn="taxSectionId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Tax Section Id</span><p-sortIcon field="taxSectionId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Tax Section Name" pSortableColumn="taxSectionName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Tax Section Name</span> <p-sortIcon field="taxSectionName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Chart Of Account Id" pSortableColumn="chartOfAccountId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Chart Of Account Id </span><p-sortIcon field="chartOfAccountId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Chart of Account Name" pSortableColumn="chartOfAccountName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Chart of Account Name</span> <p-sortIcon field="chartOfAccountName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Employee Id" pSortableColumn="employeeId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Employee Id</span> <p-sortIcon field="employeeId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Employee Name" pSortableColumn="employeeName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Employee Name </span><p-sortIcon field="employeeName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Vendor Type Id" pSortableColumn="vendorTypeId">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Vendor Type Id</span> <p-sortIcon field="vendorTypeId" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Vendor Type Name" pSortableColumn="vendorTypeName">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Vendor Type Name </span><p-sortIcon field="vendorTypeName" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Active" pSortableColumn="Active">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Active</span> <p-sortIcon field="Active" />
+                            </div>
+                        </th>
+                        <th class="nowrap" title="Actions" pSortableColumn="Actions">
+                            <div class="d-flex justify-content-between">
+                                <span class="th-data">
+                                    Actions</span> <p-sortIcon field="Actions" />
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td class="no-wrap-header" title="{{ item.serialNumber }}">{{ item.serialNumber }}</td>
+                        <td class="no-wrap-header" title="{{ item.title }}">{{ item.title }}</td>
+                        <td class="no-wrap-header" title="{{ item.shortName }}">{{ item.shortName }}</td>
+                        <td class="no-wrap-header" title="{{ item.address }}">{{ item.address }}</td>
+                        <td class="no-wrap-header" title="{{ item.phoneNumber }}">{{ item.phoneNumber }}</td>
+                        <td class="no-wrap-header" title="{{ item.cityId }}">{{ item.cityId }}</td>
+                        <td class="no-wrap-header" title="{{ item.cityName }}">{{ item.cityName }}</td>
+                        <td class="no-wrap-header" title="{{ item.countryId }}">{{ item.countryId }}</td>
+                        <td class="no-wrap-header" title="{{ item.countryName }}">{{ item.countryName }}</td>
+                        <td class="no-wrap-header" title="{{ item.gstRate }}">{{ item.gstRate }}</td>
+                        <td class="no-wrap-header" title="{{ item.pocName }}">{{ item.pocName }}</td>
+                        <td class="no-wrap-header" title="{{ item.pocNumber }}">{{ item.pocNumber }}</td>
+                        <td class="no-wrap-header" title="{{ item.faxNumber }}">{{ item.faxNumber }}</td>
+                        <td class="no-wrap-header" title="{{ item.ntn }}">{{ item.ntn }}</td>
+                        <td class="no-wrap-header" title="{{ item.stn }}">{{ item.stn }}</td>
+                        <td class="no-wrap-header" title="{{ item.cnic }}">{{ item.cnic }}</td>
+                        <td class="no-wrap-header" title="{{ item.email }}">{{ item.email }}</td>
+                        <td class="no-wrap-header" title="{{ item.taxSectionId }}">{{ item.taxSectionId }}</td>
+                        <td class="no-wrap-header" title="{{ item.taxSectionName }}">{{ item.taxSectionName }}</td>
+                        <td class="no-wrap-header" title="{{ item.chartOfAccountId }}">{{ item.chartOfAccountId }}</td>
+                        <td class="no-wrap-header" title="{{ item.chartOfAccountName }}">{{ item.chartOfAccountName }}</td>
+                        <td class="no-wrap-header" title="{{ item.employeeId }}">{{ item.employeeId }}</td>
+                        <td class="no-wrap-header" title="{{ item.employeeName }}">{{ item.employeeName }}</td>
+                        <td class="no-wrap-header" title="{{ item.vendorTypeId }}">{{ item.vendorTypeId }}</td>
+                        <td class="no-wrap-header" title="{{ item.vendorTypeName }}">{{ item.vendorTypeName }}</td>
+                        <td>
+                            <!-- <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                            <span *ngIf="!item.isActive" class="no-bg">No</span> -->
+                                <div *ngIf="item.isActive" class="active-box">
+                                  yes
+                                </div>
+                                <div *ngIf="!item.isActive" class="deactive-box">
+                                  No
+                                </div>
+                        </td>
+                        <td class="icon-group">
+                            <span (click)="showdata(item.id)" class="edit-btn">
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_530_1269)">
+                                  <path
+                                    d="M12.7146 4.5625L13.4081 3.86903C13.5213 3.75589 13.6111 3.62156 13.6723 3.47371C13.7336 3.32585 13.7651 3.16738 13.7651 3.00733C13.7651 2.84729 13.7336 2.68882 13.6723 2.54096C13.6111 2.39311 13.5213 2.25878 13.4081 2.14564L12.1197 0.857056C11.8911 0.628617 11.5811 0.500298 11.2579 0.500298C10.9347 0.500298 10.6247 0.628617 10.3961 0.857056L9.70264 1.55054L12.7146 4.5625Z"
+                                    fill="#019999" />
+                                  <path
+                                    d="M9.12837 2.125L1.29061 9.96278C1.22851 10.0248 1.18821 10.1052 1.17576 10.1921L0.76533 13.0358C0.757082 13.0935 0.761311 13.1522 0.77773 13.2081C0.794149 13.2639 0.822375 13.3156 0.860499 13.3596C0.898622 13.4036 0.945753 13.4389 0.998704 13.4632C1.05165 13.4874 1.10919 13.4999 1.16742 13.5C1.1866 13.5001 1.20575 13.4987 1.22474 13.496L4.07266 13.0898C4.1597 13.0773 4.24036 13.0369 4.30255 12.9747L12.1403 5.13696L9.12837 2.125Z"
+                                    fill="#019999" />
+                                </g>
+                                <defs>
+                                  <clipPath id="clip0_530_1269">
+                                    <rect width="13" height="13" fill="white" transform="translate(0.765137 0.5)" />
+                                  </clipPath>
+                                </defs>
+                              </svg>
+                            </span>
+                            <span class="delete-btn mr-2" (click)="delete(item.id)">
+                              <svg width="15" height="19" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M14.1401 2.75H10.7651V2.375C10.7651 1.34113 9.92401 0.5 8.89014 0.5H6.64014C5.60626 0.5 4.76514 1.34113 4.76514 2.375V2.75H1.39014C0.976137 2.75 0.640137 3.086 0.640137 3.5V4.625C0.640137 5.039 0.976137 5.375 1.39014 5.375H14.1401C14.5541 5.375 14.8901 5.039 14.8901 4.625V3.5C14.8901 3.086 14.5541 2.75 14.1401 2.75ZM6.26514 2.375C6.26514 2.16838 6.43351 2 6.64014 2H8.89014C9.09676 2 9.26514 2.16838 9.26514 2.375V2.75H6.26514V2.375Z"
+                                  fill="#FF0000" />
+                                <path
+                                  d="M13.8703 6.37063C13.7282 6.21425 13.5264 6.125 13.3153 6.125H2.2153C2.00418 6.125 1.80242 6.21425 1.6603 6.37063C1.51817 6.527 1.4488 6.73625 1.46867 6.94662L2.39042 16.5796C2.49505 17.6746 3.45842 18.5004 4.63142 18.5004H10.8992C12.0718 18.5004 13.0355 17.6746 13.1402 16.5796L14.0619 6.94662C14.0822 6.73625 14.0124 6.527 13.8703 6.37063ZM6.01255 16.6235C5.99643 16.6242 5.98067 16.625 5.96455 16.625C5.57192 16.625 5.24193 16.3197 5.2168 15.9222L4.7668 8.79725C4.74092 8.384 5.0548 8.02775 5.46805 8.0015C5.88243 7.979 6.23793 8.2895 6.2638 8.70275L6.7138 15.8277C6.73967 16.241 6.4258 16.5972 6.01255 16.6235ZM10.3138 15.9222C10.2887 16.3197 9.95867 16.625 9.56605 16.625C9.5503 16.625 9.53417 16.6246 9.51805 16.6235C9.10442 16.5972 8.79093 16.241 8.8168 15.8277L9.2668 8.70275C9.29305 8.28912 9.64742 7.97825 10.0625 8.0015C10.4762 8.02775 10.7897 8.384 10.7638 8.79725L10.3138 15.9222Z"
+                                  fill="#FF0000" />
+                              </svg>
+                            </span>
+                          </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <p-paginator class="mt-3" [rows]="10" [totalRecords]="this.SubledgerCount" (onPageChange)="this.onPageChange($event)"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [showCurrentPageReport]="true" [rowsPerPageOptions]="[5, 10, 50, 100, this.SubledgerCount]">
+            </p-paginator>
+
+        </div>
+    </ng-container>
+</p-dialog>

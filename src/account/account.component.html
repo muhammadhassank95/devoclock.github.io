@@ -1,0 +1,25 @@
+﻿<div class="main-login-container d-flex align-items-center ">
+  <div class="login-box d-flex align-items-center justify-content-start flex-column position-relative">
+    <div *ngIf="showTenantChange()" class="card-header w-100">
+      <tenant-change></tenant-change>
+    </div>
+    <account-header></account-header>
+    <div class="card d-flex align-items-center w-100">
+      <div class="card-body login-card-body w-100">
+        <router-outlet></router-outlet>
+      </div>
+      <!-- <div class="card-footer">
+        <account-languages></account-languages>
+      </div> -->
+    </div>
+    <account-footer></account-footer>
+  </div>
+  <div class="row m-0 rhs-login position-relative d-flex justify-content-center align-items-center ">
+    <div class="col-12 position-absolute w-100 h-100">
+       <div class="rhs-logo-img d-flex align-items-center justify-content-center w-100 h-100">
+           <img src="assets/img/logo-c.svg" class="rotate-logo" style="height:40%; width: 40%; " alt="">
+           <img src="assets/img/HNL.svg" class="" style="height:45%; width: 45%;" alt="">
+       </div>
+    </div>
+  </div>
+</div>

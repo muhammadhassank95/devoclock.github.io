@@ -1,0 +1,531 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>General Ledger</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-right">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(generalLedger, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+
+      <div style="position: relative">
+        <p-button
+          label="Download"
+          icon="pi pi-download"
+          (click)="showExportOptions = !showExportOptions"
+        ></p-button>
+
+        <ul
+          *ngIf="showExportOptions"
+          style="
+            position: absolute;
+            z-index: 1000;
+            margin-top: 5px;
+            list-style-type: none;
+            padding: 0;
+          "
+        >
+          <li
+            *ngFor="let option of exportOptions"
+            style="margin: 0.5rem 0; list-style-type: none"
+          >
+            <p-button
+              [label]="option.label"
+              icon="pi pi-file-export"
+              (click)="exportFiles(option.value)"
+            >
+            </p-button>
+          </li>
+        </ul>
+      </div>
+      <p-progressSpinner
+        *ngIf="loading"
+        class="center-loader"
+      ></p-progressSpinner>
+
+      <div class="mt-0">
+        <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+        <span
+          pButton
+          style="height: 25px; width: 25px; cursor: pointer"
+          icon="pi pi-filter"
+          class="p-button-danger"
+          (click)="show()"
+        ></span>
+      </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+  
+  
+  <!-- Table -->
+  <div class="card p-4">
+    <p-table #generalLedger [loading]="loadTableData" [value]="tableData" styleClass="p-datatable-gridlines"
+      [rowHover]="true" [scrollable]="true" scrollHeight="80vh"
+      [globalFilterFields]="['voucherPrefix', 'voucherNumber', 'chartOfAccountSerialNumber', 'chartOfAccountName', 'locationName', 'projectName', 'supplierName', 'status', 'debit', 'credit']"
+      [paginatorDropdownAppendTo]="'body'" dataKey="id" [totalRecords]="tableData?.length" responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }">x
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="locationName">
+            VTP<p-sortIcon field="voucherPrefix" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="locationName">
+            Voucher Number<p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="locationName">
+            ChartOfAccount Sr No<p-sortIcon field="chartOfAccountSerialNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="locationName">
+            ChartOfAccount Name<p-sortIcon field="chartOfAccountName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="locationName">
+            Loc <p-sortIcon field="locationName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectName">
+            Project <p-sortIcon field="projectName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="supplierName">
+            Subledger <p-sortIcon field="supplierName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="status">
+            Status <p-sortIcon field="status" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="debit">
+            Debit <p-sortIcon field="debit" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="credit">
+            Credit <p-sortIcon field="credit" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr (click)="downloadReportsOnClick(item)">
+          <td>{{ item.voucherPrefix }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.chartOfAccountSerialNumber }}</td>
+          <td>{{ item.chartOfAccountName }}</td>
+          <td>{{ item.locationName }}</td>
+          <td>{{ item.projectName }}</td>
+          <td>{{ item.supplierName }}</td>
+          <td>{{ item.status }}</td>
+          <td>{{ item.debit }}</td>
+          <td>{{ item.credit }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="8" style="text-align: right; font-weight: bold;">Total:</td>
+          <td>{{ getTotalDebit() }}</td>
+          <td>{{ getTotalCredit() }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p-paginator [rows]="10" [totalRecords]="this.count" (onPageChange)="this.onPageChangeForGeneralLedger($event)"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 50, 100, this.count]">
+    </p-paginator>
+</div>
+
+<p-dialog
+  [header]="'Apply Filters'"
+  [modal]="true"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'ChartOfAccount'"
+        [title]="'From A/c'"
+        [id]="this.showSerialNumberFromCOA"
+        [name]="this.dto.fromChartOfAccountName"
+        (valueSelected)="setPickerValue($event, 'From A/c')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'ChartOfAccount'"
+        [title]="'To A/c'"
+        [id]="this.showSerialNumberToCOA"
+        [name]="this.dto.toChartOfAccountName"
+        (valueSelected)="setPickerValue($event, 'To A/c')"
+      />
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+      <p-checkbox inputId="isLineSeparateVoucher" [binary]="true" />
+      <label for="isLineSeparateVoucher" class="m-0">Continous Printing</label>
+    </div>
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+      <p-checkbox inputId="isLineSeparateVoucher" [binary]="true" />
+      <label for="isLineSeparateVoucher" class="m-0">With no transaction</label>
+    </div>
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+      <p-checkbox inputId="isLineSeparateVoucher" [binary]="true" />
+      <label for="isLineSeparateVoucher" class="m-0">With Balance</label>
+    </div>
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+      <p-checkbox inputId="isLineSeparateVoucher" [binary]="true" />
+      <label for="isLineSeparateVoucher" class="m-0">Voucher Wise Total</label>
+    </div>
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+      <p-checkbox inputId="isLineSeparateVoucher" [binary]="true" />
+      <label for="isLineSeparateVoucher" class="m-0">Edit/Delete History</label>
+    </div>
+  </div>
+  <div class="row col-md-12 mt-2">
+    <div class="col-md-2">
+      <label for="start-date">Start Date *</label>
+      <p-calendar
+        [(ngModel)]="this.dto.startDate"
+        [style]="{ width: '100%' }"
+        [appendTo]="'body'"
+        [required]="true"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="finish-date">End Date *</label>
+      <p-calendar
+        [(ngModel)]="this.dto.endDate"
+        [style]="{ width: '100%' }"
+        [required]="true"
+        [appendTo]="'body'"
+      />
+    </div>
+
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker
+        [title2]="'Location'"
+        [title]="'Location'"
+        [id]="this.dto.locationId"
+        [name]="this.dto.locationName"
+        [showId]="false"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      />
+    </div>
+  </div>
+  <div class="row col-md-12 mt-4">
+    <div class="col-md-2">
+      <label for="start-date">Start Ref Date *</label>
+      <p-calendar
+        [style]="{ width: '100%' }"
+        [appendTo]="'body'"
+        [required]="true"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="finish-date">End Ref Date *</label>
+      <p-calendar
+        [style]="{ width: '100%' }"
+        [required]="true"
+        [appendTo]="'body'"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="status">Status *</label>
+      <p-dropdown
+        [(ngModel)]="statusOptions"
+        [options]="statusOptions"
+        placeholder="Select Status"
+        [required]="true"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+  </div>
+
+  <div class="row col-md-12 mt-2 mt-4">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'CostCenter'"
+        [title]="'C.C. From'"
+        [id]="this.dto.fromCostCenterId"
+        [name]="this.dto.fromCostCenterName"
+        (valueSelected)="setPickerValue($event, 'C.C. From')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'CostCenter'"
+        [title]="'C.C. To'"
+        [id]="this.dto.toCostCenterId"
+        [name]="this.dto.toCostCenterName"
+        (valueSelected)="setPickerValue($event, 'C.C. To')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12 mt-2">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'AnalysisCode'"
+        [id]=""
+        [name]=""
+        (valueSelected)="setPickerValue($event, 'AnalysisCode')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'ItemID'"
+        [id]=""
+        [name]=""
+        (valueSelected)="setPickerValue($event, 'ItemID')"
+      />
+    </div>
+  </div>
+
+  <div class="row col-md-12 mt-2">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'Project'"
+        [title]="'Project From'"
+        [id]="this.dto.fromProjectId"
+        [name]="this.dto.fromProjectName"
+        (valueSelected)="setPickerValue($event, 'Project From')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title2]="'Project'"
+        [title]="'Project To'"
+        [id]="this.dto.toProjectId"
+        [name]="this.dto.toProjectName"
+        (valueSelected)="setPickerValue($event, 'Project To')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'From Supplier'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberFromSupplier"
+        [name]="this.dto.fromSupplierName"
+        [chartOfAccountSubLedgerType]="'12,13,14,15,16,17,18'"
+        (valueSelected)="setPickerValue($event, 'from Supplier')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'To Supplier'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberToSupplier"
+        [name]="this.dto.toSupplierName"
+        [chartOfAccountSubLedgerType]="'12,13,14,15,16,17,18'"
+        (valueSelected)="setPickerValue($event, 'to Supplier')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'From Client'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberFromClient"
+        [name]="this.dto.fromClientName"
+        [chartOfAccountSubLedgerType]="'3,4'"
+        (valueSelected)="setPickerValue($event, 'from Client')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'To Client'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberToClient"
+        [name]="this.dto.toClientName"
+        [chartOfAccountSubLedgerType]="'3,4'"
+        (valueSelected)="setPickerValue($event, 'to Client')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'From Patty'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberFromPatty"
+        [name]="this.dto.fromPattyName"
+        [chartOfAccountSubLedgerType]="'11'"
+        (valueSelected)="setPickerValue($event, 'from Patty')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'To Patty'"
+        [title2]="'Subledger'"
+        [id]="this.showSerialNumberToPatty"
+        [name]="this.dto.toPattyName"
+        [chartOfAccountSubLedgerType]="'11'"
+        (valueSelected)="setPickerValue($event, 'to Patty')"
+      ></app-picker>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'From Employee'"
+        [title2]="'Employee'"
+        [id]="this.showErpIdFrom"
+        [name]="this.dto.fromEmployeeName"
+        (valueSelected)="setPickerValue($event, 'from Employee')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'To Employee'"
+        [title2]="'Employee'"
+        [id]="this.showErpIdTo"
+        [name]="this.dto.toEmployeeName"
+        (valueSelected)="setPickerValue($event, 'to Employee')"
+      ></app-picker>
+    </div>
+  </div>
+  <!-- <div class="row col-md-12">
+    <div id="inputField" class="col-md-12 p-field flex flex-column">
+      <app-picker
+        [title]="'Region'"
+        [id]="this.dto.regionId"
+        [name]="this.dto.regionName"
+        (valueSelected)="setPickerValue($event, 'Region')"
+      ></app-picker>
+    </div>
+  </div> -->
+  <hr />
+
+  <div class="flex justify-content-end gap-2 mt-2">
+    <div class="my-auto">
+      <p-button label="Cancel" [outlined]="true" severity="warning" />
+      <p-button
+        (click)="getGeneralledgerDataAgainstFilters()"
+        label="Apply"
+        [outlined]="true"
+        severity="contrast"
+      />
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #generalLedger
+    [loading]="loadTableData"
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [scrollable]="true"
+    scrollHeight="80vh"
+    [globalFilterFields]="[
+      'voucherPrefix',
+      'voucherNumber',
+      'chartOfAccountSerialNumber',
+      'chartOfAccountName',
+      'locationName',
+      'projectName',
+      'supplierName',
+      'status',
+      'debit',
+      'credit'
+    ]"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    [totalRecords]="tableData?.length"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >x
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          VTP<p-sortIcon field="voucherPrefix" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          Voucher Number<p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          ChartOfAccount Sr No<p-sortIcon field="chartOfAccountSerialNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          ChartOfAccount Name<p-sortIcon field="chartOfAccountName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="locationName">
+          Loc <p-sortIcon field="locationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="projectName">
+          Project <p-sortIcon field="projectName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="supplierName">
+          Subledger <p-sortIcon field="supplierName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="status">
+          Status <p-sortIcon field="status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="debit">
+          Debit <p-sortIcon field="debit" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="credit">
+          Credit <p-sortIcon field="credit" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr (click)="downloadReportsOnClick(item)">
+        <td>{{ item.voucherPrefix }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.chartOfAccountSerialNumber }}</td>
+        <td>{{ item.chartOfAccountName }}</td>
+        <td>{{ item.locationName }}</td>
+        <td>{{ item.projectName }}</td>
+        <td>{{ item.supplierName }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.debit }}</td>
+        <td>{{ item.credit }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <tr>
+        <td colspan="8" style="text-align: right; font-weight: bold">Total:</td>
+        <td>{{ getTotalDebit() }}</td>
+        <td>{{ getTotalCredit() }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChangeForGeneralLedger($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 50, 100, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

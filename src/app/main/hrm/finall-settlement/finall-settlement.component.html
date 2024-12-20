@@ -1,0 +1,293 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <h3>Final Settlement</h3>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="p-toolbar-group-left">
+            <span class="p-toolbar-separator" style="margin-right: 10px;"></span>
+            <button *ngIf="!isGranted(this.permissions.CREATE)" pButton icon="pi pi-plus-circle" class="p-button-success" (click)="openCreateModal()"></button>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+
+<p-table #settlementTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]" [value]="tableData"
+    styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+    responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="employeeName" style="width:20%">
+                Name <p-sortIcon field="employeeName" />
+            </th>
+            <th pSortableColumn="chequeNumber" style="width:20%">
+                Cheque Number <p-sortIcon field="chequeNumber" />
+            </th>
+            <th pSortableColumn="checqueDate" style="width:20%">
+                Cheque Date<p-sortIcon field="checqueDate" />
+            </th>
+            <th pSortableColumn="drawnOn" style="width:20%">
+                Drawn On <p-sortIcon field="drawnOn" />
+            </th>
+            <th pSortableColumn="Actions" style="width:20%">
+                Actions <p-sortIcon field="Actions" />
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td>{{ item.employeeName }}</td>
+            <td>{{ item.chequeNumber }}</td>
+            <td>{{ item.chequeDate| date:'yyyy-MM-dd' }}</td>
+            <td>{{ item.drawnOn }}</td>
+            <td>
+                <!-- <button *ngIf="!isGranted(this.permissions.EDIT)" pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info mr-2"
+                    (click)="showForView(item.id)"></button> -->
+                    <span *ngIf="!isGranted(this.permissions.EDIT)" style="height: 25px; width: 25px; cursor: pointer"
+                    pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info mr-2"
+                    (click)="showForView(item.id)"></span>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+<p-dialog [closeOnEscape]="false" [maximizable]="true" header="Final Settlement" draggable="false" [(visible)]="displayModal" [modal]="true"
+    [responsive]="true" [style]="{width: '100vw'}">
+
+    <!-- <div class="row flex col-md-12">
+        <div id="inputField" class="p-field col-md-2 p-mr-2 flex flex-column ">
+            <label for="voucher"> Voucher Number</label>
+            <input id="voucher" type="voucher" pInputText />
+        </div>
+        <div id="inputField" class="p-field col-md-3 p-mr-2 flex flex-column ">
+            <label for="date"> Applicable From</label>
+            <p-calendar [disabled]="false" inputId="date" appendTo="body" [showOnFocus]="true"></p-calendar>
+        </div>
+    </div> -->
+
+    <div class="card my-4 p-2">
+        <div class="row">
+            <div class="col-md-6 mt-2">
+                <app-picker [disable]="viewMode" [title]="'ResignedEmployees'" [id]="finalSettlementDto.employeeId"
+                    [name]="finalSettlementDto.employeeName"
+                    (valueSelected)="setPickerValue($event, 'ResignedEmployees')"></app-picker>
+            </div>
+
+            <div class="col-md-2 my-auto">
+                <p-button [disabled]="viewMode" (click)="Generate()" [loading]="generating" label="Generate"
+                    [text]="true" [raised]="true" severity="info">
+                </p-button>
+            </div>
+        </div>
+
+        <div class="row flex col-md-12">
+            <div id="inputField" class="flex flex-column col-md-3">
+                <label for="docDate">Document Date</label>
+                <p-calendar [disabled]="viewMode" [(ngModel)]="finalSettlementDto.documentDate" inputId="docDate"
+                    appendTo="body" [showOnFocus]="true"></p-calendar>
+            </div>
+            <div id="inputField" class="col-md-3 flex flex-column">
+                <label for="resignDate">Resign Date</label>
+                <input [(ngModel)]="finalSettlementDto.resignationDate" id="resignDate" type="text" pInputText
+                    readonly />
+            </div>
+            <div id="inputField" class="col-md-3 flex flex-column">
+                <label for="noticePeriod">Notice Period</label>
+                <input [(ngModel)]="finalSettlementDto.noticePeriod" id="noticePeriod" type="text" pInputText
+                    readonly />
+            </div>
+            <div id="inputField" class="col-md-3 flex flex-column">
+                <label for="releasDate">Release Date</label>
+                <input [(ngModel)]="finalSettlementDto.releaseDate" id="releasDate" type="text" pInputText readonly />
+            </div>
+            <!-- <div id="inputField" class="col-md-3 flex  mt-auto">
+                <p-checkbox inputId="terminated" [binary]="true" inputId="binary" />
+                <label for="terminated">Terminated</label>
+            </div> -->
+        </div>
+    </div>
+
+    <div class="flex gap-1 col-md-12">
+        <div class="card p-4 col-md-4">
+            <h4 style="color: gray;">Pays and Allowance</h4>
+            <div class="row gap-5 mt-4">
+                <div class="flex flex-column">
+                    <div id="inputField" class="flex flex-column">
+                        <label for="salaryDue">Salary Due</label>
+                        <input [(ngModel)]="finalSettlementDto.salaryDue" id="salaryDue" type="text" pInputText
+                            readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="overTime">OverTime</label>
+                        <input id="overTime" type="text" [(ngModel)]="finalSettlementDto.overTime" readonly
+                            pInputText />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="noticPeriodPay">Notice Period Date</label>
+                        <input id="noticPeriodPay" type="text" [(ngModel)]="finalSettlementDto.noticePeriodDate"
+                            readonly pInputText />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="leaveEnchasment">Leave Encashment</label>
+                        <input id="leaveEnchasment" type="text" [(ngModel)]="finalSettlementDto.leaveEncashmentFund"
+                            readonly pInputText />
+                    </div>
+                    <!-- <div id="inputField" class="flex flex-column">
+                        <label for="expReimbureasment">Expenses Re-imbureasment</label>
+                        <input id="expReimbureasment" type="text" readonly pInputText />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="pfEmployeeCount">PF Employee Cont.</label>
+                        <input id="pfEmployeeCount" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="pfFinalSettlement">PF Ded (Final Settlement)</label>
+                        <input id="pfFinalSettlement" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="totalPf">Total PF</label>
+                        <input id="totalPf" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="yearlyBonus">Bonus (Year)</label>
+                        <input id="yearlyBonus" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="others">Others</label>
+                        <input id="others" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="gratuity">Gratuity</label>
+                        <input id="gratuity" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="polStaff">POL Staff</label>
+                        <input id="polStaff" type="text" pInputText readonly />
+                    </div>
+                    <div id="inputField" class="flex flex-column">
+                        <label for="VehicalAccAdjust">Vehicle Account Adjustment</label>
+                        <input id="VehicalAccAdjust" type="text" pInputText readonly />
+                    </div> -->
+                    <div id="inputField" class="flex flex-column">
+                        <label for="grossPayble">Gross Paybale to Employee</label>
+                        <input [(ngModel)]="finalSettlementDto.employeeGrossPayable" id="grossPayble" type="text"
+                            pInputText readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 col-md-4">
+            <h4 style="color: gray;" class="m-0">Deduction</h4>
+            <div class="flex-column flex mt-3">
+                <div id="inputField" class="flex flex-column">
+                    <label for="tax">Tax</label>
+                    <input [(ngModel)]="finalSettlementDto.incomeTaxDeduction" id="tax" type="text" pInputText
+                        readonly />
+                </div>
+                <!-- <div id="inputField" class="flex flex-column">
+                    <label for="advance">Advance</label>
+                    <input id="advance" type="text" pInputText readonly />
+                </div> -->
+                <div id="inputField" class="flex flex-column">
+                    <label for="loan">Loan Taken</label>
+                    <input [(ngModel)]="finalSettlementDto.loanTaken" id="loan" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="pendingLoan">Pending Loan </label>
+                    <input [(ngModel)]="finalSettlementDto.pendingLoan" id="pendingLoan" type="text" pInputText
+                        readonly />
+                </div>
+                <!-- <div id="inputField" class="flex flex-column">
+                    <label for="vehicleLoan">Vehicle Loan</label>
+                    <input id="vehicleLoan" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="noticePeriod">Notice Period</label>
+                    <input id="noticePeriod" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="mess">Mess</label>
+                    <input id="mess" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="mobileDeduction">Mobile Deduction</label>
+                    <input id="mobileDeduction" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="otherDeduction">Others</label>
+                    <input id="otherDeduction" type="text" pInputText readonly />
+                </div> -->
+                <div id="inputField" class="flex flex-column">
+                    <label for="pfund">P.Fund</label>
+                    <input [(ngModel)]="finalSettlementDto.providentFund" id="pfund" type="text" pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="eobiDedemp">EOBI Employee Ded</label>
+                    <input [(ngModel)]="finalSettlementDto.employee_EOBI_Deductions" id="eobiDedemp" type="text"
+                        pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="eobiDedempr">EOBI Employer Ded</label>
+                    <input [(ngModel)]="finalSettlementDto.employer_EOBI_Deductions" id="eobiDedempr" type="text"
+                        pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="ssDedemp">SS Employee Ded</label>
+                    <input [(ngModel)]="finalSettlementDto.employee_EOBI_Deductions" id="ssDedemp" type="text"
+                        pInputText readonly />
+                </div>
+                <div id="inputField" class="flex flex-column">
+                    <label for="ssDedemp">SS Employer Ded</label>
+                    <input [(ngModel)]="finalSettlementDto.employer_SS_Deductions" id="ssDedemp" type="text" pInputText
+                        readonly />
+                </div>
+                <!-- <div id="inputField" class="flex flex-column">
+                    <label for="totalDeduction">Total Deduction</label>
+                    <input id="totalDeduction" type="text" pInputText readonly />
+                </div> -->
+                <div id="inputField" class="flex flex-column">
+                    <label for="netPayabletoEmp">Net Paybale To Employee</label>
+                    <input id="netPayabletoEmp" type="text" [(ngModel)]="finalSettlementDto.employeeNetPayable"
+                        pInputText readonly />
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 col-md-4">
+            <h4 style="color: gray;" class="m-0">Payment Details & Others</h4>
+            <div class="flex-column flex mt-3">
+                <div id="inputField" class="flex flex-column col-md-6">
+                    <label for="chequeNo">Cheque No.</label>
+                    <input [disabled]="viewMode" [(ngModel)]="finalSettlementDto.chequeNumber" id="chequeNo" type="text"
+                        pInputText />
+                </div>
+                <div id="inputField" class="flex flex-column col-md-6">
+                    <label for="chequeDate">Cheque Date</label>
+                    <p-calendar [disabled]="viewMode" [(ngModel)]="finalSettlementDto.chequeDate" inputId="chequeDate"
+                        appendTo="body" [showOnFocus]="true"></p-calendar>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 flex">
+        <div class="flex flex-column col-md-12">
+            <label for="drawnOn">Narration</label>
+            <textarea [disabled]="viewMode" [(ngModel)]="finalSettlementDto.drawnOn" id="drawnOn" rows="4" cols="6"
+                pInputTextarea></textarea>
+        </div>
+    </div>
+
+    <div class="flex  justify-content-end mt-4 gap-3">
+        <button *ngIf="!viewMode" [loading]="saving" pButton label="Save" icon="pi pi-check" class="p-mr-2"
+            type="submit" (click)="create()"></button>
+        <button *ngIf="!viewMode" pButton label="Cancel" icon="pi pi-times" class="p-button-secondary" type="button"
+            (click)="onDialogClose()"></button>
+    </div>
+</p-dialog>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

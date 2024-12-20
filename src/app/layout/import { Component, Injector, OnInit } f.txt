@@ -1,0 +1,620 @@
+import { Component, Injector, OnInit } from "@angular/core";
+import { AppComponentBase } from "@shared/app-component-base";
+import {
+    Router,
+    RouterEvent,
+    NavigationEnd,
+    PRIMARY_OUTLET,
+} from "@angular/router";
+import { BehaviorSubject } from "rxjs";
+import { filter } from "rxjs/operators";
+import { MenuItem } from "@shared/layout/menu-item";
+
+@Component({
+    selector: "sidebar-menu",
+    templateUrl: "./sidebar-menu.component.html",
+})
+export class SidebarMenuComponent extends AppComponentBase implements OnInit {
+    menuItems: MenuItem[];
+    menuItemsMap: { [key: number]: MenuItem } = {};
+    activatedMenuItems: MenuItem[] = [];
+    routerEvents: BehaviorSubject<RouterEvent> = new BehaviorSubject(undefined);
+    homeRoute = "/app/users";
+
+    constructor(injector: Injector, private router: Router) {
+        super(injector);
+    }
+
+    ngOnInit(): void {
+        this.menuItems = this.getMenuItems();
+        this.patchMenuItems(this.menuItems);
+
+        this.router.events.subscribe((event: NavigationEnd) => {
+            const currentUrl = event.url !== "/" ? event.url : this.homeRoute;
+            const primaryUrlSegmentGroup =
+                this.router.parseUrl(currentUrl).root.children[PRIMARY_OUTLET];
+            if (primaryUrlSegmentGroup) {
+                this.activateMenuItems("/" + primaryUrlSegmentGroup.toString());
+            }
+        });
+
+        this.deactivateMenuItems(this.menuItems);
+    }
+
+    getMenuItems(): MenuItem[] {
+        return [
+            new MenuItem(this.l("HRM"), "", " fa-user fa-regular", "", [
+                new MenuItem(
+                    this.l("SetUp Forms"),
+                    "/app/main/hrm/setup-forms",
+                    "fas fa-theater-masks",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Employee"),
+                    "/app/main/hrm/employee",
+                    "fas fa-user",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Loan Forms"),
+                    "/app/main/hrm/hrm-loan-setup",
+                    "fas fa-landmark"
+                ),
+                new MenuItem(
+                    this.l("Leave Management"),
+                    "/app/main/hrm/leave-management",
+                    "fas fa-solid fa-cash-register",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Transition"),
+                    "/app/main/hrm/transition",
+                    "fas fa-solid fa-arrow-right-arrow-left",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Salaries"),
+                    "/app/main/hrm/salaries",
+                    "fas fa-solid fa-wallet",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Hold Salary"),
+                    "/app/main/hrm/hold-salary",
+                    "fas fa-solid fa-hands-holding",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Attendance"),
+                    "/app/main/hrm/attendance",
+                    "fas fa-solid fa-clipboard-user",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Finall Settlement"),
+                    "/app/main/hrm/finall-Settlement",
+                    "fas fa-handshake",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Provident Fund Profit"),
+                    "/app/main/hrm/pfp",
+                    "fas fa-person-circle-plus",
+                    ""
+                ),
+                new MenuItem(this.l("Policies"), "", "fas fa-folder-open", "", [
+                    new MenuItem(
+                        this.l("EOBI Policy"),
+                        "/app/main/hrm/eobi-policy",
+                        "fas fa-file-contract",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Social Security Policy"),
+                        "/app/main/hrm/ss-policy",
+                        "fas fa-shield-alt",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Leave Encashment Policy"),
+                        "/app/main/hrm/le-policy",
+                        "fas fa-money-check-alt",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Annual Leave Encashment"),
+                        "/app/main/hrm/annual-le-policy",
+                        "fas fa-file-contract",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Over Time Policy"),
+                        "/app/main/hrm/ov-policy",
+                        "fas fa-clock",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Incom Tax Policy"),
+                        "/app/main/hrm/tax-policy",
+                        "fas fa-coins",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Leave Policy"),
+                        "/app/main/hrm/leave-policy",
+                        "fas fa-calendar-alt",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Provident Fund Policy"),
+                        "/app/main/hrm/providentFund-policy",
+                        "fas fa-hand-holding-usd",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Manual OverTime"),
+                        "/app/main/hrm/manual-overtime",
+                        "fas fa-calendar-alt",
+                        ""
+                    ),
+                    new MenuItem(
+                        this.l("Salary Structure"),
+                        "/app/main/hrm/salary-structure-policy",
+                        "fas fa-money-bill",
+                        ""
+                    ),
+                ]),
+            ]),
+            new MenuItem(this.l("Budget"), "", " fa-user fa-regular", "", [
+                new MenuItem(
+                    this.l("Budget Setup"),
+                    "/app/main/budget/budget-setups",
+                    "fas fa-theater-masks",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Project"),
+                    "/app/main/budget/project-tab",
+                    "fas fa-user",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Cost Center"),
+                    "/app/main/budget/cost-center-tab",
+                    "fas fa-user",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Chart Of Account"),
+                    "/app/main/budget/chart-of-account-tab",
+                    "fas fa-user",
+                    ""
+                ),
+                new MenuItem(
+                    this.l("Budget Transaction"),
+                    "",
+                    "fas fa-file-invoice-dollar",
+                    "",
+                    [
+                        new MenuItem(
+                            this.l("Annuall Budget"),
+                            "/app/main/budget/annual-budget",
+                            "fas fa-file-invoice-dollar",
+                            ""
+                        ),
+                        new MenuItem(
+                            this.l("Monthly Budget"),
+                            "/app/main/budget/monthly-budget",
+                            "fas fa-file-invoice-dollar",
+                            ""
+                        ),
+                    ]
+                ),
+            ]),
+            new MenuItem(
+                this.l("Inventory"),
+                "",
+                "fas fa-truck-moving fa-regular",
+                "",
+                [
+                    new MenuItem(
+                        this.l("Purchase Rate Policy"),
+                        "/app/main/inventory/purchase-rate-policy",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Purchase Requisition"),
+                        "/app/main/inventory/purchase-requisition",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Purchase Order"),
+                        "/app/main/inventory/purchase-order",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem("Inventory Setups", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l("Stock"),
+                            "/app/main/inventory/stock-setups",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Fixed"),
+                            "/app/main/inventory/fixed-setups",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Basic Type"),
+                            "/app/main/inventory/basic-type",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Material Type"),
+                            "/app/main/inventory/material-type",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Stock Unit"),
+                            "/app/main/inventory/stock-unit",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        // new MenuItem(
+                        //     this.l("Category"),
+                        //     "/app/main/inventory/category-id",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                        // new MenuItem(
+                        //     this.l("Sub-Category"),
+                        //     "/app/main/inventory/subcategory-id",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                        new MenuItem(
+                            this.l("Unit"),
+                            "/app/main/inventory/unit-id",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Item Size"),
+                            "/app/main/inventory/item-size",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        // new MenuItem(
+                        //     this.l("Item Brand"),
+                        //     "/app/main/inventory/item-brand",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                        new MenuItem(
+                            this.l("UOM"),
+                            "/app/main/inventory/uom",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("OHJob"),
+                            "/app/main/inventory/ohjob",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        // new MenuItem(
+                        //     this.l("Govt Asset"),
+                        //     "/app/main/inventory/govt-asset",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                        // new MenuItem(
+                        //     this.l("Go Down"),
+                        //     "/app/main/inventory/go-down",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                    ]),
+                    new MenuItem("Service", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l("Service Item Category"),
+                            "/app/main/inventory/service-item-category",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Service Item"),
+                            "/app/main/inventory/service-item",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Service Requisition"),
+                            "/app/main/inventory/service-request",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Service Order"),
+                            "/app/main/inventory/service-order",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Service Invoice"),
+                            "/app/main/inventory/service-invoice",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                    ]),
+                    new MenuItem("Stock", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l("Requisition"),
+                            "/app/main/inventory/stock-requisition",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Transfer Note"),
+                            "/app/main/inventory/stock-tranfer-request",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Receipt Note"),
+                            "/app/main/inventory/stock-receipt-request",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Capitalization Policy"),
+                            "/app/main/inventory/capitalization-policy",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                    ]),
+                    new MenuItem("Fixed", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l(" Requisition"),
+                            "/app/main/inventory/fixed-requisition",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l(" Transfer Note"),
+                            "/app/main/inventory/fixed-tranfer-request",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        // new MenuItem(
+                        //     this.l(" Receipt Note"),
+                        //     "/app/main/inventory/fixed-receipt-request",
+                        //     "fas fa-theater-masks",
+                        //     "Pages.Roles"
+                        // ),
+                    ]),
+                    new MenuItem(
+                        this.l("Item linking"),
+                        "/app/main/inventory/item-linking",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem("Internal Inventory", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l("Internal Requisition"),
+                            "/app/main/inventory/internal-part-requisition",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Store Issuance Note"),
+                            "/app/main/inventory/store-issuance-note",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Store Return Note"),
+                            "/app/main/inventory/store-return-note",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                    ]),
+
+                    new MenuItem("Gate Pass", "", "fas fa-theater-masks", "", [
+                        new MenuItem(
+                            this.l(" Gate Inward Pass"),
+                            "/app/main/inventory/gate-inward-pass",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+                        new MenuItem(
+                            this.l("Gate Outward Pass"),
+                            "/app/main/inventory/gate-outward-pass",
+                            "fas fa-theater-masks",
+                            "Pages.Roles"
+                        ),
+
+                    ]),
+                ]
+            ),
+
+            ///////////////finance///////////////////////
+
+            new MenuItem(
+                this.l("Finance"),
+                "",
+                "fas fa-truck-moving fa-regular",
+                "",
+                [
+
+                    new MenuItem(
+                        this.l("Bank Balance"),
+                        "/app/main/finance/bank-balance",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Bank Payment"),
+                        "/app/main/finance/bank-payment",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Bank Reciept"),
+                        "/app/main/finance/bank-reciept",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Bank Reconcilation"),
+                        "/app/main/finance/bank-reconcilation",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Bank Reconcilation Entries"),
+                        "/app/main/finance/bank-reconcilation-entries",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Cash Payment"),
+                        "/app/main/finance/cash-payment",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Cash Reciept"),
+                        "/app/main/finance/cash-reciept",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Cheque Register"),
+                        "/app/main/finance/cheque-register",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Credit Note"),
+                        "/app/main/finance/credit-note",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Debit Note"),
+                        "/app/main/finance/debit-note",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Journal Voucher"),
+                        "/app/main/finance/journal-voucher",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                    new MenuItem(
+                        this.l("Official Receipt"),
+                        "/app/main/finance/official-receipt",
+                        "fas fa-theater-masks",
+                        "Pages.Roles"
+                    ),
+                ]
+            ),
+
+
+            new MenuItem(
+                this.l("Roles"),
+                "/app/roles",
+                "fas fa-theater-masks",
+                "Pages.Roles"
+            ),
+            new MenuItem(
+                this.l("Tenants"),
+                "/app/tenants",
+                "fas fa-building",
+                "Pages.Tenants"
+            ),
+            new MenuItem(
+                this.l("Users"),
+                "/app/users",
+                "fas fa-users",
+                "Pages.Users"
+            ),
+        ];
+    }
+
+    patchMenuItems(items: MenuItem[], parentId?: number): void {
+        items.forEach((item: MenuItem, index: number) => {
+            item.id = parentId ? Number(parentId + "" + (index + 1)) : index + 1;
+            if (parentId) {
+                item.parentId = parentId;
+            }
+            if (parentId || item.children) {
+                this.menuItemsMap[item.id] = item;
+            }
+            if (item.children) {
+                this.patchMenuItems(item.children, item.id);
+            }
+        });
+    }
+
+    activateMenuItems(url: string): void {
+        this.deactivateMenuItems(this.menuItems);
+        this.activatedMenuItems = [];
+        const foundedItems = this.findMenuItemsByUrl(url, this.menuItems);
+        foundedItems.forEach((item) => {
+            this.activateMenuItem(item);
+        });
+    }
+
+    deactivateMenuItems(items: MenuItem[]): void {
+        items.forEach((item: MenuItem) => {
+            item.isActive = false;
+            item.isCollapsed = true;
+            if (item.children) {
+                this.deactivateMenuItems(item.children);
+            }
+        });
+    }
+
+    findMenuItemsByUrl(
+        url: string,
+        items: MenuItem[],
+        foundedItems: MenuItem[] = []
+    ): MenuItem[] {
+        items.forEach((item: MenuItem) => {
+            if (item.route === url) {
+                foundedItems.push(item);
+            } else if (item.children) {
+                this.findMenuItemsByUrl(url, item.children, foundedItems);
+            }
+        });
+        return foundedItems;
+    }
+
+    activateMenuItem(item: MenuItem): void {
+        item.isActive = true;
+        if (item.children) {
+            item.isCollapsed = false;
+        }
+        this.activatedMenuItems.push(item);
+        if (item.parentId) {
+            this.activateMenuItem(this.menuItemsMap[item.parentId]);
+        }
+    }
+
+    isMenuItemVisible(item: MenuItem): boolean {
+        if (!item.permissionName) {
+            return true;
+        }
+        return this.permission.isGranted(item.permissionName);
+    }
+}

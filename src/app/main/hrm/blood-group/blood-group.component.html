@@ -1,0 +1,30 @@
+<app-lookup
+  action="BloodGroup"
+  [mainDto]="dto"
+  class="blood-group"
+  [excludedColumns]="[]"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validateBloodGroup()"
+>
+  <ng-template #dialogView>
+    <div class=" d-flex flex-column col-md-12">
+      <div id="inputField" class="row ">
+        <div id="inputField" class="col-md-12 flex flex-column">
+          <label for="">Name:</label>
+         <input type="text"  pInputText [(ngModel)]="dto.name" />
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12 d-flex align-items-center gap-2 ">
+          <p-checkbox
+            [(ngModel)]="dto.isActive"
+            checked="dto.isActive"
+            [binary]="true"
+            inputId="active"
+          />
+          <label for="active" class="mb-0">Active</label>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</app-lookup>

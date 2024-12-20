@@ -1,0 +1,9 @@
+<div class="form-group">
+    <label [for]="title">{{ title }}</label>
+    <select class="form-control" [id]="title" [(ngModel)]="selectedId" style="width: 200px;"
+        (change)="onSelect($event)">
+        <option value="">Select </option>
+        <option *ngFor="let item of dropdownList" [value]="item.id">{{ item.name }}</option>
+        <option *ngIf="dropdownList.length === 0" disabled>No items available</option>
+    </select>
+</div>

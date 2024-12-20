@@ -1,0 +1,50 @@
+<p-tabView
+  (activeIndexChange)="handleChangeTab($event)"
+  [activeIndex]="activeIndex"
+>
+  <p-tabPanel *ngIf="isPermitted('LookUps.City')" header="City">
+    @if(activeIndex == 0) {
+    <app-city></app-city>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Country')" header="Country">
+    @if(activeIndex == 1) {
+    <app-country></app-country>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Province')" header="Province">
+    @if(activeIndex == 2) {
+    <app-province></app-province>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.TaxSection')" header="TaxSection">
+    @if(activeIndex == 3) {
+    <app-tax-section></app-tax-section>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.VendorType')" header="VendorType">
+    @if(activeIndex == 4) {
+    <app-vendor-type></app-vendor-type>
+    }
+  </p-tabPanel>
+  <!-- <p-tabPanel header="Bulk Upload">
+    @if(activeIndex == 5) {
+    <app-bulk-upload></app-bulk-upload>
+    }
+  </p-tabPanel> -->
+  <p-tabPanel header="Supplier / Client">
+    @if(activeIndex == 5) {
+    <app-supplier-details></app-supplier-details>
+    }
+  </p-tabPanel>
+  <p-tabPanel header="Sub Ledger">
+    @if(activeIndex == 6) {
+    <app-sub-ledger></app-sub-ledger>
+    }
+  </p-tabPanel>
+</p-tabView>
+
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal"/>
+</div>

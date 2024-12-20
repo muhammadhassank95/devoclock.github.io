@@ -1,0 +1,29 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="headerText"
+  [modal]="true"
+  [draggable]="false"
+  position="top"
+  (onHide)="closeDialog()"
+>
+  <div *ngIf="loading" class="loader myloader">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    {{ loadingText || "Uploading..." }}
+  </div>
+  <p-fileUpload
+    #fileUpload
+    name="myfile[]"
+    [customUpload]="true"
+    (uploadHandler)="uploadFile($event)"
+    [multiple]="multiple"
+  ></p-fileUpload>
+
+  <div class="file-upload-container">
+    <button
+      pButton
+      icon="pi pi-download"
+      label="Download Template"
+      (click)="emitDownloadTemplate()"
+    ></button>
+  </div>
+</p-dialog>

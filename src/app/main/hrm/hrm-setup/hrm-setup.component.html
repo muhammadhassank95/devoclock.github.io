@@ -1,0 +1,143 @@
+<style>
+  .custom-tabview {
+    width: 80%;
+    margin: 0 auto;
+    /* Center the tab view */
+  }
+</style>
+
+<p-tabView
+  [scrollable]="true"
+  [(activeIndex)]="activeIndex"
+  class="custom-tabview"
+  (onChange)="onTabChange($event)"
+>
+  <!-- <p-tabPanel
+    *ngIf="isPermitted('LookUps.FinancialYear')"
+    header="Financial Year"
+  >
+    <ng-container *ngIf="activeIndex === 0">
+      <app-financial-year></app-financial-year>
+    </ng-container>
+  </p-tabPanel> -->
+  <p-tabPanel header="MBU">
+    <ng-container *ngIf="activeIndex === 0">
+      <app-mbu></app-mbu>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel header="Sub Region">
+    <ng-container *ngIf="activeIndex === 1">
+      <app-sub-region></app-sub-region>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel header="Cluster">
+    <ng-container *ngIf="activeIndex === 2">
+      <app-cluster></app-cluster>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel header="Manual Tax Deduction">
+    <ng-container *ngIf="activeIndex === 3">
+      <app-manual-tax-deduction></app-manual-tax-deduction>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.BloodGroup')" header="Blood Group">
+    <ng-container *ngIf="activeIndex === 4">
+      <app-blood-group></app-blood-group>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.EmployeeType')"
+    header="Type of Employee"
+  >
+    <ng-container *ngIf="activeIndex === 5">
+      <app-type-of-employee></app-type-of-employee>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Team')" header="{{ this.l('Team') }}">
+    <ng-container *ngIf="activeIndex === 6">
+      <app-team></app-team>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.SkillLevel')" header="Skill Level">
+    <ng-container *ngIf="activeIndex === 7">
+      <app-skill-level></app-skill-level>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Shift')" header="Shift">
+    <ng-container *ngIf="activeIndex === 8">
+      <app-shift></app-shift>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Relation')" header="Religion">
+    <ng-container *ngIf="activeIndex === 9">
+      <app-religion></app-religion>
+    </ng-container>
+  </p-tabPanel>
+
+  <p-tabPanel *ngIf="isPermitted('LookUps.LicenseType')" header="License Type">
+    <ng-container *ngIf="activeIndex === 10">
+      <app-license-type></app-license-type>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Interview')" header="Interview">
+    <ng-container *ngIf="activeIndex === 11">
+      <app-interview></app-interview>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Allowance')" header="Allowance">
+    <ng-container *ngIf="activeIndex === 12">
+      <app-allowance></app-allowance>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Currency')" header="Currency">
+    <ng-container *ngIf="activeIndex === 13">
+      <app-currency></app-currency>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.CurrentPaymentMode')"
+    header="Current Payment Mode"
+  >
+    <ng-container *ngIf="activeIndex === 14">
+      <app-payment-mode></app-payment-mode>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.EmployeeCurrentStatus')"
+    header="Current Status"
+  >
+    <ng-container *ngIf="activeIndex === 15">
+      <app-current-status></app-current-status>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Gender')" header="Gender">
+    <ng-container *ngIf="activeIndex === 16">
+      <app-gender></app-gender>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Designation')" header="Designation">
+    <ng-container *ngIf="activeIndex === 17">
+      <app-designation></app-designation>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Department')" header="Department">
+    <ng-container *ngIf="activeIndex === 18">
+      <app-department></app-department>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.CompanyBank')" header="Company Bank">
+    <ng-container *ngIf="activeIndex === 19">
+      <app-company-bank></app-company-bank>
+    </ng-container>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.Grade')" header="Grade">
+    <ng-container *ngIf="activeIndex === 20">
+      <app-grade></app-grade>
+    </ng-container>
+  </p-tabPanel>
+</p-tabView>
+
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal" />
+</div>

@@ -1,0 +1,241 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h3>General Ledger Details</h3>
+    </ng-template>
+</p-toolbar>
+<p-progressSpinner *ngIf="loading" class="center-loader"></p-progressSpinner>
+
+<div class="scroll-container" *ngIf="!loading"> 
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-12 p-field flex flex-column">
+        <app-picker
+          [title2]="'ChartOfAccount'"
+          [title]="'From A/c'"
+          [id]="this.fromChartOfAccountId"
+          [name]="this.fromChartOfAccountName"
+          (valueSelected)="setPickerValue($event, 'From A/c')"
+        ></app-picker>
+      </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title2]="'ChartOfAccount'"
+              [title]="'To A/c'"
+              [id]="this.toChartOfAccountId"
+              [name]="this.toChartOfAccountName"
+              (valueSelected)="setPickerValue($event, 'To A/c')"
+            />
+          </div>
+      </div>
+      <div class="row col-md-12">
+        <div class="flex col-3 col-md-3 gap-2 align-items-center">
+          <p-checkbox
+            inputId="isLineSeparateVoucher"
+            [binary]="true"
+          />
+          <label for="isLineSeparateVoucher" class="m-0"
+            >Continous Printing</label
+          >
+        </div>
+        <div class="flex col-3 col-md-3 gap-2 align-items-center">
+            <p-checkbox
+              inputId="isLineSeparateVoucher"
+              [binary]="true"
+            />
+            <label for="isLineSeparateVoucher" class="m-0"
+              >With no transaction</label
+            >
+          </div>
+          <div class="flex col-3 col-md-3 gap-2 align-items-center">
+            <p-checkbox
+              inputId="isLineSeparateVoucher"
+              [binary]="true"
+            />
+            <label for="isLineSeparateVoucher" class="m-0"
+              >With Balance</label
+            >
+          </div>
+          <div class="flex col-3 col-md-3 gap-2 align-items-center">
+            <p-checkbox
+              inputId="isLineSeparateVoucher"
+              [binary]="true"
+            />
+            <label for="isLineSeparateVoucher" class="m-0"
+              >Voucher Wise Total</label
+            >
+          </div>
+          <div class="flex col-3 col-md-3 gap-2 align-items-center">
+            <p-checkbox
+              inputId="isLineSeparateVoucher"
+              [binary]="true"
+            />
+            <label for="isLineSeparateVoucher" class="m-0"
+              >Edit/Delete History</label
+            >
+          </div>
+</div>
+<div class="row col-md-12 mt-2">
+    <div class="col-md-2">
+      <label for="start-date">Start Date *</label>
+      <p-calendar
+      [(ngModel)]="this.startDate"
+        [style]="{ width: '100%' }"
+        [appendTo]="'body'"
+        [required]="true"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="finish-date">End Date *</label>
+      <p-calendar
+      [(ngModel)]="this.endDate"
+        [style]="{ width: '100%' }"
+        [required]="true"
+        [appendTo]="'body'"
+      />
+    </div>
+
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Location'"
+          [title]="'Location'"
+          [id]="this.locationId"
+          [name]="this.locationName"
+          [showId]="false"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        />
+      </div>
+      </div>
+      <div class="row col-md-12 mt-4">
+        <div class="col-md-2">
+          <label for="start-date">Start Ref Date *</label>
+          <p-calendar
+            [style]="{ width: '100%' }"
+            [appendTo]="'body'"
+            [required]="true"
+          />
+        </div>
+        <div class="col-md-2">
+          <label for="finish-date">End Ref Date *</label>
+          <p-calendar
+            [style]="{ width: '100%' }"
+            [required]="true"
+            [appendTo]="'body'"
+          />
+        </div>
+        <div class="col-md-2">
+          <label for="status">Status *</label>
+          <p-dropdown
+              [(ngModel)]="statusOptions"
+              [options]="statusOptions"
+              placeholder="Select Status"
+              [required]="true"
+              [style]="{ width: '100%' }"
+          />
+      </div>
+      </div>
+
+         <div class="row col-md-12 mt-2 mt-4">
+      <div id="inputField" class="col-md-12 p-field flex flex-column">
+        <app-picker
+          [title2]="'CostCenter'"
+          [title]="'C.C. From'"
+          [id]="fromCostCenterId"
+          [name]="fromCostCenterName"
+          (valueSelected)="setPickerValue($event, 'C.C. From')"
+        ></app-picker>
+      </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title2]="'CostCenter'"
+              [title]="'C.C. To'"
+              [id]="toCostCenterId"
+              [name]="toCostCenterName"
+              (valueSelected)="setPickerValue($event, 'C.C. To')"
+            ></app-picker>
+          </div>
+      </div>
+      <div class="row col-md-12 mt-2">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+          <app-picker
+            [title]="'AnalysisCode'"
+            [id]=""
+            [name]=""
+            (valueSelected)="setPickerValue($event, 'AnalysisCode')"
+          ></app-picker>
+        </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+              <app-picker
+                [title]="'ItemID'"
+                [id]=""
+                [name]=""
+                (valueSelected)="setPickerValue($event, 'ItemID')"
+              />
+            </div>
+        </div>
+
+        <div class="row col-md-12 mt-2">
+      <div id="inputField" class="col-md-12 p-field flex flex-column">
+        <app-picker
+          [title2]="'Project'"
+          [title]="'Project From'"
+          [id]="fromProjectId"
+          [name]="fromProjectName"
+          (valueSelected)="
+            setPickerValue($event, 'Project From')
+          "
+        ></app-picker>
+      </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title2]="'Project'"
+              [title]="'Project To'"
+              [id]="toProjectId"
+              [name]="toProjectName"
+              (valueSelected)="setPickerValue($event, 'Project To')"
+              ></app-picker>
+          </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title]="'From Supplier'"
+              [title2]="'Supplier'"
+              [id]="fromSupplierId"
+              [name]="fromSupplierName"
+              (valueSelected)="setPickerValue($event, 'from Supplier')"
+              ></app-picker>
+          </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title]="'To Supplier'"
+              [title2]="'Supplier'"
+              [id]="toSupplierId"
+              [name]="toSupplierName"
+              (valueSelected)="setPickerValue($event, 'to Supplier')"
+              ></app-picker>
+          </div>
+      </div>
+  <hr />
+ 
+  <div class="flex justify-content-end gap-2 mt-2">
+    <div class="my-auto">
+        <p-button label="Cancel" [outlined]="true" severity="warning" />
+        <p-button (click)="getGeneralledgerReport()" label="OK" [outlined]="true"
+            severity="contrast" />
+    </div>
+</div>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>
+</div>

@@ -1,0 +1,100 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <h3>Salary Structure Policy</h3>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="p-toolbar-group-left">
+            <span class="p-toolbar-separator" style="margin-right: 10px;"></span>
+            <button *ngIf="isGranted(this.permissions.CREATE)" pButton label="Create Policy" icon="pi pi-plus-circle" class="p-button-success"
+                (click)="openCreateModal()"></button>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+
+<div class="card p-4">
+    <p-table #policyTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]" [value]="data"
+        styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+        responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="documentDate">
+                    Days <p-sortIcon field="documentDate" />
+                </th>
+                <th pSortableColumn="voucherNumber">
+                    Generating Type<p-sortIcon field="voucherNumber" />
+                </th>
+                <th pSortableColumn="employerContMaxDed">
+                    IsActive<p-sortIcon field="employerContMaxDed" />
+                </th>
+                <th pSortableColumn="Actions">
+                    Actions <p-sortIcon field="Actions" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.days }}</td>
+                <td>{{ item.salaryGeneratingType==1?'Calendar':'Date Range' }}</td>
+                <td>
+                    <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.isActive" class="no-bg">No</span>
+                </td>
+                <td>
+                    <span *ngIf="isGranted(this.permissions.EDIT)" style="height: 25px; width: 25px; cursor: pointer"
+                    pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                    (click)="getDataForEdit(item.id)"></span>
+                <span *ngIf="isGranted(this.permissions.DELETE)" style="height: 25px; width: 25px; cursor: pointer"
+                    pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2"
+                    (click)="delete(item.id)"></span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [closeOnEscape]="false" [maximizable]="true" header="Salary Structure Policy" draggable="false" [(visible)]="displayModal"
+    [modal]="true" [responsive]="true" [style]="{width: '60vw'}">
+
+    <div class="row col-md-12">
+
+        <div id="inputField" class="p-field col-md-4  flex flex-column ">
+            <label for="days"> Days </label>
+            <input id="days" type="number" min="1" max="30" pInputText [(ngModel)]="salaryStructureDto.days" positiveNumberOnly />
+        </div>
+
+        <div class="p-field col-md-6 p-mr-2">
+            <label>Salary Generating Type</label>
+            <div class="flex gap-4">
+                <div class="flex  gap-1 align-items-center">
+                    <p-radioButton name="calendar" value="1" [(ngModel)]="selectedOption" [(ngModel)]="displayOption"
+                        (onClick)="onCalendarDateChange('Calendar')"></p-radioButton>
+                    <label for="calendar" class="mb-0">Calendar</label>
+                </div>
+                <div class="flex gap-1 align-items-center">
+                    <p-radioButton name="dateRange" value="2" [(ngModel)]="selectedOption" [(ngModel)]="displayOption"
+                        (onClick)="onCalendarDateChange('Date Range')"></p-radioButton>
+                    <label for="dateRange" class="mb-0">Date Range</label>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="flex gap-2 mt-3 align-items-center col-md-2">
+        <p-checkbox inputId="isActive" [(ngModel)]="salaryStructureDto.isActive" [binary]="true" inputId="binary" />
+        <label for="isActive" class="mb-0">Is Active</label>
+    </div>
+
+    <div *ngIf="!isViewMode" class="flex  justify-content-end mt-4 gap-2">
+        <button [loading]="saving" pButton label="Save" icon="pi pi-check" type="submit" (click)="create()"></button>
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-secondary" type="button"
+            (click)="onDialogClose()"></button>
+    </div>
+</p-dialog>
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

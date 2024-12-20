@@ -1,0 +1,270 @@
+<p-toolbar>
+    <ng-template pTemplate="left">
+        <div class="flex items-center">
+            <h4 class="m-0">Purchase Requisition Cancellation</h4>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="p-toolbar-group-left">
+            <span class="block md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input (keydown.enter)="onEnter( $event)" pInputText type="text"
+                    (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+                    style="height: 25px; cursor: pointer" />
+            </span>
+            <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+            <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-plus-circle"
+                class="p-button-success mr-2" (click)="show()"></span>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+<!-- ................ Table ......................... -->
+<div class="card p-4">
+    <p-table #policyTable [value]="data" styleClass="p-datatable-gridlines" [rowHover]="true"
+        [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll" [globalFilterFields]="[
+        'userLocationName',
+        'voucherNumber',
+        'issueDate',
+        'status',
+        'remarks',
+        ''
+      ]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="fromDate" style="min-width: 200px">
+                    issueDate <p-sortIcon field="fromDate" />
+                </th>
+                <th pSortableColumn="toDate" style="min-width: 200px">
+                    voucherNumber <p-sortIcon field="toDate" />
+                </th>
+                <th pSortableColumn="eventDate" style="min-width: 200px">
+                    userLocationName <p-sortIcon field="eventDate" />
+                </th>
+                <th pSortableColumn="isRecurring" style="min-width: 200px">
+                    remarks <p-sortIcon field="isRecurring" />
+                </th>
+                <th pSortableColumn="isRecurring" style="min-width: 200px">
+                    status <p-sortIcon field="isRecurring" />
+                </th>
+                <th pSortableColumn="Actions" style="min-width: 200px">
+                    Actions <p-sortIcon field="Actions" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+                <td>{{ item.voucherNumber }}</td>
+                <td>{{ item.userLocationName }}</td>
+                <td>{{ item.remarks }}</td>
+                <td>
+                    <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+                        item.status
+                        }}</span>
+                    <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+                        item.status
+                        }}</span>
+                </td>
+                <td>
+                    <span *ngIf="item.status === 'APPROVED'" style="height: 25px; width: 25px; cursor: pointer" pButton
+                        pRipple icon="pi pi-eye" class="p-button-rounded p-button-info mr-2"
+                        (click)="viewOnly(item.id)"></span>
+                    <span *ngIf="item.status !== 'APPROVED'" style="height: 25px; width: 25px; cursor: pointer" pButton
+                        pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2"
+                        (click)="edit(item.id)"></span>
+
+                    <span *ngIf="item.status === 'PENDING'" style="height: 25px; width: 25px; cursor: pointer" pButton
+                        pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning mr-2"
+                        (click)="delete(item.id)"></span>
+                    <span pButton pRipple *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+                        icon="pi pi-check" style="height: 25px; width: 25px; cursor: pointer"
+                        class="p-button-rounded p-button-success mr-2" (click)="approve(item.id)"></span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <p-paginator [rows]="5" [totalRecords]="this.count" (onPageChange)="this.onPageChange($event)"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[this.count, 5, 20, 100]">
+    </p-paginator>
+</div>
+
+<!-- ..................... Model ..................... -->
+<p-dialog [header]="editMode ? 'View Purchase Requisition Cancellation' : 'Create Purchase Requisition Cancellation'"
+    [modal]="true" [(visible)]="dialogVisibility" [draggable]="false" [maximizable]="true">
+    <form [formGroup]="purchaseRequisitionCancellationForm" (ngSubmit)="create()">
+        <div class="p-2">
+            <div class="col-md-12 row flex">
+                <div class="card col-md-12">
+                    <div class="row col-md-12 gap-4 p-2">
+                        <div id="inputField" class=" p-field flex flex-column">
+                            <label for="name">Date</label>
+                            <p-calendar tabindex="1" (ngModelChange)="onDateChange($event)" [minDate]="MinDate"
+                                [maxDate]="today" formControlName="issueDate" inputId="date" appendTo="body"
+                                [showOnFocus]="true"></p-calendar>
+                        </div>
+                        <div id="inputField" class="col-md-4 p-field flex flex-column">
+                            <app-picker [showId]="false" [title]="'Location'"
+                                [id]="purchaseRequisitionCancellationForm.get('userLocationId')?.value"
+                                [name]="purchaseRequisitionCancellationForm.get('userLocationName')?.value"
+                                (valueSelected)="setPickerValue($event, 'Location')"></app-picker>
+                        </div>
+                        <div id="inputField" class="row col-md-4 p-field flex flex-column">
+                            <label for="voucherNumber">Voucher Number</label>
+                            <input id="voucherNumber" type="text" pInputText formControlName="voucherNumber" readonly />
+                        </div>
+                        <div class="mt-3">
+                            <p-button (click)="GetRequisitions()" label="Copy Purchase Requisition" [text]="true"
+                                [raised]="true" severity="success" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 row flex mt-3">
+                <div class="card col-md-6">
+                    <div class="row p-2">
+                        <div class="row col-md-12">
+                            <div id="inputField" class="col-md-12 p-field flex flex-column">
+                                <app-picker [title]="'RequesterLocation'" [disable]="true"
+                                    [id]="this.requesterLocationId" [name]="this.requesterLocationName"
+                                    (valueSelected)="setPickerValue($event, 'RequesterLocation')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'RequesterCostCenter'" [disable]="true"
+                                    [id]="this.requesterCostCenterId" [name]="this.requesterCostCenterName"
+                                    (valueSelected)="setPickerValue($event, 'RequesterCostCenter')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'RequesterProject'" [disable]="true" [id]="this.requesterProjectId"
+                                    [name]="this.requesterProjectName"
+                                    (valueSelected)="setPickerValue($event, 'RequesterProject')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'RequesterRegion'" [disable]="true" [id]="this.requesterRegionId"
+                                    [name]="this.requesterRegionName"
+                                    (valueSelected)="setPickerValue($event, 'RequesterRegion')"></app-picker>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card col-md-6">
+                    <div class="row p-2">
+                        <div class="row col-md-12">
+                            <div id="inputField" class="col-md-12 p-field flex flex-column">
+                                <app-picker [title]="'ProviderLocation'" [disable]="true" [id]="this.providerLocationId"
+                                    [name]="this.providerLocationName"
+                                    (valueSelected)="setPickerValue($event, 'providerLocation')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'ProviderCostCenter'" [disable]="true"
+                                    [id]="this.providerCostCenterId" [name]="this.providerCostCenterName"
+                                    (valueSelected)="setPickerValue($event, 'ProviderCostCenter')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'ProviderProject'" [disable]="true" [id]="this.providerProjectId"
+                                    [name]="this.providerProjectName"
+                                    (valueSelected)="setPickerValue($event, 'ProviderProject')"></app-picker>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div id="inputField" class="p-field col-md-12 flex flex-column">
+                                <app-picker [title]="'ProviderRegion'" [disable]="true" [id]="this.providerRegionId"
+                                    [name]="this.providerRegionName"
+                                    (valueSelected)="setPickerValue($event, 'ProviderRegion')"></app-picker>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div class="">
+                <p-button (click)="onRemoveSelected()" label="Remove Row" size="small" severity="danger" style="
+                    padding: 0.25rem 0.5rem;
+                    font-size: 0.75rem;
+                    height: auto;
+                    line-height: 1.25;
+                  " />
+            </div>
+            <div class="mt-3">
+                <ag-grid-angular style="width: 100%; height: 200px; margin-top: 12px" class="ag-theme-balham"
+                    [rowSelection]="rowSelection" [rowData]="rowData" [columnDefs]="colDefs" [animateRows]="true"
+                    [suppressAutoSize]="true" [suppressDragLeaveHidesColumns]="true"
+                    (cellValueChanged)="OnCellValueChanged($event)" [singleClickEdit]="true"
+                    (gridReady)="onGridReady($event)">
+                </ag-grid-angular>
+            </div>
+            <div class="row col-md-12 mt-3">
+                <div id="inputField" class="col-md-9 p-field flex flex-column">
+                    <label for="remarks">Remarks</label>
+                    <input id="remarks" type="text" pInputText formControlName="remarks" />
+                </div>
+                <div id="inputField" class="col-md-3 p-field flex flex-column">
+                    <label for="totalRate">Total Amount</label>
+                    <input id="totalRate" type="number" pInputText formControlName="totalRate" disabled />
+                </div>
+            </div>
+            <div class="flex justify-content-end gap-2 mt-2">
+                <div class="my-auto">
+                    <p-button (onClick)="dialogVisibility = false" label="Cancel" [outlined]="true"
+                        severity="warning" />
+                    <p-button [loading]="saving" *ngIf="!editMode && !viewMode" (click)="create()" label="Save"
+                        [outlined]="true" severity="contrast" />
+                    <p-button [loading]="saving" *ngIf="editMode && !viewMode" (click)="update()" label="Update"
+                        [outlined]="true" severity="contrast" />
+                </div>
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- ......................... CopyModel ............. -->
+<p-dialog [maximizable]="true" header="Copy Purchase Requisition" [modal]="true" [(visible)]="displayStock"
+    [draggable]="false">
+    <div class="p-4">
+        <p-table #stockTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]" [value]="stockData"
+            styleClass="p-datatable-gridlines" [rowHover]="true" [paginatorDropdownAppendTo]="'body'" dataKey="id"
+            responsiveLayout="scroll" [style]="{ width: '100%', 'overflow-y': 'auto' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width: 200px" pSortableColumn="id">
+                        ID <p-sortIcon field="id" />
+                    </th>
+                    <th style="min-width: 200px" pSortableColumn="namvouchere">
+                        Voucher No <p-sortIcon field="voucher" />
+                    </th>
+                    <th style="min-width: 200px" pSortableColumn="Actions">
+                        Actions <p-sortIcon field="Actions" />
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.voucherNumber }}</td>
+                    <td>
+                        <button (click)="SelectRequisition(item.id)" pButton pRipple label="Select"
+                            class="p-button-rounded p-button-info mr-2"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>
+<!-- ............. Toastify .............. -->
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

@@ -1,0 +1,53 @@
+<p-tabView
+  (activeIndexChange)="handleChangeTab($event)"
+  [activeIndex]="activeIndex"
+>
+  <p-tabPanel *ngIf="isPermitted('LookUps.COALvl1')" header="Level 1">
+    @if(activeIndex == 0) {
+    <app-level-one></app-level-one>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.COALvl2')" header="Level 2">
+    @if(activeIndex == 1) {
+    <app-level-two></app-level-two>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.COALvl3')" header="Level 3">
+    @if(activeIndex == 2) {
+    <app-level-three></app-level-three>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.LinkWith')" header="Link With">
+    @if(activeIndex == 3) {
+    <app-link-with></app-link-with>
+    }
+  </p-tabPanel>
+  <p-tabPanel *ngIf="isPermitted('LookUps.AccountType')" header="Account Type">
+    @if(activeIndex == 4) {
+    <app-account-type></app-account-type>
+    }
+  </p-tabPanel>
+  <p-tabPanel header="Bulk Upload">
+    @if(activeIndex == 5) {
+    <app-bulk-upload></app-bulk-upload>
+    }
+  </p-tabPanel>
+  <!-- <p-tabPanel header="Supplier / Client">
+    @if(activeIndex == 6) {
+      <app-supplier-details></app-supplier-details>
+    }
+  </p-tabPanel> -->
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.ChartOfAccount')"
+    header="Chart of Account"
+  >
+    @if(activeIndex == 6) {
+    <app-chart-of-account></app-chart-of-account>
+    }
+  </p-tabPanel>
+</p-tabView>
+
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal" />
+</div>

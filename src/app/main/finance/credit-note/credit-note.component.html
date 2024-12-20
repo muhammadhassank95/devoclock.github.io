@@ -1,0 +1,394 @@
+<p-toolbar>
+  <ng-template pTemplate="left">
+    <div class="flex items-center">
+      <h4 class="m-0">Credit Note</h4>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      'debitChartOfAccountName',
+      'creditChartOfAccountName',
+      'status',
+      'remarks',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name" style="width: 20%">
+          debitChartOfAccountName <p-sortIcon field="name" />
+        </th>
+        <th pSortableColumn="religion" style="width: 20%">
+          creditChartOfAccountName<p-sortIcon field="religion" />
+        </th>
+        <th pSortableColumn="fromDate" style="min-width: 200px">
+          issueDate <p-sortIcon field="fromDate" />
+        </th>
+        <th pSortableColumn="toDate" style="min-width: 200px">
+          voucherNumber <p-sortIcon field="toDate" />
+        </th>
+        <th pSortableColumn="eventDate" style="min-width: 200px">
+          userLocationName <p-sortIcon field="eventDate" />
+        </th>
+        <th pSortableColumn="isRecurring" style="min-width: 200px">
+          remarks <p-sortIcon field="isRecurring" />
+        </th>
+        <th pSortableColumn="isRecurring" style="min-width: 200px">
+          status <p-sortIcon field="isRecurring" />
+        </th>
+        <th pSortableColumn="Actions" style="min-width: 200px">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.debitChartOfAccountName }}</td>
+        <td>{{ item.chartOfAccountName }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.remarks }}</td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+
+          <span
+            *ngIf="item.status === 'PENDING'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[this.count, 5, 20, 100]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [header]="editMode ? 'View Credit Note' : 'Create Credit Note'"
+  [modal]="true"
+  [(visible)]="dialogVisibility"
+  [draggable]="false"
+  [maximizable]="true"
+>
+  <form [formGroup]="creditnoteForm" (ngSubmit)="create()">
+    <div class="p-2">
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+          <label for="name">Date</label>
+          <p-calendar
+            tabindex="1"
+            (ngModelChange)="onDateChange($event)"
+            [minDate]="MinDate"
+            [maxDate]="today"
+            formControlName="issueDate"
+            inputId="date"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <app-picker
+            [showId]="false"
+            [title]="'Location'"
+            [id]="creditnoteForm.get('userLocationId')?.value"
+            [name]="creditnoteForm.get('userLocationName')?.value"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+          <label for="name">Voucher Number</label>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="voucherNumber"
+            readonly
+          />
+        </div>
+      </div>
+      <br />
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <app-picker
+            [title]="'Customer'"
+            [title2]="'Subledger'"
+            [id]="
+              creditnoteForm.get('chartOfAccountSubLedgerSerialNumber')?.value
+            "
+            [name]="creditnoteForm.get('chartOfAccountSubLedgerName')?.value"
+            [chartOfAccountSubLedgerType]="'3,4'"
+            (valueSelected)="setPickerValue($event, 'Subledger')"
+          >
+          </app-picker>
+        </div>
+
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <app-picker
+            [title]="'Debit to'"
+            [title2]="'ChartOfAccount'"
+            [id]="creditnoteForm.get('debitChartOfAccountSerialNumber')?.value"
+            [name]="creditnoteForm.get('debitChartOfAccountName')?.value"
+            (valueSelected)="setPickerValue($event, 'ChartOfAccountForDebit')"
+          >
+          </app-picker>
+        </div>
+        <!-- <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <app-picker
+            [title]="'Region'"
+            [id]="creditnoteForm.get('regionId')?.value"
+            [name]="creditnoteForm.get('regionName')?.value"
+            (valueSelected)="setPickerValue($event, 'Region')"
+          >
+          </app-picker>
+        </div> -->
+      </div>
+
+      <!-- Grid -->
+      <div class="my-4">
+        <div class="row col-md-12">
+          <p-button
+            (click)="onAddRow()"
+            label="Add Row"
+            size="small"
+            style="
+              padding: 0.25rem 0.5rem;
+              font-size: 0.75rem;
+              height: auto;
+              line-height: 1.25;
+            "
+          />
+          <p-button
+            (click)="onRemoveSelected()"
+            label="Remove Row"
+            size="small"
+            severity="danger"
+            style="
+              padding: 0.25rem 0.5rem;
+              font-size: 0.75rem;
+              height: auto;
+              line-height: 1.25;
+            "
+          />
+          <ag-grid-angular
+            style="width: 100%; height: 200px; margin-top: 12px"
+            class="ag-theme-balham"
+            [rowSelection]="rowSelection"
+            [rowData]="rowData"
+            [columnDefs]="colDefs"
+            [animateRows]="true"
+            [suppressAutoSize]="true"
+            [suppressDragLeaveHidesColumns]="true"
+            (cellClicked)="cellClicked($event)"
+            [singleClickEdit]="true"
+            (gridReady)="onGridReady($event)"
+            (cellValueChanged)="OnCellValueChanged($event)"
+          >
+          </ag-grid-angular>
+        </div>
+      </div>
+
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-6 p-field flex flex-column">
+          <label for="narration">Narration</label>
+          <input
+            id="narration"
+            type="text"
+            pInputText
+            formControlName="remarks"
+          />
+        </div>
+        <div id="inputField" class="col-md-3 p-field flex flex-column">
+          <label for="totalAmt">Total Amt</label>
+          <input
+            id="totalAmt"
+            type="text"
+            pInputText
+            formControlName="totalAmount"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-content-end gap-2 mt-2">
+        <div class="my-auto">
+          <p-button
+            (onClick)="dialogVisibility = false"
+            label="Cancel"
+            [outlined]="true"
+            severity="warning"
+          />
+          <p-button
+            [loading]="saving"
+            *ngIf="!editMode && !viewMode"
+            (click)="create()"
+            [disabled]="creditnoteForm.invalid"
+            label="Save"
+            [outlined]="true"
+            severity="contrast"
+          />
+          <p-button
+            [loading]="saving"
+            *ngIf="editMode && !viewMode"
+            (click)="update()"
+            label="Update"
+            [outlined]="true"
+            severity="contrast"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="General Ledger"
+  [modal]="true"
+  [(visible)]="displayAdjustment"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="adjustmentData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No<p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterId">
+            Cost Center Id <p-sortIcon field="costCenterId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterName">
+            Cost Center Name<p-sortIcon field="costCenterName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectId">
+            Project Id <p-sortIcon field="projectId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectName">
+            Project Name<p-sortIcon field="projectName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.costCenterId }}</td>
+          <td>{{ item.costCenterName }}</td>
+          <td>{{ item.projectId }}</td>
+          <td>{{ item.projectName }}</td>
+          <td>
+            <button
+              (click)="SelectAdjustment(item.voucherNumber)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

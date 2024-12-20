@@ -1,0 +1,137 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Service Quotation Invoice Filters</h3>
+  </ng-template>
+</p-toolbar>
+
+<!-- Container with scrolling enabled -->
+<div class="container-fluid" style="max-height: 80vh; overflow-y: auto">
+  <div class="row col-md-12 mt-4"></div>
+
+  <div id="inputField" class="p-field col-md-8">
+    <app-picker
+      [title]="'Client'"
+      [title2]="'Subledger'"
+      [id]="this.clientSerialNumber"
+      [chartOfAccountSubLedgerType]="'3,4'"
+      [name]="this.clientName"
+      (valueSelected)="setPickerValue($event, 'Client')"
+    ></app-picker>
+  </div>
+
+  <div class="row col-md-12 mt-4">
+    <div id="inputField" class="col-md-2 flex flex-column">
+      <label for="name">Date Range:</label>
+      <p-calendar
+        inputId="date"
+        [(ngModel)]="dateRange"
+        appendTo="body"
+        tabindex="1"
+        [showOnFocus]="true"
+        name="issueDate"
+      ></p-calendar>
+    </div>
+
+    <div id="inputField" class="col-md-2 flex flex-column">
+      <label for="name">To:</label>
+      <p-calendar
+        inputId="date"
+        [(ngModel)]="to"
+        appendTo="body"
+        tabindex="1"
+        [showOnFocus]="true"
+        name="issueDate"
+      ></p-calendar>
+    </div>
+
+    <div id="inputField" class="col-md-2 flex flex-column">
+      <label for="name">Start Date:</label>
+      <p-calendar
+        inputId="date"
+        [(ngModel)]="startDate"
+        appendTo="body"
+        tabindex="1"
+        [showOnFocus]="true"
+        name="issueDate"
+      ></p-calendar>
+    </div>
+
+    <div id="inputField" class="col-md-2 flex flex-column">
+      <label for="name">End Date:</label>
+      <p-calendar
+        inputId="date"
+        [(ngModel)]="endDate"
+        appendTo="body"
+        tabindex="1"
+        [showOnFocus]="true"
+        name="issueDate"
+      ></p-calendar>
+    </div>
+  </div>
+
+  <br /><br />
+
+  <p-button
+    (click)="onRemoveSelected()"
+    label="Remove Row"
+    size="small"
+    severity="danger"
+    style="
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      height: auto;
+      line-height: 1.25;
+    "
+  ></p-button>
+
+  <ag-grid-angular
+    class="ag-theme-quartz"
+    style="height: 500px"
+    [rowData]="rowData"
+    [columnDefs]="colDefs"
+    [rowSelection]="rowSelection"
+    (gridReady)="onGridReady($event)"
+    (cellClicked)="cellClicked($event)"
+    [singleClickEdit]="true"
+    (rowDoubleClicked)="onRowDoubleClick($event)"
+    (cellValueChanged)="cellValueChanged($event)"
+  >
+  </ag-grid-angular>
+
+  <div class="flex align-items-center">
+    <p-radioButton
+      name="status"
+      value="PENDING"
+      [(ngModel)]="status"
+    ></p-radioButton>
+    <label for="cnic">Pending</label>
+  </div>
+  <div class="flex align-items-center">
+    <p-radioButton
+      name="status"
+      value="APPROVED"
+      [(ngModel)]="status"
+    ></p-radioButton>
+    <label for="token">Approved</label>
+  </div>
+  <div class="flex align-items-center">
+    <p-radioButton name="status" value="" [(ngModel)]="status"></p-radioButton>
+    <label for="token">All</label>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      [loading]="saving"
+      (click)="generate()"
+      label="Generate"
+      [outlined]="true"
+      severity="contrast"
+    ></p-button>
+    <!-- <p-button [loading]="saving" (click)="update()" label="Update" [outlined]="true" severity="contrast"></p-button> -->
+  </div>
+</div>
+<!-- End of scrolling container -->
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

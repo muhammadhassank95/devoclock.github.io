@@ -1,0 +1,22 @@
+<app-lookup action="ProjectType" class="projectType" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateProjectType()">
+    <ng-template #dialogView>
+        <div class="row">
+            <div class="col-md-12 mb-2 flex flex-column">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" />
+            </div>
+            <div class="col-md-12 mb-2 flex flex-column">
+                <label for="name">Serial Number:</label>
+                <input type="text" pInputText [(ngModel)]="dto.serialNumber" id="serialNumber" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row gap-3">
+            <div class="col-6 d-flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <!-- <p-inputSwitch [(ngModel)]="dto.isActive" class="ng-dirty ng-invalid" inputId="active" /> -->
+                <label for="active" class="mb-0">Active</label>
+            </div>
+        </div>
+    </ng-template>
+</app-lookup>

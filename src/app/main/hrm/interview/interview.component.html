@@ -1,0 +1,43 @@
+<app-lookup action="Interview" class="interview" [mainDto]="dto" [excludedColumns]="[]" [validateFromParent]="validateFromParent"
+    (validateFunction)="validateInterview()">
+    <ng-template #dialogView>
+        <div class="row">
+            <div class="col-md-6 flex flex-column mx-0">
+                <label for="initialDate">Initial Date:</label>
+                <p-calendar [(ngModel)]="dto.initialDate" id="initialDate" tabindex="1" inputId="initialDate" dateFormat="mm/dd/yy"
+                    appendTo="body">
+                </p-calendar>
+            </div>
+            <div class="col-md-6 flex flex-column">
+                <label for="conductedDate">Conducted Date:</label>
+                <p-calendar [(ngModel)]="dto.conductedDate" id="conductedDate" inputId="conductedDate"
+                    dateFormat="mm/dd/yy" appendTo="body">
+                </p-calendar>
+            </div>
+            <div id="inputField" class="col-md-6 flex flex-column mt-3">
+                <label for="status">Status:</label>
+                <input type="text" pInputText [(ngModel)]="dto.status" id="status" autocomplete="off" />
+            </div>
+            <div id="inputField" class="col-md-6 flex flex-column mt-3">
+                <label for="skills">Skills:</label>
+                <input type="text" pInputText [(ngModel)]="dto.skills" id="skills" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row">
+            <div id="inputField" class="col-md-6 flex flex-column mt-3">
+                <label for="remarks">Remarks:</label>
+                <input type="text" pInputText [(ngModel)]="dto.remarks" id="remarks" autocomplete="off" />
+            </div>
+            <div id="inputField" class="col-md-6 flex flex-column mt-3">
+                <label for="name">Name:</label>
+                <input type="text" pInputText [(ngModel)]="dto.name" id="name" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 flex align-items-center gap-2">
+                <p-checkbox [(ngModel)]="dto.isActive" [binary]="true" inputId="active" />
+                <label for="active" class="mb-0">Active</label>
+            </div>
+        </div>
+    </ng-template>
+</app-lookup>

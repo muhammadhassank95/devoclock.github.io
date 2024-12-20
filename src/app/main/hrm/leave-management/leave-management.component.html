@@ -1,0 +1,18 @@
+<p-tabView [(activeIndex)]="activeIndex" class="custom-tabview" (onChange)="onTabChange($event)">
+    <p-tabPanel *ngIf="isPermitted('LookUps.Leave')" header="Leaves Master">
+        <app-add-leave></app-add-leave>
+    </p-tabPanel>
+    <p-tabPanel *ngIf="isPermitted('LookUps.LeaveType')" header="Leave Type">
+        <app-leave-type></app-leave-type>
+    </p-tabPanel>
+    <!-- <p-tabPanel header="Leave Policy">
+        <app-leave-policy></app-leave-policy>
+    </p-tabPanel> -->
+    <p-tabPanel *ngIf="isPermitted('LookUps.GauztedHoliday')" header="Gauzated-holiday">
+        <app-gauzated-holiday></app-gauzated-holiday>
+    </p-tabPanel>
+</p-tabView>
+<div>
+    <p-toast />
+    <p-confirmDialog />
+  </div>

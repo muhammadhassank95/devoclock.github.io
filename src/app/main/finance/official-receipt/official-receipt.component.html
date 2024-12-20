@@ -1,0 +1,467 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Official Receipt</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [loading]="loading"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    scrollHeight="58vh"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      'employeeName',
+      'supplierName',
+      'paymentModeName',
+      'chequeBankName',
+      'finalAmount',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucher">
+          Voucher No. <p-sortIcon field="voucher" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="date">
+          Date <p-sortIcon field="date" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location Name <p-sortIcon field="userLocationName" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          Employee Name <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          Client Name <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          PaymentMode Name <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          Reference Date <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          Cheque Bank Name <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Name">
+          Final Amount <p-sortIcon field="Name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Status">
+          Status <p-sortIcon field="Status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.supplierName }}</td>
+        <td>{{ item.paymentModeName }}</td>
+        <td>{{ item.referenceDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.chequeBankName }}</td>
+        <td>{{ item.finalAmount }}</td>
+
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status === 'PENDING'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 20, 100, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Official Receipt' : 'Create Official Receipt'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <form [formGroup]="officialReceiptForm" (ngSubmit)="save()">
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="name">Date</label>
+        <p-calendar
+          (ngModelChange)="onDateChange($event)"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          formControlName="issueDate"
+          inputId="date"
+          tabindex="1"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [showId]="false"
+          [title]="'Location'"
+          [id]="officialReceiptForm.value.userLocationId"
+          [name]="officialReceiptForm.value.userLocationName"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-4 p-field flex flex-column">
+        <label for="name">Voucher Number</label>
+        <input
+          readonly
+          id="name"
+          type="text"
+          pInputText
+          formControlName="voucherNumber"
+        />
+      </div>
+    </div>
+    <br />
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Client'"
+          [title2]="'Subledger'"
+          [chartOfAccountSubLedgerType]="'3,4'"
+          [id]="officialReceiptForm.value.supplierSerialNumber"
+          [name]="officialReceiptForm.value.supplierName"
+          (valueSelected)="setPickerValue($event, 'Client')"
+        ></app-picker>
+      </div>
+    </div>
+    <div class="row col-md-12 mt-4">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Employee'"
+          [id]="officialReceiptForm.value.employeeErpId"
+          [name]="officialReceiptForm.value.employeeName"
+          (valueSelected)="setPickerValue($event, 'Employee')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="referenceDate">Reference Date</label>
+        <p-calendar
+          formControlName="referenceDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div id="inputField" class="col-md-4 p-field flex flex-column">
+        <label for="name">Ref Doc Number</label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="referenceDocumentNumber"
+        />
+      </div>
+    </div>
+    <br />
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-8 p-field flex flex-column">
+        <app-picker
+          [title]="'PaymentMode'"
+          [title2]="'CurrentPaymentMode'"
+          [id]="officialReceiptForm.value.paymentModeId"
+          [name]="officialReceiptForm.value.paymentModeName"
+          (valueSelected)="setPickerValue($event, 'PaymentMode')"
+        ></app-picker>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-3 p-field flex flex-column">
+        <label for="bankReference">Bank Reference</label>
+        <input
+          id="bankReference"
+          type="text"
+          pInputText
+          formControlName="bankReference"
+        />
+      </div>
+      <div id="inputField" class="col-md-3 p-field flex flex-column">
+        <label for="chequeBankName">Cheque of Bank</label>
+        <input
+          id="chequeBankName"
+          type="text"
+          pInputText
+          formControlName="chequeBankName"
+        />
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="finalAmount">Amount</label>
+        <input
+          id="finalAmount"
+          type="text"
+          pInputText
+          formControlName="paymentAmount"
+        />
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="advanceTax">Advance Tax</label>
+        <input
+          id="advanceTax"
+          type="text"
+          pInputText
+          formControlName="advanceTaxAmount"
+        />
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="discount">Discount</label>
+        <input
+          id="discount"
+          type="text"
+          pInputText
+          formControlName="discountAmount"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="beneficiaryName">Beneficiary</label>
+        <input
+          id="beneficiaryName"
+          type="text"
+          pInputText
+          formControlName="beneficiaryName"
+        />
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="remarks">Narration</label>
+        <input id="remarks" type="text" pInputText formControlName="remarks" />
+      </div>
+    </div>
+
+    <br />
+    <p-button
+      (click)="onAddRow()"
+      label="Add Row"
+      size="small"
+      style="
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        height: auto;
+        line-height: 1.25;
+      "
+    />
+    <p-button
+      (click)="onRemoveSelected()"
+      label="Remove Row"
+      size="small"
+      severity="danger"
+      style="
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        height: auto;
+        line-height: 1.25;
+      "
+    />
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      style="height: 500px"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [rowSelection]="rowSelection"
+      (gridReady)="onGridReady($event)"
+      (cellValueChanged)="cellValueChanged($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="row col-md-12">
+      <div class="p-field flex flex-column col-md-4">
+        <label for="totalAmountAdjusted">Total Amount Adjusted</label>
+        <input
+          readonly
+          id="totalAmountAdjusted"
+          type="text"
+          pInputText
+          formControlName="finalAmount"
+        />
+      </div>
+    </div>
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="displayModal = false"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="!editMode && !viewMode"
+        [disabled]="officialReceiptForm.invalid"
+        (click)="save()"
+        label="Save"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="editMode && !viewMode"
+        (click)="update()"
+        label="Update"
+        [outlined]="true"
+        severity="contrast"
+      />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- <p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Copy Sales Invoice"
+  [modal]="true"
+  [(visible)]="displayAdjustment"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="adjustmentData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="voucherNumber">
+            Voucher No<p-sortIcon field="voucherNumber" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterId">
+            Cost Center Id <p-sortIcon field="costCenterId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="costCenterName">
+            Cost Center Name<p-sortIcon field="costCenterName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectId">
+            Project Id <p-sortIcon field="projectId" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="projectName">
+            Project Name<p-sortIcon field="projectName" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.costCenterId }}</td>
+          <td>{{ item.costCenterName }}</td>
+          <td>{{ item.projectId }}</td>
+          <td>{{ item.projectName }}</td>
+          <td>
+            <button
+              (click)="assignSelectedData(item.voucherNumber)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog> -->
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

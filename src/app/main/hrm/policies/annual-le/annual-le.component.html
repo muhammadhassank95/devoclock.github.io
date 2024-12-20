@@ -1,0 +1,228 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Annual Leave Encashment</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <button
+        *ngIf="isGranted(this.permissions.CREATE)"
+        pButton
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="openCreateModal()"
+      ></button>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    scrollHeight="58vh"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="Voucher">
+          Voucher <p-sortIcon field="Voucher" />
+        </th>
+
+        <th style="min-width: 200px" pSortableColumn="FinancialYear">
+          Financial Year <p-sortIcon field="FinancialYear" />
+        </th>
+
+        <th style="min-width: 200px" pSortableColumn="paymentDate">
+          Payment Date <p-sortIcon field="paymentDate" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.financialYearName }}</td>
+        <td>{{ item.paymentDate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Annual Leave Encashment"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="voucher"> Voucher Number</label>
+      <input
+        [(ngModel)]="annualLEDto.voucherNumber"
+        id="voucher"
+        type="voucher"
+        pInputText
+      />
+    </div>
+
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="paymentDate">Document Date </label>
+      <p-calendar
+        [(ngModel)]="annualLEDto.paymentDate"
+        inputId="paymentDate"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date">Payment Date </label>
+      <p-calendar
+        [(ngModel)]="annualLEDto.documentDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+  </div>
+
+  <div class="row col-md-12 mt-4">
+    <div class="col-md-6">
+      <app-picker
+        [title]="'FinancialYear'"
+        [id]="annualLEDto.financialYearId"
+        [name]="annualLEDto.financialYearName"
+        (valueSelected)="setPickerValue($event, 'FinancialYear')"
+      ></app-picker>
+    </div>
+    <div class="col-md-6">
+      <app-picker
+        [title]="'Location'"
+        [id]="annualLEDto.locationId"
+        [name]="annualLEDto.locationName"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      ></app-picker>
+    </div>
+  </div>
+  <div class="row col-md-12 mt-4">
+    <div class="col-md-6">
+      <app-picker
+        [title]="'CostCenter'"
+        [id]="annualLEDto.costCenterId"
+        [name]="annualLEDto.costCenterName"
+        (valueSelected)="setPickerValue($event, 'CostCenter')"
+      ></app-picker>
+    </div>
+    <div class="col-md-6">
+      <app-picker
+        [title]="'Project'"
+        [id]="annualLEDto.projectId"
+        [name]="annualLEDto.projectName"
+        (valueSelected)="setPickerValue($event, 'Project')"
+      ></app-picker>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <p-button
+      (onClick)="Generate()"
+      size="small"
+      label="Generate"
+      [raised]="true"
+      severity="info"
+    />
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="encash"> Max Encash</label>
+      <input
+        [(ngModel)]="encash"
+        id="encash"
+        type="number"
+        pInputText
+        disabled
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="carryForward"> Max Carry Forward</label>
+      <input
+        [(ngModel)]="carryForward"
+        id="carryForward"
+        type="number"
+        pInputText
+        disabled
+      />
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <ag-grid-angular
+      style="width: 200%; height: 200px; margin-top: 12px"
+      class="ag-theme-balham"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [animateRows]="true"
+      [suppressAutoSize]="true"
+      [suppressDragLeaveHidesColumns]="true"
+      [rowSelection]="rowSelection"
+      [singleClickEdit]="true"
+      (gridReady)="onGridReady($event)"
+      (cellValueChanged)="onCellValueChanged($event)"
+    >
+    </ag-grid-angular>
+  </div>
+
+  <!-- <div class="row col-md-12 mt-2">
+        <div id="inputField" class="p-field flex flex-column col-md-8">
+            <label for="narration">Narration</label>
+            <textarea [(ngModel)]="annualLEDto.narration" pInputText rows="3" id="narration"></textarea>
+        </div>
+        <div id="inputField" class="col-md-4 flex flex-column">
+            <label for="totAmt"> Total Amount</label>
+            <input readonly [(ngModel)]="annualLEDto.totalAmount" id="totAmt" type="totAmt" pInputText />
+        </div>
+    </div> -->
+
+  <div class="flex justify-content-end mt-4">
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="cancel"
+      (click)="onDialogClose()"
+    ></button>
+    <button
+      [loading]="saving"
+      pButton
+      label="Save"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="submit"
+      (click)="save()"
+    ></button>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

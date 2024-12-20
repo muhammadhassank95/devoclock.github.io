@@ -1,0 +1,333 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Leave Encashment Policy</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        *ngIf="isGranted(this.permissions.CREATE)"
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="openCreateModal()"
+      ></span>
+    </div>
+    <span class="block md:mt-0 p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter(policyTable, $event)"
+        placeholder="Search..."
+        style="height: 25px; cursor: pointer"
+        (keydown.enter)="onEnter($event)"
+      />
+    </span>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [value]="data"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    scrollHeight="58vh"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [globalFilterFields]="[
+      'financialYearName',
+      'maxCarryForward',
+      'voucherNumber',
+      'maxAllowedforEncashment',
+      'comments',
+      'isLEBasedOnBasicPay',
+      'status'
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="name">
+          Name <p-sortIcon field="name" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher Number <p-sortIcon field="voucherNumber" />
+        </th>
+        <!-- <th style="min-width:200px" pSortableColumn="Location">
+                    Location <p-sortIcon field="Location" />
+                </th> -->
+        <th style="min-width: 200px" pSortableColumn="financialYearName">
+          Financial Year <p-sortIcon field="financialYearName" />
+        </th>
+        <th style="min-width: 300px" pSortableColumn="maxCarryForward">
+          Max Carry Forward <p-sortIcon field="maxCarryForward" />
+        </th>
+        <th style="min-width: 300px" pSortableColumn="maxAllowedforEncashment">
+          Max Allowed for Encashment
+          <p-sortIcon field="maxAllowedforEncashment" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isLEBasedOnBasicPay">
+          On Basic Salary <p-sortIcon field="isLEBasedOnBasicPay" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Status">
+          Status <p-sortIcon field="Status" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Active">
+          Active <p-sortIcon field="Active" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.remarks }}</td>
+        <td>{{ item.voucherNumber }}</td>
+        <!-- <td>{{ item.locationName }}</td> -->
+        <td>{{ item.financialYearName }}</td>
+        <td>{{ item.maxCarryForward }}</td>
+        <td>{{ item.maxAllowedforEncashment }}</td>
+        <td>
+          <span *ngIf="item.isLEBasedOnBasicPay" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isLEBasedOnBasicPay" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td>
+        <td>
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="
+              isGranted(this.permissions.EDIT) && item.status !== 'APPROVED'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="
+              isGranted(this.permissions.DELETE) && item.status !== 'APPROVED'
+            "
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="10"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Leave Encashment Policy"
+  draggable="false"
+  [(visible)]="displayModal"
+  [modal]="true"
+  [responsive]="true"
+>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date"> Date </label>
+      <p-calendar
+        (ngModelChange)="onDateChange($event)"
+        [(ngModel)]="PolicyDto.issueDate"
+        inputId="date"
+        tabindex="1"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div class="col-md-4">
+      <app-picker
+        [title]="'Location'"
+        [id]="PolicyDto.userLocationId"
+        [name]="PolicyDto.userLocationName"
+        [showId]="false"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      ></app-picker>
+    </div>
+    <div id="inputField" class="p-field col-md-4 flex flex-column">
+      <label for="voucher"> Voucher Number</label>
+      <input
+        readonly
+        [(ngModel)]="PolicyDto.voucherNumber"
+        id="voucher"
+        type="voucher"
+        pInputText
+      />
+    </div>
+  </div>
+  <br />
+  <div class="row col-md-12">
+    <div class="col-md-12">
+      <app-picker
+        [title2]="'TypeOfEmployee'"
+        [title]="'EmployeeType'"
+        [id]="PolicyDto.employeeTypeId"
+        [name]="PolicyDto.employeeTypeName"
+        (valueSelected)="setPickerValue($event, 'TypeOfEmployee')"
+      ></app-picker>
+    </div>
+  </div>
+
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="carryFor">Max Carry Forward</label>
+      <input
+        [(ngModel)]="PolicyDto.maxCarryForward"
+        min="0"
+        type="number"
+        id="carryFor"
+        pInputText
+      />
+    </div>
+    <div id="inputField" class="p-field col-md-3 flex flex-column">
+      <label for="maxEncash">Max allowed for Encashment</label>
+      <input
+        [(ngModel)]="PolicyDto.maxAllowedforEncashment"
+        min="0"
+        type="number"
+        id="maxEncash"
+        pInputText
+      />
+    </div>
+
+    <div id="inputField" class="p-field col-md-2 flex flex-column">
+      <label for="date"> W.E.From </label>
+      <p-calendar
+        [(ngModel)]="PolicyDto.willEffectFromDate"
+        inputId="date"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+  </div>
+
+  <div class="row col-md-12 mt-4">
+    <div class="col-md-6">
+      <app-picker
+        [title]="'FinancialYear'"
+        [id]="PolicyDto.financialYearId"
+        [name]="PolicyDto.financialYearName"
+        (valueSelected)="setPickerValue($event, 'FinancialYear')"
+      >
+      </app-picker>
+    </div>
+    <div class="my-auto">
+      <p-multiSelect
+        [options]="leaveTypes"
+        [(ngModel)]="selectedLeaveTypes"
+        optionLabel="name"
+        multiple="true"
+        placeholder="Select leave Types"
+      />
+    </div>
+  </div>
+  <div class="row">
+    <div class="flex gap-2 col-md-2 align-items-center my-auto">
+      <p-checkbox
+        inputId="isEncashBasedOnBasicPay"
+        [(ngModel)]="PolicyDto.isLEBasedOnBasicPay"
+        [binary]="true"
+        inputId="binary"
+      />
+      <label for="isEncashBasedOnBasicPay" class="mb-0">On Basic Pay</label>
+    </div>
+    <div class="flex gap-2 col-md-2 align-items-center my-auto">
+      <p-checkbox
+        inputId="isActive"
+        [(ngModel)]="PolicyDto.isActive"
+        [binary]="true"
+        inputId="binary"
+      />
+      <label for="isActive" class="mb-0">Active</label>
+    </div>
+  </div>
+
+  <div class="row col-md-12 mt-2">
+    <div class="p-field flex flex-column col-md-12">
+      <label for="narration">Narration</label>
+      <textarea
+        [(ngModel)]="PolicyDto.remarks"
+        pInputText
+        rows="3"
+        id="narration"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end mt-4">
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="Cancel"
+      (click)="onDialogClose()"
+    ></button>
+    <button
+      [loading]="saving"
+      pButton
+      label="Save"
+      *ngIf="isEditMode && !view"
+      icon="pi pi-check"
+      class="p-mr-2"
+      type="submit"
+      (click)="create()"
+    ></button>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

@@ -1,0 +1,83 @@
+<p-toolbar>
+    <ng-template pTemplate="left">
+        <div class="flex items-center">
+            <h4 class="m-0">Appointment Letter</h4>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+        <div class="flex items-center">
+            <div class="mt-0">
+                <button pButton pRipple [rounded]="true" icon="pi pi-plus-circle" class="p-button-success mr-2"
+                    (click)="openModal()">
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</p-toolbar>
+
+<p-dialog [closeOnEscape]="false" maximizable="true" [header]="'Appointment Letter'" [modal]=" true" [(visible)]="dialogVisibility"
+    [draggable]="false">
+
+    <div class="row col-md-12">
+        <div class="col-md-3 p-field flex flex-column">
+            <label for="date">Date</label>
+            <p-calendar [(ngModel)]="dto.date" inputId="date" appendTo="body" tabindex="1"
+                [showOnFocus]="true"></p-calendar>
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="name">Voucher Number</label>
+            <input id="name" type="text" pInputText [(ngModel)]="dto.voucherNumber" />
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+            <label for="narration">Narration</label>
+            <input id="narration" type="text" pInputText [(ngModel)]="dto.narration" />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div id="inputField" class="col-md-9 p-field flex flex-column">
+            <app-picker [title]="'Employee'" [id]="dto.empId" [name]="dto.empName"
+                (valueSelected)="setPickerValue($event,'Employee')">
+            </app-picker>
+        </div>
+    </div>
+
+    <div class="row col-md-12">
+        <div class="flex gap-2 align-items-center col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">Appointment letter </label>
+        </div>
+        <div class="flex gap-2 align-items-center col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">Employee Card Issuance </label>
+        </div>
+        <div class="flex gap-2 align-items-center col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">Handbook </label>
+        </div>
+        <div class="flex gap-2 align-items-center col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">Social Security Form </label>
+        </div>
+        <div class="flex gap-2 align-items-center mt-2 col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">Medial Fitness Certificate </label>
+        </div>
+        <div class="flex gap-2 align-items-center mt-2 col-md-3">
+            <p-checkbox inputId="al" [binary]="true" inputId="binary" />
+            <label for="al" class="mb-0">EOBI Form </label>
+        </div>
+    </div>
+
+    <div class="flex gap-1 justify-content-end mt-4">
+        <p-button (click)="onDialogClose()" label="Cancel" [outlined]="true" severity="warning" />
+        <p-button label="Download" [outlined]="true" (click)="downloadPDF()" severity="contrast" />
+    </div>
+
+</p-dialog>
+
+
+<div>
+    <p-toast />
+    <p-confirmDialog />
+</div>

@@ -1,0 +1,236 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Bank Reconcilation</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-plus-circle"
+        class="p-button-success mr-2" (click)="show()"></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" [header]="'Bank Reconcilation'" [modal]="true" [(visible)]="displayModal"
+  [draggable]="false">
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker [title]="'Location'" [id]="locationId" [name]="locationName"
+        (valueSelected)="setPickerValue($event, 'Location')"></app-picker>
+    </div>
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker
+      [title]="'Bank Name'"
+      [title2]="'Bank'"
+       [id]="bankReconcilationDto.chartOfAccountSerialNumber"
+        [name]="bankReconcilationDto.chartOfAccountName"
+      filterWiseChartOfAccTarget="Bank"
+      (valueSelected)="setPickerValue($event, 'Bank')"
+    ></app-picker>
+      
+    </div>
+  </div>
+  <div class="row col-md-12">
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Start Date</label>
+      <p-calendar [(ngModel)]="bankReconcilationDto.startDate" inputId="date" appendTo="body"
+        [showOnFocus]="true"></p-calendar>
+    </div>
+    <div id="inputField" class="col-md-2 p-field flex flex-column">
+      <label for="name">Finish Date</label>
+      <p-calendar [(ngModel)]="bankReconcilationDto.finishDate" inputId="date" appendTo="body"
+        [showOnFocus]="true"></p-calendar>
+    </div>
+    <div class="my-auto">
+      <p-button label="Generate" [text]="true" [raised]="true" (click)="generate()" severity="success" />
+    </div>
+    <div class="my-auto">
+      <p-button label="Delete" [text]="true" [raised]="true" severity="primary" (click)="Unconcilation()" />
+    </div>
+    <div class="my-auto">
+      <p-button label="Clear" [text]="true" [raised]="true" severity="success" (click)="Clear()"/>
+    </div>
+    <div class="my-auto">
+      <p-button label="Print" [text]="true" [raised]="true" severity="primary" />
+    </div>
+    <div class="my-auto">
+      <p-button label="Reconcile All" [text]="true" [raised]="true" severity="success" (click)="Update()" />
+    </div>
+    <div class="my-auto">
+      <p-button label="Clear All" [text]="true" [raised]="true" severity="primary" (click)="ClearAll()"  />
+    </div>
+  </div>
+  <!-- <div class="row col-md-12 flex mt-4">
+    <div class="border col-md-4">
+      <h5 class="p-2">Ledger</h5>
+      <div class="row p-2">
+        <div id="inputField" class="p-field col-md-6 flex flex-column">
+          <label for="voucherNumber"> Voucher Number</label>
+          <input
+            id="voucherNumber"
+            type="voucherNumber"
+            pInputText
+            [(ngModel)]="bankReconcilationDto.voucherNumber"
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6 flex flex-column">
+          <label for="voucherDate"> Voucher Date</label>
+          <p-calendar
+            [(ngModel)]="bankReconcilationDto.startDate"
+            inputId="date"
+            appendTo="body"
+            [showOnFocus]="true"
+            disabled="true"
+          ></p-calendar>
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-4">
+      <h5 class="p-2">Bank Account</h5>
+      <div class="row p-2">
+        <div id="inputField" class="p-field col-md-6 flex flex-column">
+          <label for="voucherNumber"> Ledger V.No</label>
+          <input
+            id="voucherNumber"
+            type="voucherNumber"
+            pInputText
+            [(ngModel)]="bankReconcilationDto.voucherNumber"
+          />
+        </div>
+        <div id="inputField" class="p-field col-md-6 flex flex-column">
+          <label for="voucherDate"> Ledger Date</label>
+          <p-calendar
+            [(ngModel)]="bankReconcilationDto.startDate"
+            inputId="date"
+            appendTo="body"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-4">
+      <div class="row p-2">
+        <div class="col-md-4 flex flex-column">
+          <label for="applyFilter">Apply filter to</label>
+          <p-calendar inputId="endDate" appendTo="body"></p-calendar>
+        </div>
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="havingValue"> Having Value</label>
+          <input
+            id="havingValue"
+            type="havingValue"
+            pInputText
+            [(ngModel)]="bankReconcilationDto.havingValue"
+          />
+        </div>
+        <p>Note: Date format mush be dd mmm yyyy e.g. 01 Jul 2024</p>
+        <div class="row">
+          <div class="col-auto my-auto">
+            <p-button
+              label="Apply Filter"
+              [text]="true"
+              [raised]="true"
+              severity="primary"
+            ></p-button>
+          </div>
+          <div class="col-auto my-auto">
+            <p-button
+              label="Clear Filter"
+              [text]="true"
+              [raised]="true"
+              severity="success"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <br />
+
+  <!-- <p-button (click)="onAddRow()" label="Add Row" size="small" /> -->
+  <!-- <p-button (click)="onRemoveSelected()" label="Remove Row" size="small" severity="danger" /> -->
+  <ag-grid-angular class="ag-theme-quartz" [rowData]="rowData" [columnDefs]="colDefs"  rowSelection="multiple"
+    (gridReady)="onGridReady($event)" (cellValueChanged)="cellValueChanged($event)" [singleClickEdit]="true"
+    (rowDoubleClicked)="onRowDoubleClick($event)" style="width: 100%; height: 400px; overflow-y: auto"
+    [pinnedBottomRowData]="pinnedBottomRowData"
+      (filterChanged)="onFilterChanged()"
+    >
+  </ag-grid-angular>
+
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-4">
+      <h5 class="p-2">Total UnReconciled Results</h5>
+      <div class="row p-2">
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherNumber"> Entries</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.unreconciledEntries" />
+        </div>
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherDate"> Debit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.unreconciledDebit" />
+        </div>
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherDate"> Credit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.unreconciledCredit" />
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-4">
+      <h5 class="p-2">Total Reconciled Results</h5>
+      <div class="row p-2">
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherNumber"> Entries</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.reconciledEntries" />
+        </div>
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherDate"> Debit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.reconciledDebit" />
+        </div>
+        <div id="inputField" class="p-field col-md-4 flex flex-column">
+          <label for="voucherDate"> Credit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText
+            [(ngModel)]="bankReconcilationDto.reconciledCredit" />
+        </div>
+      </div>
+    </div>
+    <div class="border col-md-4">
+      <h5 class="p-2">Total Generated Results</h5>
+      <div class="row p-2">
+        <div id="inputField" class="p-field col-md-3 flex flex-column">
+          <label for="voucherNumber"> Entries</label>
+          <input type="voucherNumber" pInputText [(ngModel)]="bankReconcilationDto.totalEntries" />
+        </div>
+        <div id="inputField" class="p-field col-md-3 flex flex-column">
+          <label for="voucherDate"> Debit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText [(ngModel)]="bankReconcilationDto.totalDebit" />
+        </div>
+        <div id="inputField" class="p-field col-md-3 flex flex-column">
+          <label for="voucherDate"> Credit</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText [(ngModel)]="bankReconcilationDto.totalCredit" />
+        </div>
+        <div id="inputField" class="p-field col-md-3 flex flex-column">
+          <label for="voucherDate"> Last Bal</label>
+          <input id="voucherNumber" type="voucherNumber" pInputText [(ngModel)]="bankReconcilationDto.voucherNumber" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button (onClick)="displayModal = false" label="Cancel" [outlined]="true" severity="warning" />
+    <p-button [loading]="saving" (click)="Update()" label="Save" [outlined]="true" severity="contrast" />
+    <!-- <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+            severity="contrast" /> -->
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

@@ -1,0 +1,316 @@
+<div class="card col-12">
+  <p-toolbar styleClass="my-4">
+    <ng-template pTemplate="left">
+      <div class="flex items-center">
+        <h3 class="tab-name m-0">Employee Salaries</h3>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <div class="table-search-container">
+        <span class="block md:mt-0 p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+            class="globalSearchStyle" />
+        </span>
+        <div class="p-toolbar-group-left">
+          <button pButton pRipple [rounded]="true" class="p-button-success create-btn" (click)="Show()">Show</button>
+          <!-- <span pButton icon="pi pi-plus-circle" class="p-button-success mr-2 createBtnStyle" (click)="Show()"></span> -->
+
+        </div>
+      </div>
+    </ng-template>
+  </p-toolbar>
+  <!-- Table -->
+  <div class="p-1">
+    <p-table
+      #policyTable
+      [value]="tableData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [globalFilterFields]="['documentDate', 'voucherNumber']"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
+          <th pSortableColumn="voucherNumber">
+            Salary Month<p-sortIcon field="voucherNumber" />
+          </th>
+          <th pSortableColumn="voucherNumber">
+            Voucher Number<p-sortIcon field="voucherNumber" />
+          </th>
+          <th pSortableColumn="documentDate">
+            Document Date <p-sortIcon field="documentDate" />
+          </th>
+          <th pSortableColumn="Status">Status <p-sortIcon field="Status" /></th>
+          <th pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ formatDocumentDate(item.startDate) }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.documentDate | date }}</td>
+          <td>{{ item.status }}</td>
+          <td>
+            <span
+              *ngIf="item.status !== 'APPROVED' && item.status !== 'DISPATCHED'"
+              style="height: 25px; width: 25px; cursor: pointer"
+              pButton
+              pRipple
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-warning mr-2"
+              (click)="delete(item.id)"
+            ></span>
+            <span
+              *ngIf="item.status == 'PENDING'"
+              style="height: 25px; width: 25px; cursor: pointer"
+              pButton
+              pRipple
+              icon="pi pi-check-circle"
+              class="p-button-rounded p-button-info mr-2"
+              (click)="Approve(item.id)"
+            ></span>
+            <span
+              *ngIf="item.status == 'APPROVED'"
+              style="height: 25px; width: 25px; cursor: pointer"
+              pButton
+              pRipple
+              icon="pi pi-times"
+              class="p-button-rounded p-button-info mr-2"
+              (click)="UnApprove(item.id)"
+            ></span>
+            <span
+              *ngIf="item.status == 'DISPATCHED' || item.status == 'APPROVED'"
+              style="height: 25px; width: 25px; cursor: pointer"
+              pButton
+              pRipple
+              icon="pi pi-eye"
+              class="p-button-rounded p-button-primary mr-2"
+              (click)="viewOnly(item.id)"
+            ></span>
+            <span
+              *ngIf="item.status == 'APPROVED'"
+              style="height: 25px; width: 25px; cursor: pointer"
+              pButton
+              pRipple
+              icon="pi pi-send"
+              class="p-button-rounded p-button-primary mr-2"
+              (click)="dispatch(item.id)"
+            ></span>
+            <span
+              pButton
+              pRipple
+              icon="pi pi-file-pdf"
+              class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+              (click)="downloadSalariesReport(item.id)"
+            >
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p-paginator
+      [rows]="10"
+      [totalRecords]="this.count"
+      (onPageChange)="this.onPageChange($event)"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[this.count, 10, 20, 100]"
+    >
+    </p-paginator>
+  </div>
+</div>
+
+<p-dialog
+  [closeOnEscape]="false"
+  [maximizable]="true"
+  header="Generate Salaries"
+  draggable="false"
+  [(visible)]="displayModal"
+  [modal]="true"
+  [responsive]="true"
+  [style]="{ width: '90vw' }"
+>
+  <div></div>
+  <div class="row col-md-12">
+    <div id="inputField" class="p-field col-md-2 flex">
+      <label for="date"> Date</label>
+      <p-calendar
+        (ngModelChange)="MakeVoucher($event)"
+        inputId="date"
+        appendTo="body"
+        [(ngModel)]="documentDate"
+        [minDate]="MinDate"
+        [maxDate]="today"
+        [showOnFocus]="true"
+        tabindex="1"
+      ></p-calendar>
+    </div>
+    <div class="col-md-6">
+      <!-- <app-picker
+        [title]="'Location'"
+        [id]="locationId"
+        [name]="locationName"
+        (valueSelected)="setPickerValue($event, 'Location')"
+      >
+      </app-picker> -->
+      <label for="name">Location:</label>
+                        <p-dropdown
+                        [options]="locationDropdown"
+                        [(ngModel)]="locationSelectedItem"
+                        [filter]="true"
+                        [filterBy]="'id,name'"
+                        [showClear]="true"
+                        optionLabel="name"
+                        (onChange)="onDropdownChange($event, 'Location')"
+                         placeholder="Location"
+                            >
+                        <ng-template let-item pTemplate="item">
+                        <div class=" nowrap" style="max-width: 426px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        <ng-template let-item pTemplate="selectedItem">
+                            <div *ngIf="item" class=" nowrap" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+                        </ng-template>
+                        </p-dropdown>
+    </div>
+
+    <div id="inputField" class="p-field col-md-4 flex">
+      <label for="voucher"> Voucher Number</label>
+      <input
+        id="voucher"
+        type="voucher"
+        pInputText
+        [(ngModel)]="voucherNumber"
+        readonly
+      />
+    </div>
+  </div>
+  <br />
+
+  <div class="row col-md-12">
+    <div *ngIf="salaryRecord.salaryGeneratingType == 2" class="flex col-md-6">
+      <label for="StartDate">Start Date</label>
+      <p-calendar
+        [(ngModel)]="StartDate"
+        inputId="StartDate"
+        appendTo="body"
+      ></p-calendar>
+    </div>
+    <div *ngIf="salaryRecord.salaryGeneratingType == 2" class="flex col-md-6">
+      <label for="EndDate">End Date</label>
+      <p-calendar
+        [(ngModel)]="EndDate"
+        inputId="EndDate"
+        appendTo="body"
+      ></p-calendar>
+    </div>
+    <div *ngIf="salaryRecord.salaryGeneratingType == 1" class="flex col-md-2">
+      <label for="SalaryMonth">Salary Month</label>
+      <p-calendar
+        (ngModelChange)="SalaryMonthChange($event)"
+        view="month"
+        dateFormat="mm/yy"
+        [(ngModel)]="SalaryMonth"
+        inputId="SalaryMonth"
+        appendTo="body"
+      ></p-calendar>
+    </div>
+  </div>
+
+  <!-- <div class="row col-md-12 mt-4">
+    <div class="col-md-6">
+      <app-picker
+        [title]="'TypeOfEmployee'"
+        [id]="employeeTypeId"
+        [name]="employeeTypeName"
+        (valueSelected)="setPickerValue($event, 'TypeOfEmployee')"
+      >
+      </app-picker>
+    </div>
+    <div class="col-md-6">
+      <app-picker
+        title2="CurrentPaymentMode"
+        [title]="'PaymentMode'"
+        [id]="paymentTypeId"
+        [name]="paymentTypeName"
+        (valueSelected)="setPickerValue($event, 'CurrentPaymentMode')"
+      >
+      </app-picker>
+    </div>
+  </div> -->
+
+  <div class="row flex justify-content-end px-2 gap-1">
+    <div>
+      <p-button
+        [loading]="generating"
+        label="Generate"
+        [text]="true"
+        [raised]="true"
+        severity="info"
+        (click)="Search()"
+      >
+      </p-button>
+    </div>
+    <div>
+      <p-button
+        icon="fas fa-upload"
+        label="Download PDF"
+        [text]="true"
+        [raised]="true"
+        severity="success"
+        (click)="DownloadPdf()"
+      >
+      </p-button>
+    </div>
+    <div>
+      <p-button
+        icon="fas fa-upload"
+        label="Download CSV"
+        [text]="true"
+        [raised]="true"
+        severity="primary"
+        (click)="DownloadCsv()"
+      >
+      </p-button>
+    </div>
+  </div>
+
+  <div>
+    <ag-grid-angular
+      style="width: 100%; height:450px; margin-top: 12px"
+      class="ag-theme-balham"
+      [rowData]="data"
+      [columnDefs]="colDefs"
+      [animateRows]="true"
+      [suppressAutoSize]="true"
+      [suppressDragLeaveHidesColumns]="true"
+      rowSelection="single"
+      [singleClickEdit]="true"
+      (gridReady)="onGridReady($event)"
+      [pinnedBottomRowData]="pinnedBottomRowData"
+      (filterChanged)="onFilterChanged()"
+    >
+    </ag-grid-angular>
+  </div>
+
+  <div class="flex justify-content-end gap-2 mt-2">
+    <p-button label="Cancel" severity="secondary" (click)="onDialogClose()" />
+    <p-button
+      [disabled]="data.length == 0"
+      [loading]="saving"
+      label="Save"
+      (click)="create()"
+    />
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

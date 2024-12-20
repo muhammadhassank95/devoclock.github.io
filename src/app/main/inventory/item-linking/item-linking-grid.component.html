@@ -1,0 +1,7 @@
+<p-button (click)="onAddRow()" label="Add Row" size="small" />
+<p-button (click)="onRemoveSelected()" label="Remove Row" size="small" severity="danger" />
+<p-button size="small" (click)="onSave()" label="Save" />
+<ag-grid-angular class="ag-theme-quartz" style="height: 500px;" [rowData]="rowData" [columnDefs]="colDefs"
+    [rowSelection]="rowSelection" (gridReady)="onGridReady($event)" (cellClicked)="cellClicked($event)"
+    [singleClickEdit]="true">
+</ag-grid-angular>

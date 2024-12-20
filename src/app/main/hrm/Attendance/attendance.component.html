@@ -1,0 +1,36 @@
+<p-tabView>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.Attendance')"
+    header="Present Employee"
+  >
+    <app-present-employee></app-present-employee>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.Attendance')"
+    header="Absent Employee"
+  >
+    <app-absent-employee></app-absent-employee>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.Attendance')"
+    header="Attendance Register"
+  >
+    <app-attendance-register></app-attendance-register>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.Attendance')"
+    header="Employee Link With Biometric Machine"
+  >
+    <app-machine-integration></app-machine-integration>
+  </p-tabPanel>
+  <p-tabPanel
+    *ngIf="isPermitted('LookUps.Attendance')"
+    header="Upload Biometric Attendance"
+  >
+    <app-mark-attendance></app-mark-attendance>
+  </p-tabPanel>
+  <!-- <p-tabPanel header="Appointment Letter">
+        <app-appointment-letter></app-appointment-letter>
+
+    </p-tabPanel> -->
+</p-tabView>

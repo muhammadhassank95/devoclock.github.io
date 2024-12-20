@@ -1,0 +1,808 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Bank Receipt</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success mr-2"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [loading]="loading"
+    [value]="tableData"
+    scrollHeight="58vh"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    [globalFilterFields]="[
+      'userLocationName',
+      'voucherNumber',
+      'issueDate',
+      'chartOfAccountId',
+      ''
+    ]"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucher">
+          Voucher No. <p-sortIcon field="voucher" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location <p-sortIcon field="userLocationName" />
+        </th>
+        <!-- <th style="min-width: 200px" pSortableColumn="userLocationName">
+          Location <p-sortIcon field="userLocationName" />
+        </th> -->
+        <th style="min-width: 200px" pSortableColumn="isCrossedCheque">
+          Crossed Chq <p-sortIcon field="isCrossedCheque" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="isCheque">
+          No Chq <p-sortIcon field="isCheque" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Bank ID">
+          Bank ID <p-sortIcon field="Bank ID" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="date">
+          Date <p-sortIcon field="date" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="referenceDate">
+          Ref Date <p-sortIcon field="referenceDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="referenceNo">
+          Ref# <p-sortIcon field="referenceNo" />
+        </th>
+        <!-- <th style="min-width: 200px" pSortableColumn="Name">
+          Employee Name <p-sortIcon field="Name" />
+        </th> -->
+        <th style="min-width: 200px" pSortableColumn="Status">
+          Status <p-sortIcon field="Status" />
+        </th>
+        <!-- <th style="min-width:200px" pSortableColumn="Active">
+                    Active <p-sortIcon field="Active" />
+                </th> -->
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.userLocationName }}</td>
+        <td>{{ item.isCrossedCheque ? "Yes" : "No" }}</td>
+        <td>{{ item.isCheque ? "Yes" : "No" }}</td>
+        <td>{{ item.chartOfAccountId }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.referenceDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.referenceNo }}</td>
+        <!-- <td>{{ item.employeeName }}</td> -->
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <!-- <td>
+                    <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                    <span *ngIf="!item.isActive" class="no-bg">No</span>
+                </td> -->
+        <td>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2 createBtnStyle"
+            (click)="show(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            *ngIf="item.status !== 'APPROVED'"
+            class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status !== 'APPROVED'"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="approve(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'APPROVED'"
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="show(item.id, true)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'APPROVED'"
+            icon="pi pi-file-pdf"
+            class="p-button-rounded p-button-warning mr-2 createBtnStyle"
+            (click)="downloadBPReport(item.id)"
+          ></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator
+    [rows]="5"
+    [totalRecords]="this.count"
+    (onPageChange)="this.onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 20, 100, this.count]"
+  >
+  </p-paginator>
+</div>
+
+<!-- Modal -->
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Bank Receipt' : 'Create Bank Receipt'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <form [formGroup]="bankPaymentFG" (ngSubmit)="save()">
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-5 p-field flex flex-column">
+        <app-picker
+          [title]="'Location'"
+          [title2]="'Location'"
+          [id]="bankPaymentFG.value.userLocationId"
+          [name]="bankPaymentFG.value.userLocationName"
+          [disable]="bankPaymentFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Location')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-2 p-field flex flex-column">
+        <label for="name">Date</label>
+        <p-calendar
+          (ngModelChange)="MakeVoucher($event)"
+          [minDate]="MinDate"
+          [maxDate]="today"
+          formControlName="issueDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+      <div id="inputField" class="col-md-3 p-field flex flex-column">
+        <label for="name">Voucher Number</label>
+        <input
+          readonly
+          id="name"
+          type="text"
+          pInputText
+          formControlName="voucherNumber"
+        />
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'Bank'"
+          [title2]="'Bank'"
+          [id]="bankPaymentFG.value.chartOfAccountSerialNumber"
+          [name]="bankPaymentFG.value.chartOfAccountName"
+          filterWiseChartOfAccTarget="Bank"
+          [disable]="bankPaymentFG.disabled"
+          (valueSelected)="setPickerValue($event, 'Bank')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="name">Cheque Title</label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="referenceTitle"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div id="inputField" class="col-md-8 p-field flex flex-column">
+        <label for="name">Reference</label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="referenceNumber"
+        />
+      </div>
+      <div id="inputField" class="col-md-4 p-field flex flex-column">
+        <label for="name">Reference Date</label>
+        <p-calendar
+          formControlName="referenceDate"
+          inputId="date"
+          appendTo="body"
+          [showOnFocus]="true"
+        ></p-calendar>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div class="flex col-md-2 gap-2 align-items-center">
+        <p-checkbox
+          inputId="taxPayment"
+          [binary]="true"
+          formControlName="taxPayment"
+        />
+        <label for="taxPayment">Tax Receipt</label>
+      </div>
+      <!-- <div class="flex col-md-2 gap-2 align-items-center">
+        <p-checkbox
+          inputId="isCrossedCheque"
+          formControlName="isCrossedCheque"
+          [binary]="true"
+        />
+        <label for="isCrossedCheque">Crossed Cheque</label>
+      </div>
+      <div class="flex col-md-2 gap-2 align-items-center">
+        <p-checkbox
+          inputId="isCheque"
+          formControlName="isCheque"
+          [binary]="true"
+        />
+        <label for="isCheque">No Cheque</label>
+      </div>
+      <div class="my-auto">
+        <p-button
+          label="Repeat"
+          [text]="true"
+          [raised]="true"
+          severity="success"
+        />
+      </div> -->
+      <div class="my-auto">
+        <p-button
+          label="Copy Receipt Voucher"
+          [text]="true"
+          [raised]="true"
+          (onClick)="openOfficialReceipt()"
+          severity="primary"
+        />
+      </div>
+      <!-- <div class="my-auto">
+        <p-button label="Adjust" [text]="true" [raised]="true" (onClick)="handleOpenAdjustVoucherModal()"
+          severity="primary" />
+      </div> -->
+    </div>
+    <br />
+
+    <!-- <p-button (click)="onAddRow()" label="Add Row" size="small" /> -->
+    <p-button
+      (click)="onRemoveSelected()"
+      label="Remove Row"
+      size="small"
+      severity="danger"
+    />
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      domLayout="autoHeight"
+      [rowData]="rowData"
+      rowSelection="multiple"
+      [columnDefs]="colDefs"
+      (gridReady)="onGridReady($event)"
+      (cellClicked)="cellClicked($event)"
+      (cellValueChanged)="cellValueChanged($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+
+    <div class="row col-md-12">
+      <div class="p-field flex flex-column col-md-12">
+        <label for="narration">Narration</label>
+        <textarea
+          formControlName="remarks"
+          [required]="true"
+          pInputText
+          rows="3"
+          id="narration"
+        ></textarea>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'TaxAcId'"
+          [title2]="'TaxAcId'"
+          [id]="bankPaymentDto.taxAcId"
+          filterWiseChartOfAccTarget="Tax"
+          [name]="bankPaymentDto.taxAcName"
+          (valueSelected)="setPickerValue($event, 'TaxAcId')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title]="'OTaxAcId'"
+          [title2]="'TaxAcId'"
+          [id]="bankPaymentDto.oTaxAcId"
+          [name]="bankPaymentDto.oTaxAcName"
+          filterWiseChartOfAccTarget="Tax"
+          (valueSelected)="setPickerValue($event, 'OTaxAcId')"
+        ></app-picker>
+      </div>
+    </div>
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="totalChqAmount">Total Cheque Amount</label>
+        <input
+          readonly
+          id="totalChqAmount"
+          type="text"
+          pInputText
+          formControlName="totalAmount"
+        />
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <label for="totalTaxAmount">Total Tax Amount</label>
+        <input
+          readonly
+          id="totalTaxAmount"
+          type="text"
+          pInputText
+          formControlName="totalTaxAmount"
+        />
+      </div>
+    </div>
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <label for="referenceVoucherNumber">reference Voucher Number</label>
+      <input
+        readonly
+        id="referenceVoucherNumber"
+        type="text"
+        pInputText
+        formControlName="referenceVoucherNumber"
+      />
+    </div>
+
+    <div class="flex gap-1 justify-content-end mt-4">
+      <p-button
+        (onClick)="displayModal = false"
+        label="Cancel"
+        [outlined]="true"
+        severity="warning"
+      />
+      <p-button
+        [loading]="saving"
+        *ngIf="!editMode && !viewOnly"
+        (click)="save()"
+        type="submit"
+        label="Save"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <!-- [disabled]="bankPaymentFG.invalid" -->
+      <p-button
+        [loading]="saving"
+        *ngIf="editMode && !viewOnly"
+        type="submit"
+        (click)="update()"
+        label="Update"
+        [outlined]="true"
+        severity="contrast"
+      />
+      <!-- [disabled]="bankPaymentFG.invalid" -->
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  [maximizable]="true"
+  [header]="'Adjust Invoices/Vouchers'"
+  [modal]="true"
+  [(visible)]="isAdjustInvoicesModalVisible"
+  [draggable]="false"
+>
+  <form
+    [formGroup]="generateVoucherFormGroup"
+    (ngSubmit)="handleGenerateVouchers()"
+  >
+    <div class="row">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'ChartOfAccount'"
+          [title]="'From A/c'"
+          [id]="generateVoucherFormGroup.value.FromChartOfAccountId"
+          [name]="generateVoucherFormGroup.value.coaFromName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'From A/c')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'ChartOfAccount'"
+          [title]="'To A/c'"
+          [id]="generateVoucherFormGroup.value.ToChartOfAccountId"
+          [name]="generateVoucherFormGroup.value.coaToName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'To A/c')"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'CostCenter'"
+          [title]="'C.C. From'"
+          [id]="generateVoucherFormGroup.value.costCenterFrom"
+          [name]="generateVoucherFormGroup.value.costCenterFromName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'C.C. From')"
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'CostCenter'"
+          [title]="'C.C. To'"
+          [id]="generateVoucherFormGroup.value.costCenterTo"
+          [name]="generateVoucherFormGroup.value.costCenterToName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'C.C. To')"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Project'"
+          [title]="'Project From'"
+          [id]="generateVoucherFormGroup.value.projectFrom"
+          [name]="generateVoucherFormGroup.value.projectFromName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="
+            setAdjustmentModalPickerValue($event, 'Project From')
+          "
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Project'"
+          [title]="'Project To'"
+          [id]="generateVoucherFormGroup.value.projectTo"
+          [name]="generateVoucherFormGroup.value.projectToName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'Project To')"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Employee'"
+          [title]="'Employee From'"
+          [id]="generateVoucherFormGroup.value.empIdFrom"
+          [name]="generateVoucherFormGroup.value.empIdFromName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="
+            setAdjustmentModalPickerValue($event, 'Employee From')
+          "
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Employee'"
+          [title]="'Employee To'"
+          [id]="generateVoucherFormGroup.value.empIdTo"
+          [name]="generateVoucherFormGroup.value.empIdToName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'Employee To')"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Supplier'"
+          [title]="'Supplier From'"
+          [id]="generateVoucherFormGroup.value.suppIdFrom"
+          [name]="generateVoucherFormGroup.value.suppIdFromName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="
+            setAdjustmentModalPickerValue($event, 'Supplier From')
+          "
+        ></app-picker>
+      </div>
+      <div id="inputField" class="col-md-6 p-field flex flex-column">
+        <app-picker
+          [title2]="'Supplier'"
+          [title]="'Supplier To'"
+          [id]="generateVoucherFormGroup.value.suppIdTo"
+          [name]="generateVoucherFormGroup.value.suppIdToName"
+          [disable]="generateVoucherFormGroup.disabled"
+          (valueSelected)="setAdjustmentModalPickerValue($event, 'Supplier To')"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-6">
+        <label for="days-from">Days from</label>
+        <input
+          type="number"
+          class="w-100"
+          pInputText
+          id="days-from"
+          formControlName="MaxDaysAgo"
+        />
+      </div>
+      <div class="col-md-6">
+        <label for="days-to">Days to</label>
+        <input
+          type="number"
+          pInputText
+          class="w-100"
+          id="days-to"
+          formControlName="MaxDaysAgo"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-6">
+        <label for="start-date">Start Date *</label>
+        <p-calendar
+          formControlName="startDate"
+          [style]="{ width: '100%' }"
+          [appendTo]="'body'"
+          [required]="true"
+        />
+      </div>
+      <div class="col-md-6">
+        <label for="finish-date">End Date *</label>
+        <p-calendar
+          formControlName="endDate"
+          [style]="{ width: '100%' }"
+          [required]="true"
+          [appendTo]="'body'"
+        />
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-12 col-md-6">
+        <label for="days-from">Employee Payment Mode</label>
+        <p-dropdown
+          [options]="employeePaymentModeOptions"
+          formControlName="employeePaymentMode"
+          optionLabel="label"
+          [style]="{ width: '100%' }"
+          [appendTo]="'body'"
+        />
+      </div>
+      <div class="col-12 col-md-6">
+        <label for="">Voucher Number</label>
+        <input
+          type="text"
+          class="w-100 block"
+          pInputText
+          formControlName="voucherNumber"
+        />
+      </div>
+    </div>
+    <div class="row mt-2 flex justify-content-end mb-3">
+      <p-button
+        label="Generate Vouchers"
+        [loading]="isFetchingVouchers"
+        [disabled]="generateVoucherFormGroup.invalid"
+        type="submit"
+      />
+    </div>
+    <div class="row mt-2 flex justify-content-end mb-3">
+      <p-button
+        label="Apply"
+        [disabled]="adjustModalGridApi?.getSelectedNodes()?.length == 0"
+        (onClick)="handleApplyAdjustedVouchersData()"
+        type="button"
+      />
+    </div>
+  </form>
+  <hr />
+  <div class="row mt-2">
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker
+        [title2]="'Location'"
+        [title]="'Location'"
+        [id]="userLocationId"
+        [name]="userLocationName"
+        (valueSelected)="setBulkVoucherPickerValue($event, 'Location')"
+      />
+    </div>
+    <div id="inputField" class="col-md-6 p-field flex flex-column">
+      <app-picker
+        [title2]="'Bank'"
+        [title]="'Bank ID'"
+        filterWiseChartOfAccTarget="Bank"
+        [id]="chartOfAccountId"
+        [name]="chartOfAccountName"
+        (valueSelected)="setBulkVoucherPickerValue($event, 'Bank')"
+      />
+    </div>
+  </div>
+  <div class="row">
+    <div class="flex col-12 col-md-6 gap-2 align-items-center">
+      <p-checkbox
+        inputId="isLineSeparateVoucher"
+        [(ngModel)]="isLineSeparateVoucher"
+        [binary]="true"
+      />
+      <label for="isLineSeparateVoucher" class="m-0"
+        >Each Line as Separate Voucher</label
+      >
+    </div>
+    <div id="issueDate" class="col-12 col-md-6 p-field flex flex-column">
+      <label for="issueDate">Issue Date</label>
+      <p-calendar
+        inputId="issueDate"
+        [(ngModel)]="issueDate"
+        [style]="{ width: '100%' }"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+  </div>
+  <div class="row">
+    <div id="referenceDate" class="col-12 col-md-6 p-field flex flex-column">
+      <label for="referenceDate">Reference Date</label>
+      <p-calendar
+        inputId="referenceDate"
+        [(ngModel)]="referenceDate"
+        [style]="{ width: '100%' }"
+        appendTo="body"
+        [showOnFocus]="true"
+      ></p-calendar>
+    </div>
+    <div id="referenceNo" class="col-12 col-md-6 p-field flex flex-column">
+      <label for="referenceNo">Reference Title</label>
+      <input
+        id="referenceNo"
+        [(ngModel)]="referenceNo"
+        pInputText
+        [style]="{ width: '100%' }"
+      />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <label for="">Cheque Start</label>
+      <input
+        type="text"
+        class="w-100 block"
+        pInputText
+        [(ngModel)]="chequeStart"
+      />
+    </div>
+    <div class="col-12 col-md-6">
+      <label for="">Cheque End</label>
+      <input
+        type="text"
+        class="w-100 block"
+        pInputText
+        [(ngModel)]="chequeEnd"
+      />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <label for="">Narration</label>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="narration"
+        class="block w-100"
+      />
+    </div>
+  </div>
+  <div class="row mt-2 flex justify-content-end mb-3">
+    <p-button
+      label="Make Vouchers"
+      [disabled]="adjustModalGridApi?.getSelectedNodes()?.length == 0"
+      [loading]="isCreatingBulkVouchers"
+      (onClick)="handleMakeVouchers()"
+      type="button"
+    />
+  </div>
+</p-dialog>
+<p-dialog
+  [maximizable]="true"
+  header="Copy Official Receipt"
+  [modal]="true"
+  [(visible)]="displayOfficialReceipt"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="officialReceiptData"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="id">
+            ID <p-sortIcon field="id" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="namvouchere">
+            Voucher No <p-sortIcon field="voucher" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Employee">
+            Employee Name<p-sortIcon field="Employee" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Status">
+            Status <p-sortIcon field="Status" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.employeeName }}</td>
+          <td>
+            <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+              item.status
+            }}</span>
+            <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+              item.status
+            }}</span>
+          </td>
+          <td>
+            <button
+              (click)="selectOfficialReceipt(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

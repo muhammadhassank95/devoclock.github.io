@@ -1,0 +1,113 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h3>Filter Details</h3>
+    </ng-template>
+</p-toolbar>
+<!-- <p-progressSpinner *ngIf="loading" class="center-loader"></p-progressSpinner> -->
+
+<div class="scroll-container"> 
+    <div class="row col-md-12">
+      <div id="inputField" class="col-md-12 p-field flex flex-column">
+        <app-picker
+          [title2]="'ChartOfAccount'"
+          [title]="'Account ID'"
+          [id]="this.fromChartOfAccountId"
+          [name]="this.fromChartOfAccountName"
+          (valueSelected)="setPickerValue($event, 'From A/c')"
+        ></app-picker>
+      </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+            <app-picker
+              [title2]="'ChartOfAccount'"
+              [title]="'Account ID'"
+              [id]="this.toChartOfAccountId"
+              [name]="this.toChartOfAccountName"
+              (valueSelected)="setPickerValue($event, 'To A/c')"
+            />
+          </div>
+      </div>
+      <div class="row col-md-12 mt-2 mt-4">
+        <div id="inputField" class="col-md-12 p-field flex flex-column">
+          <app-picker
+            [title]="'Employee'"
+            [id]="fromEmployeeId"
+            [name]="fromEmployeeName"
+            (valueSelected)="setPickerValue($event, 'Emp From')"
+          ></app-picker>
+        </div>
+        </div>
+        <div class="row col-md-12">
+          <div id="inputField" class="col-md-12 p-field flex flex-column">
+              <app-picker
+                [title]="'Employee'"
+                [id]="toEmployeeId"
+                [name]="toEmployeeName"
+                (valueSelected)="setPickerValue($event, 'Emp To')"
+              ></app-picker>
+            </div>
+        </div>
+        <div class="row col-md-12">
+            <div id="inputField" class="col-md-12 p-field flex flex-column">
+                <app-picker
+                  [title]="'Location'"
+                  [id]="locationId"
+                  [name]="locationName"
+                  (valueSelected)="setPickerValue($event, 'Location')"
+                ></app-picker>
+              </div>
+          </div>
+<div class="row col-md-12 mt-2">
+    <div class="col-md-2">
+      <label for="start-date">Start Date *</label>
+      <p-calendar
+      [(ngModel)]="this.startDate"
+        [style]="{ width: '100%' }"
+        [appendTo]="'body'"
+        [required]="true"
+      />
+    </div>
+    <div class="col-md-2">
+      <label for="finish-date">End Date *</label>
+      <p-calendar
+      [(ngModel)]="this.endDate"
+        [style]="{ width: '100%' }"
+        [required]="true"
+        [appendTo]="'body'"
+      />
+    </div>
+    <div class="flex col-3 col-md-3 gap-2 align-items-center">
+        <p-checkbox
+          inputId="groupEmployeeWise"
+          [binary]="true"
+        />
+        <label for="groupEmployeeWise" class="m-0"
+          >Group Employee Wise</label
+        >
+      </div>
+      <div class="flex col-3 col-md-3 gap-2 align-items-center">
+        <p-checkbox
+          inputId="oldViewer"
+          [binary]="true"
+        />
+        <label for="oldViewer" class="m-0"
+          >Old Viewer</label
+        >
+      </div>
+</div>
+  <hr />
+ 
+  <div class="flex justify-content-end gap-2 mt-2">
+    <div class="my-auto">
+        <p-button label="Cancel" [outlined]="true" severity="warning" />
+        <p-button  label="OK" [outlined]="true"
+            severity="contrast" />
+    </div>
+</div>
+
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>
+</div>

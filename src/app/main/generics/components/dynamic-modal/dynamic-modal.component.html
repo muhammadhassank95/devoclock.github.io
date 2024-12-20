@@ -1,0 +1,17 @@
+<p-dialog [(visible)]="visibility" [closeOnEscape]="false" [header]="this.title"
+    [draggable]="true" [maximizable]="true" [modal]="true" [responsive]="true" [resizable]="true"
+    (onHide)="this.Cancel()">
+    <ng-template *ngTemplateOutlet="view" pTemplate="content"> </ng-template>
+
+    <div class="col-12 flex justify-content-end position-absolute bottom-0 modal-btn" style="left:0; border-top: 1px solid #DBDBDB; background-color:#fbfbfb; padding:16px 1.5rem; ">
+        <button pButton="" pRipple="" icon="pi pi-times" label="Cancel" (click)="onDialogClose()"
+            class="outline-btn w-7rem mr-3" style="height: 41px;">
+            <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true" class="m-0"></span>
+            <span class="p-button-label">Cancel</span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+        <button pButton="" pRipple="" icon="pi pi-check" label="Save"
+            class=" p-button-success w-7rem" style="padding: 10px 26px ;" (click)="this.Confirm()">
+        </button>
+    </div>
+</p-dialog>

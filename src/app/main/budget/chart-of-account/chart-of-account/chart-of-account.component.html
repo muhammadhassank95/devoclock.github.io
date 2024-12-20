@@ -1,0 +1,497 @@
+<div class="card col-12">
+  <p-toolbar styleClass="mb-2">
+    <ng-template pTemplate="left">
+      <h3 class="tab-name m-0">Chart Of Account</h3>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <div class="table-search-container">
+        <span class="block md:mt-0 p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="onGlobalFilter(policyTable, $event)" placeholder="Search..."
+            class="globalSearchStyle" />
+        </span>
+      <div class="p-toolbar-group-left">
+        <!-- <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-plus-circle" class="p-button-success"
+          (click)="show()"></span> -->
+          <span pButton pRipple [rounded]="true" class="create-btn p-button-success" (click)="show()">
+            Create
+          </span>
+      </div>
+      <div class="p-toolbar-group-left table-search-container">
+        <!-- <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-download" class="p-button-success"
+          (click)="downloadCSVFile()"></span> -->
+          <span pButton pRipple [rounded]="true" class="create-btn p-button-success !p-0" style="height: 41px !important;" icon="pi pi-download" (click)="downloadCSVFile()">     
+          </span>
+          <span pButton pRipple [rounded]="true" class="create-btn p-button-success !p-0" icon="pi pi-download" style="height: 41px !important;" (click)="downloadPDFFile()">         
+          </span>
+        <!-- <span pButton style="height: 25px; width: 25px; cursor: pointer" icon="pi pi-download" class="p-button-success"
+          (click)="downloadPDFFile()"></span> -->
+      </div>
+    </div>
+    </ng-template>
+  </p-toolbar>
+  <p-table #policyTable  
+    [value]="tableData" class="chartofaccount-table" styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="58vh" [rowHover]="true"
+    responsiveLayout="scroll" [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }" [loading]='loading'
+    [globalFilterFields]="['serialNumber', 'name', 'accountTypeName', 'lvl3_name', 'lvl2_name', 'lvl1_name']">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="serialNumber">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Account Id</span> 
+          <p-sortIcon field="serialNumber" />
+          </div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="name">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Account Name </span> <p-sortIcon field="name" />
+        </div>
+        </th>
+        <!-- <th class="text-nowrap" pSortableColumn="lvl3_Id">
+          Lvl 3 Id <p-sortIcon field="lvl3_Id" />
+        </th> -->
+        <th class="text-nowrap" pSortableColumn="lvl3_Name">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 3 Acc name</span> <p-sortIcon field="lvl3_Name" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="lvl3_SerialNumber">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 3 Account id</span>  <p-sortIcon field="lvl3_SerialNumber" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="lvl3_Name">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 2 Acc name </span> <p-sortIcon field="lvl2_Name" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="lvl3_SerialNumber">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 2 Account id</span>  <p-sortIcon field="lvl2_SerialNumber" /></div>
+        </th>
+
+        <th class="text-nowrap" pSortableColumn="lvl3_Name">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 1 Acc name </span> <p-sortIcon field="lvl1_Name" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="lvl1_SerialNumber">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Level 1 Acc name </span> <p-sortIcon field="lvl1_SerialNumber" /></div>
+        </th>
+
+        <th class="text-nowrap" pSortableColumn="accountTypeName">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Account Type</span>  <p-sortIcon field="accountTypeName" /></div>
+        </th>
+        <!-- <th class="text-nowrap" pSortableColumn="currencyId">
+          Currency Id <p-sortIcon field="currencyId" />
+        </th> -->
+        <th class="text-nowrap" pSortableColumn="currencyName">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Currency Name </span> <p-sortIcon field="currencyName" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="accountTypeShortName">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Short Name </span> <p-sortIcon field="accountTypeShortName" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="credit">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Credit </span> <p-sortIcon field="credit" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="debit">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Debit </span> <p-sortIcon field="debit" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="stopEntryBefore">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Stop Entry Before </span> <p-sortIcon field="stopEntryBefore" /></div>
+        </th>
+        <!-- <th class="text-nowrap" pSortableColumn="locationId">
+          Location Id <p-sortIcon field="locationId" />
+        </th> -->
+        <th class="text-nowrap" pSortableColumn="locationName">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Location Name</span>  <p-sortIcon field="locationName" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="limit">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Transection Limit</span>  <p-sortIcon field="limit" /></div>
+        </th>
+        <!-- <th class="text-nowrap" pSortableColumn="linkWithId">
+          Link With Id <p-sortIcon field="linkWithId" />
+        </th> -->
+        <th class="text-nowrap" pSortableColumn="linkWithName">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Link With Name</span>  <p-sortIcon field="linkWithName" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="checkBudget">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Check Budget </span> <p-sortIcon field="checkBudget" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="hasSubLedger">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Has SubLedger</span> <p-sortIcon field="hasSubLedger" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="Active">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Active </span> <p-sortIcon field="Active" /></div>
+        </th>
+        <th class="text-nowrap" pSortableColumn="Actions">
+          <div class="d-flex justify-content-between">
+            <span class="th-data">
+          Actions </span> <p-sortIcon field="Actions" /></div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="no-wrap-header" title="{{ item.serialNumber }}">{{ item.serialNumber }}</td>
+        <td class="no-wrap-header" title="{{ item.name }}">{{ item.name }}</td>
+        <!-- <td>{{ item.lvl3_Id }}</td> -->
+        <td class="no-wrap-header" title="{{ item.lvl3_Name }}">{{ item.lvl3_Name }}</td>
+        <td class="no-wrap-header" title="{{ item.lvl3_SerialNumber }}">{{ item.lvl3_SerialNumber }}</td>
+        <td class="no-wrap-header" title="{{ item.lvl2_Name }}">{{ item.lvl2_Name }}</td>
+        <td class="no-wrap-header" title="{{ item.lvl2_SerialNumber }}">{{ item.lvl2_SerialNumber }}</td>
+        <td class="no-wrap-header" title="{{ item.lvl1_Name }}">{{ item.lvl1_Name }}</td>
+        <td class="no-wrap-header" title="{{ item.lvl1_SerialNumber }}">{{ item.lvl1_SerialNumber }}</td>
+        <!-- <td>{{ item.accountTypeId }}</td> -->
+        <td class="no-wrap-header" title="{{ item.accountTypeName }}">{{ item.accountTypeName }}</td>
+        <!-- <td>{{ item.currencyId }}</td> -->
+        <td class="no-wrap-header" title="{{ item.currencyName }}">{{ item.currencyName }}</td>
+        <td class="no-wrap-header" title="{{ item.accountTypeShortName }}">{{ item.accountTypeShortName }}</td>
+        <td class="no-wrap-header" title="{{ item.credit }}">{{ item.credit }}</td>
+        <td class="no-wrap-header" title="{{ item.debit }}">{{ item.debit }}</td>
+        <td class="no-wrap-header" title="{{ item.stopEntryBefore | date }}">{{ item.stopEntryBefore | date }}</td>
+        <!-- <td>{{ item.locationId }}</td> -->
+        <td class="no-wrap-header" title="{{ item.locationName }}">{{ item.locationName }}</td>
+        <td class="no-wrap-header" title="{{ item.limit }}">{{ item.limit }}</td>
+        <!-- <td>{{ item.linkWithId }}</td> -->
+        <td class="no-wrap-header" title="{{ item.linkWithName }}">{{ item.linkWithName }}</td>
+        <td>
+          <div *ngIf="item.checkBudget"  class="active-box">
+            yes
+          </div>
+          <div  *ngIf="!item.checkBudget" class="deactive-box">
+            No
+          </div>
+        </td>
+        <td>
+          <div *ngIf="item.hasSubLedger" class="active-box">
+            yes
+          </div>
+          <div *ngIf="!item.hasSubLedger" class="deactive-box">
+            No
+          </div>
+        </td>
+        <td>
+          <div *ngIf="item.isActive" class="active-box">
+            yes
+          </div>
+          <div *ngIf="!item.isActive" class="deactive-box">
+            No
+          </div>
+        </td>
+        <!-- <td>
+          <span *ngIf="item.checkBudget" class="yes-bg">Yes</span>
+          <span *ngIf="!item.checkBudget" class="no-bg">No</span>
+        </td>
+        <td>
+          <span *ngIf="item.hasSubLedger" class="yes-bg">Yes</span>
+          <span *ngIf="!item.hasSubLedger" class="no-bg">No</span>
+        </td>
+
+        <td>
+          <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+          <span *ngIf="!item.isActive" class="no-bg">No</span>
+        </td> -->
+        <!-- <td>
+          <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2" (click)="show(item.id)"></span>
+          <span style="height: 25px; width: 25px; cursor: pointer" pButton pRipple icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2" (click)="delete(item.id)"></span>
+        </td> -->
+        <td class="icon-group">
+          <span
+          (click)="show(item.id)"
+          class="edit-btn"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_530_1269)">
+            <path d="M12.7146 4.5625L13.4081 3.86903C13.5213 3.75589 13.6111 3.62156 13.6723 3.47371C13.7336 3.32585 13.7651 3.16738 13.7651 3.00733C13.7651 2.84729 13.7336 2.68882 13.6723 2.54096C13.6111 2.39311 13.5213 2.25878 13.4081 2.14564L12.1197 0.857056C11.8911 0.628617 11.5811 0.500298 11.2579 0.500298C10.9347 0.500298 10.6247 0.628617 10.3961 0.857056L9.70264 1.55054L12.7146 4.5625Z" fill="#019999"/>
+            <path d="M9.12837 2.125L1.29061 9.96278C1.22851 10.0248 1.18821 10.1052 1.17576 10.1921L0.76533 13.0358C0.757082 13.0935 0.761311 13.1522 0.77773 13.2081C0.794149 13.2639 0.822375 13.3156 0.860499 13.3596C0.898622 13.4036 0.945753 13.4389 0.998704 13.4632C1.05165 13.4874 1.10919 13.4999 1.16742 13.5C1.1866 13.5001 1.20575 13.4987 1.22474 13.496L4.07266 13.0898C4.1597 13.0773 4.24036 13.0369 4.30255 12.9747L12.1403 5.13696L9.12837 2.125Z" fill="#019999"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_530_1269">
+            <rect width="13" height="13" fill="white" transform="translate(0.765137 0.5)"/>
+            </clipPath>
+            </defs>
+            </svg>   
+        </span>
+        <span 
+          class="delete-btn mr-2"
+          (click)="delete(item.id)"
+        >
+          <svg width="15" height="19" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.1401 2.75H10.7651V2.375C10.7651 1.34113 9.92401 0.5 8.89014 0.5H6.64014C5.60626 0.5 4.76514 1.34113 4.76514 2.375V2.75H1.39014C0.976137 2.75 0.640137 3.086 0.640137 3.5V4.625C0.640137 5.039 0.976137 5.375 1.39014 5.375H14.1401C14.5541 5.375 14.8901 5.039 14.8901 4.625V3.5C14.8901 3.086 14.5541 2.75 14.1401 2.75ZM6.26514 2.375C6.26514 2.16838 6.43351 2 6.64014 2H8.89014C9.09676 2 9.26514 2.16838 9.26514 2.375V2.75H6.26514V2.375Z" fill="#FF0000"/>
+            <path d="M13.8703 6.37063C13.7282 6.21425 13.5264 6.125 13.3153 6.125H2.2153C2.00418 6.125 1.80242 6.21425 1.6603 6.37063C1.51817 6.527 1.4488 6.73625 1.46867 6.94662L2.39042 16.5796C2.49505 17.6746 3.45842 18.5004 4.63142 18.5004H10.8992C12.0718 18.5004 13.0355 17.6746 13.1402 16.5796L14.0619 6.94662C14.0822 6.73625 14.0124 6.527 13.8703 6.37063ZM6.01255 16.6235C5.99643 16.6242 5.98067 16.625 5.96455 16.625C5.57192 16.625 5.24193 16.3197 5.2168 15.9222L4.7668 8.79725C4.74092 8.384 5.0548 8.02775 5.46805 8.0015C5.88243 7.979 6.23793 8.2895 6.2638 8.70275L6.7138 15.8277C6.73967 16.241 6.4258 16.5972 6.01255 16.6235ZM10.3138 15.9222C10.2887 16.3197 9.95867 16.625 9.56605 16.625C9.5503 16.625 9.53417 16.6246 9.51805 16.6235C9.10442 16.5972 8.79093 16.241 8.8168 15.8277L9.2668 8.70275C9.29305 8.28912 9.64742 7.97825 10.0625 8.0015C10.4762 8.02775 10.7897 8.384 10.7638 8.79725L10.3138 15.9222Z" fill="#FF0000"/>
+            </svg>                
+        </span>
+      </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-paginator class="mt-4" [rows]="10" [totalRecords]="count" (onPageChange)="onPageChange($event)"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[5, 10, 50, 100, this.count]">
+</p-paginator> 
+</div>
+
+<!-- Modal -->
+<p-dialog [maximizable]="true" class="chartofaccount" [header]="editMode ? 'Edit Chart Of Account' : 'Create Chart Of Account'" [modal]="true"
+  [(visible)]="displayModal" [draggable]="false">
+  <div class="row gap-3">
+    <div id="inputField" class="col-md-12 flex flex-column">
+      <label for="name">Name:</label>
+      <input type="text" pInputText [(ngModel)]="chartOfAccountDto.name" id="name" autocomplete="off"
+        style="position: relative; z-index: 1000" />
+    </div>
+
+    <div id="inputField" class="col-md-12 flex flex-column">
+      <label for="title">Serial Number:</label>
+      <input type="text" pInputText [(ngModel)]="chartOfAccountDto.serialNumber" id="serialNumber" autocomplete="off"
+        style="position: relative; z-index: 1000" readonly />
+    </div>
+  </div>
+  <div class="row">
+    <div id="inputField" class="col-md-6 flex flex-column mt-3">
+      <label for="name">Credit:</label>
+      <input type="text" pInputText [(ngModel)]="chartOfAccountDto.credit" id="credit" autocomplete="off" />
+    </div>
+    <div id="inputField" class="col-md-6 flex flex-column mt-3">
+      <label for="name">Debit:</label>
+      <input type="text" pInputText [(ngModel)]="chartOfAccountDto.debit" id="debit" autocomplete="off" />
+    </div>
+    <div class="col-md-6 flex flex-column mt-3">
+      <label for="name">Stop Entry Before:</label>
+      <p-calendar [(ngModel)]="chartOfAccountDto.stopEntryBefore" inputId="date" appendTo="body"
+        [showOnFocus]="true"></p-calendar>
+    </div>
+    <div id="inputField" class="col-md-6 flex flex-column mt-3">
+      <label for="name">Limit:</label>
+      <input type="text" pInputText [(ngModel)]="chartOfAccountDto.limit" id="limit" autocomplete="off" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [disable]="isValidNumber(chartOfAccountDto.lvl2_serialNo)" [title]="'COALvl1'"
+        [id]="chartOfAccountDto.lvl1_serialNo" [name]="chartOfAccountDto.lvl1_name"
+        (valueSelected)="setPickerValue($event, 'COALvl1')">
+      </app-picker> -->
+      <label for="name">Level One:</label>
+      <p-dropdown
+        [options]="levelOneDropdown"
+        [(ngModel)]="levelOneSelectedItem"
+        [filter]="true"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'COALvl1')"
+        placeholder="Level One"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class="nowrap" style="max-width:338px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker
+        [disable]="!isValidNumber(chartOfAccountDto.lvl1_serialNo) || isValidNumber(chartOfAccountDto.lvl3_serialNo)"
+        [title]="'COALvl2'" [url]="'COALvl2/GetAll'" [filterOfCOALevelId]="level1Id"
+        [id]="chartOfAccountDto.lvl2_serialNo" [name]="chartOfAccountDto.lvl2_name"
+        (valueSelected)="setPickerValue($event, 'COALvl2')">
+      </app-picker> -->
+      <label for="name">Level Two:</label>
+      <p-dropdown
+        [options]="levelTwoDropdown"
+        [(ngModel)]="levelTwoSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'COALvl2')"
+        placeholder="Level Two"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width:338px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [disable]="!isValidNumber(chartOfAccountDto.lvl2_serialNo)" [title]="'COALvl3'"
+        [url]="'COALvl3/GetAll'" [filterOfCOALevelId]="level2Id" [id]="chartOfAccountDto.lvl3_serialNo"
+        [name]="chartOfAccountDto.lvl3_name" (valueSelected)="setPickerValue($event, 'COALvl3')">
+      </app-picker> -->
+      <label for="name">Level Three:</label>
+      <p-dropdown
+        [options]="levelThreeDropdown"
+        [(ngModel)]="levelThreeSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'COALvl3')"
+        placeholder="Level Three"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item "  class=" nowrap" style="max-width:338px;" title="{{ item.id.split('/')[1] }} - {{ item.name }}">{{ item.id.split('/')[1] }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [title]="'AccountType'" [id]="chartOfAccountDto.accountTypeId"
+        [name]="chartOfAccountDto.accountTypeName" (valueSelected)="setPickerValue($event, 'AccountType')"></app-picker> -->
+      <label for="name">Account Type:</label>
+      <p-dropdown
+          [options]="accountTypeDropdown"
+          [(ngModel)]="accountTypeSelectedItem"
+          [filter]="true"
+          [filterBy]="'id,name'"
+          [showClear]="true"
+          optionLabel="name"
+          (onChange)="onDropdownChange($event, 'AccountType')"
+          placeholder="Account Type"
+        >
+        <ng-template let-item pTemplate="item">
+          <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        <ng-template let-item pTemplate="selectedItem">
+          <div *ngIf="item" class=" nowrap" style="max-width:338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+        </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [title]="'Currency'" [id]="chartOfAccountDto.currencyId" [name]="chartOfAccountDto.currencyName"
+        (valueSelected)="setPickerValue($event, 'Currency')"></app-picker> -->
+        <label for="name">Currency:</label>
+        <p-dropdown
+        [options]="currencyDropdown"
+        [(ngModel)]="currencySelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Currency')"
+        placeholder="Currency"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width:338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [title]="'LinkWith'" [id]="chartOfAccountDto.linkWithId" [name]="chartOfAccountDto.linkWithName"
+        (valueSelected)="setPickerValue($event, 'LinkWith')"></app-picker> -->
+        <label for="name">Link With:</label>
+        <p-dropdown
+        [options]="linkWithDropdown"
+        [(ngModel)]="linkWithSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'LinkWith')"
+        placeholder="Link With"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width:338px;"  title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+    <div id="chartOfAccountSubLedgerType" class="col-md-6 flex flex-column mt-3">
+      <label for="name">Sub-Ledger Type:</label>
+      <p-dropdown [options]="natureOfCOATypes" [(ngModel)]="this.chartOfAccountDto.natureOfChartOfAccount"
+          id="chartOfAccountSubLedgerType" placeholder="Select COA Type" [autoDisplayFirst]="false"
+          [style]="{ width: '100%' }" tabindex="2">
+      </p-dropdown>
+    </div>
+    <div class="col-md-6 mt-3">
+      <!-- <app-picker [title]="'Location'" [id]="chartOfAccountDto.locationId" [name]="chartOfAccountDto.locationName"
+        (valueSelected)="setPickerValue($event, 'Location')"></app-picker> -->
+        <label for="name">Location:</label>
+        <p-dropdown
+        [options]="locationDropdown"
+        [(ngModel)]="locationSelectedItem"
+        [filter]="true"
+        [filterBy]="'id,name'"
+        [showClear]="true"
+        optionLabel="name"
+        (onChange)="onDropdownChange($event, 'Location')"
+        placeholder="Location"
+      >
+      <ng-template let-item pTemplate="item">
+        <div class=" nowrap" style="max-width: 375px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      <ng-template let-item pTemplate="selectedItem">
+        <div *ngIf="item" class=" nowrap" style="max-width: 338px;" title="{{ item.id }} - {{ item.name }}">{{ item.id }} - {{ item.name }}</div>
+      </ng-template>
+      </p-dropdown>
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2 my-3">
+    <div class="flex align-items-center gap-1">
+      <p-checkbox [(ngModel)]="chartOfAccountDto.isActive" [binary]="true" inputId="active" />
+      <label for="active" class="mb-0">Active</label>
+    </div>
+    <div class="flex align-items-center gap-1">
+      <p-checkbox [(ngModel)]="chartOfAccountDto.checkBudget" [binary]="true" inputId="checkBudget" />
+      <label for="checkBudget" class="mb-0">Check Budget</label>
+    </div>
+    <div class="flex align-items-center gap-1">
+      <p-checkbox [(ngModel)]="chartOfAccountDto.hasSubLedger" [binary]="true" inputId="hasSubLedger" />
+      <label for="hasSubLedger" class="mb-0">Has SubLedger</label>
+    </div>
+    <!-- <div class="flex align-items-center gap-1 col-md-2">
+      <p-checkbox [(ngModel)]="chartOfAccountDto.isBank" [binary]="true" inputId="isBank" />
+      <label for="isBank" class="mb-0">Is Bank</label>
+    </div> -->
+  </div>
+  <div class="flex gap-3 justify-content-end col-12 position-absolute bottom-0" style="left:0; border-top: 1px solid #DBDBDB; background-color:#fbfbfb; padding:16px 1.5rem; ">
+    <p-button (onClick)="displayModal = false" label="Cancel" [outlined]="true" severity="warning" />
+    <p-button [loading]="saving" *ngIf="!editMode" (click)="save()" label="Save" [outlined]="true"
+      severity="contrast" />
+    <p-button [loading]="saving" *ngIf="editMode" (click)="update()" label="Update" [outlined]="true"
+      severity="contrast" />
+  </div>
+</p-dialog>

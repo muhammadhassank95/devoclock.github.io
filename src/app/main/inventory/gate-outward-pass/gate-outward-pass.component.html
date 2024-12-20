@@ -1,0 +1,540 @@
+<p-toolbar styleClass="mb-4">
+  <ng-template pTemplate="left">
+    <h3>Gate Outward Pass</h3>
+  </ng-template>
+  <ng-template pTemplate="right">
+    <div class="p-toolbar-group-left">
+      <span class="block md:mt-0 p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          (input)="onGlobalFilter(policyTable, $event)"
+          placeholder="Search..."
+          style="height: 25px; cursor: pointer"
+        />
+      </span>
+      <span class="p-toolbar-separator" style="margin-right: 10px"></span>
+      <span
+        pButton
+        style="height: 25px; width: 25px; cursor: pointer"
+        icon="pi pi-plus-circle"
+        class="p-button-success"
+        (click)="show()"
+      ></span>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- Table -->
+<div class="card p-4">
+  <p-table
+    #policyTable
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [value]="tableData"
+    styleClass="p-datatable-gridlines"
+    [rowHover]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [style]="{ width: '100%', 'overflow-y': 'auto' }"
+  >
+    <ng-template
+      pTemplate="header"
+      [globalFilterFields]="['issueDate', 'voucherNumber', 'employeeName', '']"
+    >
+      <tr>
+        <th style="min-width: 200px" pSortableColumn="voucherNumber">
+          Voucher No. <p-sortIcon field="voucherNumber" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="issueDate">
+          Date <p-sortIcon field="issueDate" />
+        </th>
+        <th style="min-width: 200px" pSortableColumn="employeeName">
+          Employee Name <p-sortIcon field="employeeName" />
+        </th>
+        <!-- <th style="min-width: 150px" pSortableColumn="Status">Status</th> -->
+        <th style="min-width: 150px" pSortableColumn="Status">
+          Document Status
+        </th>
+        <th style="min-width: 200px" pSortableColumn="Actions">
+          Actions <p-sortIcon field="Actions" />
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.voucherNumber }}</td>
+        <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+        <td>{{ item.employeeName }}</td>
+        <!-- <td>
+                    <span *ngIf="item.linkedStatus == 'APPROVED'" class="yes-bg">{{
+                        item.linkedStatus
+                        }}</span>
+                    <span *ngIf="item.linkedStatus != 'APPROVED'" class="no-bg">{{
+                        item.linkedStatus
+                        }}</span>
+                </td> -->
+        <td>
+          <span *ngIf="item.status == 'APPROVED'" class="yes-bg">{{
+            item.status
+          }}</span>
+          <span *ngIf="item.status != 'APPROVED'" class="no-bg">{{
+            item.status
+          }}</span>
+        </td>
+        <!-- <td>
+                              <span *ngIf="item.isActive" class="yes-bg">Yes</span>
+                              <span *ngIf="!item.isActive" class="no-bg">No</span>
+                          </td> -->
+        <td style="display: flex; justify-content: center">
+          <span
+            *ngIf="item.status == 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="viewOnly(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info mr-2"
+            (click)="edit(item.id)"
+          ></span>
+          <span
+            *ngIf="item.status !== 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning mr-2"
+            (click)="delete(item.id)"
+          ></span>
+          <span
+            pButton
+            pRipple
+            *ngIf="item.status === 'PENDING' || item.status == 'UNAPPROVED'"
+            icon="pi pi-check"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-success mr-2"
+            (click)="approve(item.id)"
+          ></span>
+          <span
+            pButton
+            icon="pi pi-lock"
+            *ngIf="item.status === 'APPROVED'"
+            style="height: 25px; width: 25px; cursor: pointer"
+            class="p-button-rounded p-button-warning mr-2"
+            pTooltip="Enter your username"
+          ></span>
+          <!-- <button pButton pRipple *ngIf="item.documentStatus === 'APPROVED'" label="Unapprove"
+                                  class="p-button-rounded p-button-warning mr-2" (click)="unapprove(item.id)">
+                              </button> -->
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [maximizable]="true"
+  [header]="editMode ? 'Edit Gate Outward Pass' : 'Create Gate Outward Pass'"
+  [modal]="true"
+  [(visible)]="displayModal"
+  [draggable]="false"
+>
+  <div class="row col-md-12 flex mt-3">
+    <div class="border col-md-6">
+      <div class="row col-md-12 mt-3 flex px-2">
+        <div class="col-md-4 p-field">
+          <label for="date">Date</label>
+          <p-calendar
+            (ngModelChange)="onDateChange($event)"
+            [minDate]="MinDate"
+            [maxDate]="today"
+            [(ngModel)]="gateOutwardDto.issueDate"
+            inputId="date"
+            appendTo="body"
+            tabindex="1"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div class="col-md-8 p-field">
+          <app-picker
+            [showId]="false"
+            [title]="'Location'"
+            [id]="gateOutwardDto.userLocationId"
+            [name]="gateOutwardDto.userLocationName"
+            (valueSelected)="setPickerValue($event, 'Location')"
+          ></app-picker>
+        </div>
+      </div>
+
+      <div class="row col-md-12 py-2">
+        <div id="inputField" class="col-md-8 p-field flex flex-column">
+          <label for="name">Voucher Number</label>
+          <input
+            readonly
+            id="name"
+            type="text"
+            pInputText
+            [(ngModel)]="gateOutwardDto.voucherNumber"
+          />
+        </div>
+        <div class="flex align-items-center gap-1 mt-auto">
+          <p-checkbox
+            [(ngModel)]="this.isReturnable"
+            [binary]="true"
+            inputId="gatepassType"
+          />
+          <label for="gatepassType">Returnable</label>
+        </div>
+        <!-- <div class="row mb-2 gap-3 mt-1 p-2">
+                    <p-button (click)="OpenFixedRequisition()" label="Copy Gate-Inward" [text]="true" [raised]="true"
+                        severity="primary" />
+                    <p-button (click)="HandleCopyMaterialReturnNote()"
+                        label="Copy Material Return Note" [text]="true" [raised]="true"
+                        severity="primary" />
+                    </div> -->
+        <div class="row mb-2 gap-3 mt-1 p-2">
+          <p-button
+            (click)="openModal('gateInward')"
+            label="Copy Gate-Inward"
+            [text]="true"
+            [raised]="true"
+            severity="primary"
+          />
+          <p-button
+            (click)="openModal('materialReturn')"
+            label="Copy Material Return Note"
+            [text]="true"
+            [raised]="true"
+            severity="primary"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="border col-md-6">
+      <div class="row col-md-12 mt-3">
+        <div id="inputField" class="p-field col-md-12 flex flex-column">
+          <app-picker
+            [showId]="true"
+            [title]="'Employee'"
+            [id]="gateOutwardDto.employeeId"
+            [name]="gateOutwardDto.employeeName"
+            [disable]="isFieldDisabled('employee')"
+            (valueSelected)="setPickerValue($event, 'Employee')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-12 flex flex-column">
+          <app-picker
+            [title2]="'Supplier'"
+            [title]="'Supplier'"
+            [id]="this.gateOutwardDto.supplierId"
+            [name]="this.gateOutwardDto.supplierName"
+            (valueSelected)="setPickerValue($event, 'Supplier')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-12 flex flex-column">
+          <app-picker
+            [title2]="'CostCenter'"
+            [title]="'CostCenter'"
+            [id]="gateOutwardDto.costCenterName"
+            [disable]="isFieldDisabled('costCenter')"
+            [name]="gateOutwardDto.costCenterName"
+            (valueSelected)="setPickerValue($event, 'CostCenter')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-12 flex flex-column">
+          <app-picker
+            [title]="'Department'"
+            [id]="gateOutwardDto.departmentId"
+            [name]="gateOutwardDto.departmentName"
+            (valueSelected)="setPickerValue($event, 'Department')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="p-field col-md-12 flex flex-column">
+          <app-picker
+            [title]="'Project'"
+            [disable]="isFieldDisabled('project')"
+            [id]="gateOutwardDto.projectId"
+            [name]="gateOutwardDto.projectName"
+            (valueSelected)="setPickerValue($event, 'Project')"
+          ></app-picker>
+        </div>
+      </div>
+      <div class="row col-md-12">
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <label for="reference">Reference</label>
+          <input
+            [disabled]="isFieldDisabled('dcNumber')"
+            id="reference"
+            type="text"
+            pInputText
+            [(ngModel)]="gateOutwardDto.dcNumber"
+          />
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <label for="reference">Reference Date</label>
+          <p-calendar
+            [disabled]="isFieldDisabled('dcDate')"
+            [(ngModel)]="gateOutwardDto.dcDate"
+            inputId="date"
+            appendTo="body"
+            tabindex="1"
+            [showOnFocus]="true"
+          ></p-calendar>
+        </div>
+        <div id="inputField" class="col-md-4 p-field flex flex-column">
+          <label for="timeOut">Time Out</label>
+          <input
+            id="reference"
+            type="time"
+            pInputText
+            [(ngModel)]="gateOutwardDto.timeOut"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br />
+
+  <div class="border col-md-12 flex row py-2">
+    <div id="inputField" class="col-md-4 p-field flex flex-column">
+      <label for="destination">Destination</label>
+      <input
+        readonly
+        id="destination"
+        type="text"
+        pInputText
+        [(ngModel)]="gateOutwardDto.destination"
+      />
+    </div>
+    <div id="inputField" class="col-md-4 p-field flex flex-column">
+      <label for="driver">Driver</label>
+      <input
+        readonly
+        id="driver"
+        type="text"
+        pInputText
+        [(ngModel)]="gateOutwardDto.driver"
+      />
+    </div>
+    <div id="inputField" class="col-md-4 p-field flex flex-column">
+      <label for="vehicleRegistrationNumber">V.Reg.No</label>
+      <input
+        readonly
+        id="vehicleRegistrationNumber"
+        type="text"
+        pInputText
+        [(ngModel)]="gateOutwardDto.vehicleRegistrationNumber"
+      />
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <ag-grid-angular
+      class="ag-theme-quartz"
+      style="height: 300px"
+      [rowData]="rowData"
+      [columnDefs]="colDefs"
+      [rowSelection]="rowSelection"
+      (gridReady)="onGridReady($event)"
+      (cellValueChanged)="cellValueChanged($event)"
+      (cellClicked)="cellClicked($event)"
+      [singleClickEdit]="true"
+    >
+    </ag-grid-angular>
+  </div>
+
+  <div class="flex gap-1 justify-content-end mt-4">
+    <p-button
+      (onClick)="CloseModel()"
+      label="Cancel"
+      [outlined]="true"
+      severity="warning"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="!editMode && !view"
+      (click)="save()"
+      label="Save"
+      [outlined]="true"
+      severity="contrast"
+    />
+    <p-button
+      [loading]="saving"
+      *ngIf="editMode && !view"
+      (click)="update()"
+      label="Update"
+      [outlined]="true"
+      severity="contrast"
+    />
+  </div>
+</p-dialog>
+
+<!-- <p-dialog [maximizable]="true" header="Copy Gate Inward Pass" [modal]="true" [(visible)]="displayRequisition"
+    [draggable]="false">
+    <div class="p-4">
+        <p-table #requisitionTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]"
+            [value]="requisitionData" [loading]="loading" styleClass="p-datatable-gridlines" [rowHover]="true"
+            [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+            [style]="{ width: '100%', 'overflow-y': 'auto' }">
+            <ng-template pTemplate="header">
+                <tr>
+
+                    <th style="min-width:200px" pSortableColumn="namvouchere">
+                        Voucher No <p-sortIcon field="voucher" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="date">
+                        Date <p-sortIcon field="date" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="Employee">
+                        Employee Name<p-sortIcon field="Employee" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="Actions">
+                        Actions <p-sortIcon field="Actions" />
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.voucherNumber }}</td>
+                    <td>{{ item.issueDate| date:'yyyy-MM-dd' }}</td>
+                    <td>{{ item.employeeName }}</td>
+
+                    <td>
+                        <button (click)="SelectRequisition(item.id)" pButton pRipple label="Select"
+                            class="p-button-rounded p-button-info mr-2">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>
+
+<p-dialog [maximizable]="true" header="Copy Material Note" [modal]="true"
+    [(visible)]="isCopyMaterialReturnNoteModalVisible" [draggable]="false">
+    <div class="p-4">
+        <p-table #requisitionTable [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]"
+            [value]="requisitionData" [loading]="loading" styleClass="p-datatable-gridlines" [rowHover]="true"
+            [paginatorDropdownAppendTo]="'body'" dataKey="id" responsiveLayout="scroll"
+            [style]="{ width: '100%', 'overflow-y': 'auto' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width:200px" pSortableColumn="namvouchere">
+                        Voucher No <p-sortIcon field="voucher" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="date">
+                        Date <p-sortIcon field="date" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="Employee">
+                        Employee Name<p-sortIcon field="Employee" />
+                    </th>
+                    <th style="min-width:200px" pSortableColumn="Actions">
+                        Actions <p-sortIcon field="Actions" />
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.voucherNumber }}</td>
+                    <td>{{ item.issueDate| date:'yyyy-MM-dd' }}</td>
+                    <td>{{ item.employeeName }}</td>
+
+                    <td>
+                        <button
+                            (click)="getDataForEdit(item.id, 'MaterialReturnNote', materialReturnNote, isCopyMaterialReturnNoteModalVisible)"
+                            pButton pRipple label="Select" class="p-button-rounded p-button-info mr-2">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</p-dialog> -->
+
+<p-dialog
+  [maximizable]="true"
+  [header]="
+    currentModalType === 'gateInward'
+      ? 'Copy Gate Inward Pass'
+      : 'Copy Material Note'
+  "
+  [modal]="true"
+  [(visible)]="displayRequisition"
+  [draggable]="false"
+>
+  <div class="p-4">
+    <p-table
+      #requisitionTable
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [value]="requisitionData"
+      [loading]="loading"
+      styleClass="p-datatable-gridlines"
+      [rowHover]="true"
+      [paginatorDropdownAppendTo]="'body'"
+      dataKey="id"
+      responsiveLayout="scroll"
+      [style]="{ width: '100%', 'overflow-y': 'auto' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 200px" pSortableColumn="namvouchere">
+            Voucher No <p-sortIcon field="voucher" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="date">
+            Date <p-sortIcon field="date" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Employee">
+            Employee Name<p-sortIcon field="Employee" />
+          </th>
+          <th style="min-width: 200px" pSortableColumn="Actions">
+            Actions <p-sortIcon field="Actions" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.voucherNumber }}</td>
+          <td>{{ item.issueDate | date : "yyyy-MM-dd" }}</td>
+          <td>{{ item.employeeName }}</td>
+          <td>
+            <button
+              (click)="selectItem(item.id)"
+              pButton
+              pRipple
+              label="Select"
+              class="p-button-rounded p-button-info mr-2"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+<div>
+  <p-toast />
+  <p-confirmDialog />
+</div>

@@ -1,0 +1,66 @@
+<app-lookup
+  action="FinancialYear"
+  class="financialyear"
+  [mainDto]="dto"
+  [excludedColumns]="[]"
+  [validateFromParent]="validateFromParent"
+  (validateFunction)="validate()"
+>
+  <ng-template #dialogView>
+    <div class="row gap-3">
+      <div id="inputField" class="p-field col-md-12 flex flex-column">
+        <label for="name">Name</label>
+        <input
+          #nameInput
+          id="name"
+          type="text"
+          pInputText
+          [(ngModel)]="dto.name"
+        />
+      </div> 
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-6 flex flex-column">
+        <label for="Year1">From Year:</label>
+        <p-calendar
+          (ngModelChange)="handleYearChange($event)"
+          [(ngModel)]="dto.startDate"
+          id="startDate"
+          inputId="startDate"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          tabindex="1"
+        >
+        </p-calendar>
+      </div>
+      <div id="inputField" class="p-field col-md-6 flex flex-column">
+        <label for="year2">To Year</label>
+
+        <p-calendar
+          [(ngModel)]="dto.endDate"
+          id="endDate"
+          inputId="endDate"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          disabled="true"
+        >
+        </p-calendar>
+      </div>
+    </div>
+    <div class="row">
+      <div class="d-flex gap-2 mt-3 mb-2 align-items-center col-md-12">
+        <p-checkbox
+          inputId="isActive"
+          [(ngModel)]="dto.isActive"
+          [binary]="true"
+          inputId="binary"
+        />
+        <label for="isActive" class="mb-0">Active</label>
+      </div>
+    </div>
+  </ng-template>
+</app-lookup>
+<div>
+  <p-toast />
+  <p-confirmDialog class="cancel-modal" />
+</div>
